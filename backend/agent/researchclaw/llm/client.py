@@ -69,7 +69,7 @@ class LLMConfig:
     temperature: float = 0.7
     max_retries: int = 3
     retry_base_delay: float = 2.0
-    timeout_sec: int = 600
+    timeout_sec: int = 300
     user_agent: str = _DEFAULT_USER_AGENT
     # MetaClaw bridge: extra headers for proxy requests
     extra_headers: dict[str, str] = field(default_factory=dict)
@@ -128,7 +128,6 @@ class LLMClient:
             api_key=api_key,
             primary_model=rc_config.llm.primary_model or "gpt-4o",
             fallback_models=list(rc_config.llm.fallback_models or []),
-            timeout_sec=getattr(rc_config.llm, "timeout_sec", 600),
             fallback_url=fallback_url,
             fallback_api_key=fallback_api_key,
         )
@@ -279,7 +278,6 @@ class LLMClient:
                 # (Azure OpenAI) return 400 during overload / rate-limit.
                 # Retry if the body hints at a transient issue.
                 if status == 400:
-                    print(f"[LLM 400] model={model} body={body[:300]}", flush=True)
                     _transient_400 = any(
                         kw in body.lower()
                         for kw in ("rate limit", "ratelimit", "overloaded",
@@ -352,15 +350,10 @@ class LLMClient:
                 body["max_tokens"] = max_tokens
 
             if json_mode:
-                # Many OpenAI-compatible providers (Claude, DeepSeek, etc.)
-                # don't support the response_format parameter and return 400.
+                # Many OpenAI-compatible proxies serving Claude models don't
+                # support the response_format parameter and return HTTP 400.
                 # Fall back to a system-prompt injection for non-OpenAI models.
-                _use_prompt_injection = (
-                    model.startswith("claude")
-                    or model.startswith("deepseek")
-                    or "deepseek" in self.config.base_url.lower()
-                )
-                if _use_prompt_injection:
+                if model.startswith("claude"):
                     _json_hint = (
                         "You MUST respond with valid JSON only. "
                         "Do not include any text outside the JSON object."

@@ -132,9 +132,7 @@ class LlmConfig:
     api_key_env: str = ""
     api_key: str = ""
     primary_model: str = ""
-    coding_model: str = ""
     fallback_models: tuple[str, ...] = ()
-    timeout_sec: int = 600
     s2_api_key: str = ""
     notes: str = ""
     acp: AcpConfig = field(default_factory=AcpConfig)
@@ -151,7 +149,6 @@ class SecurityConfig:
 class SandboxConfig:
     python_path: str = ".venv/bin/python3"
     gpu_required: bool = False
-    network_policy: str = "full"
     allowed_imports: tuple[str, ...] = (
         "math",
         "random",
@@ -306,11 +303,6 @@ class ExperimentConfig:
     metric_key: str = "primary_metric"
     metric_direction: str = "minimize"
     keep_threshold: float = 0.0
-    datasets_dir: str = ""
-    checkpoints_dir: str = ""
-    codebases_dir: str = ""
-    shared_results_dir: str = ""
-    paper_length: str = "medium"
     sandbox: SandboxConfig = field(default_factory=SandboxConfig)
     docker: DockerSandboxConfig = field(default_factory=DockerSandboxConfig)
     ssh_remote: SshRemoteConfig = field(default_factory=SshRemoteConfig)
@@ -319,7 +311,6 @@ class ExperimentConfig:
     opencode: OpenCodeConfig = field(default_factory=OpenCodeConfig)
     benchmark_agent: BenchmarkAgentConfig = field(default_factory=BenchmarkAgentConfig)
     figure_agent: FigureAgentConfig = field(default_factory=FigureAgentConfig)
-    sanity_check_max_iterations: int = 3
 
 
 @dataclass(frozen=True)
@@ -600,9 +591,7 @@ def _parse_llm_config(data: dict[str, Any]) -> LlmConfig:
         api_key_env=data.get("api_key_env", ""),
         api_key=data.get("api_key", ""),
         primary_model=data.get("primary_model", ""),
-        coding_model=data.get("coding_model", ""),
         fallback_models=tuple(data.get("fallback_models") or ()),
-        timeout_sec=int(data.get("timeout_sec", 600)),
         s2_api_key=data.get("s2_api_key", ""),
         notes=data.get("notes", ""),
         acp=AcpConfig(
@@ -628,11 +617,6 @@ def _parse_experiment_config(data: dict[str, Any]) -> ExperimentConfig:
         metric_key=data.get("metric_key", "primary_metric"),
         metric_direction=data.get("metric_direction", "minimize"),
         keep_threshold=float(data.get("keep_threshold", 0.0)),
-        datasets_dir=data.get("datasets_dir", ""),
-        checkpoints_dir=data.get("checkpoints_dir", ""),
-        codebases_dir=data.get("codebases_dir", ""),
-        shared_results_dir=data.get("shared_results_dir", ""),
-        paper_length=data.get("paper_length", "medium"),
         sandbox=SandboxConfig(
             python_path=sandbox_data.get("python_path", ".venv/bin/python3"),
             gpu_required=bool(sandbox_data.get("gpu_required", False)),
@@ -687,7 +671,6 @@ def _parse_experiment_config(data: dict[str, Any]) -> ExperimentConfig:
             data.get("benchmark_agent") or {}
         ),
         figure_agent=_parse_figure_agent_config(data.get("figure_agent") or {}),
-        sanity_check_max_iterations=int(data.get("sanity_check_max_iterations", 3)),
     )
 
 

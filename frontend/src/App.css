@@ -152,12 +152,6 @@
   animation: pulse 1.5s infinite;
 }
 .stage-chip.stage-done { background: #064e3b; color: #6ee7b7; border-color: #10b98144; }
-.stage-chip.stage-discussion { border-color: #8b5cf655; }
-.stage-chip.stage-discussion.stage-running {
-  background: #4c1d95; color: #c4b5fd; border-color: #8b5cf6;
-  animation: pulse 1s infinite;
-}
-.stage-chip.stage-discussion.stage-done { background: #312e81; color: #a5b4fc; border-color: #6366f155; }
 
 /* ==================== AGENT CARDS ==================== */
 .agent-row { display: flex; flex-wrap: wrap; gap: 4px; padding: 3px 8px 6px; }
@@ -169,8 +163,6 @@
 .agent-card.status-working { border-color: #f59e0b55; }
 .agent-card.status-error { border-color: #ef444488; }
 .agent-card.status-done { border-color: #10b98155; }
-.agent-card.status-waiting_discussion { border-color: #8b5cf655; }
-.agent-card.status-discussing { border-color: #6366f155; }
 
 .agent-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1px; }
 .agent-name { font-weight: 600; font-size: 0.7rem; }
@@ -183,16 +175,11 @@
   font-size: 0.58rem; background: #1e3a5f; color: #60a5fa;
   padding: 0px 4px; border-radius: 5px; margin-left: 3px; font-family: monospace;
 }
-.agent-stage-badge.discussion-badge {
-  background: #4c1d95; color: #c4b5fd;
-}
 .status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 .status-dot.idle { background: #6b7280; }
 .status-dot.working { background: #f59e0b; animation: pulse 1.2s infinite; }
 .status-dot.error { background: #ef4444; }
 .status-dot.done { background: #10b981; }
-.status-dot.waiting_discussion { background: #8b5cf6; animation: pulse 1.2s infinite; }
-.status-dot.discussing { background: #6366f1; animation: pulse 0.8s infinite; }
 .agent-task {
   margin-top: 2px; font-size: 0.63rem; color: var(--text-muted); font-style: italic;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -239,20 +226,6 @@
 }
 .folder-arrow.open { transform: rotate(90deg); }
 .shelf-artifacts { display: flex; flex-direction: column; gap: 1px; }
-.artifact-row.clickable { cursor: pointer; }
-.artifact-row.clickable:hover .artifact-name { color: #60a5fa; }
-.artifact-expand {
-  font-size: 0.45rem; color: var(--text-muted); transition: transform 0.15s; flex-shrink: 0; margin-left: 2px;
-}
-.artifact-expand.open { transform: rotate(90deg); }
-.artifact-content {
-  background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
-  padding: 4px 6px; margin: 2px 0 2px 16px; max-height: 200px; overflow-y: auto;
-}
-.artifact-content pre {
-  margin: 0; font-size: 0.58rem; line-height: 1.4; color: var(--text);
-  white-space: pre-wrap; word-break: break-word; font-family: monospace;
-}
 .artifact-row {
   display: flex; align-items: center; gap: 4px; font-size: 0.62rem;
   padding: 1px 4px; border-radius: 4px; animation: fadeIn 0.3s;
@@ -273,7 +246,6 @@
 .log-time { color: var(--text-muted); flex-shrink: 0; font-family: monospace; font-size: 0.6rem; }
 .log-agent { color: var(--text-muted); flex-shrink: 0; }
 .log-stage { font-size: 0.58rem; color: #60a5fa; font-family: monospace; }
-.log-stage-discussion { color: #c4b5fd; }
 .log-msg { flex: 1; }
 .log-item.level-success .log-msg { color: #6ee7b7; }
 .log-item.level-warning .log-msg { color: #fcd34d; }
@@ -303,7 +275,6 @@
 .glog-time { color: var(--text-muted); font-family: monospace; font-size: 0.58rem; flex-shrink: 0; }
 .glog-layer { font-weight: 600; font-size: 0.6rem; flex-shrink: 0; }
 .glog-stage { font-size: 0.56rem; color: #60a5fa; font-family: monospace; flex-shrink: 0; }
-.glog-stage-discussion { color: #c4b5fd; }
 .glog-msg { flex: 1; }
 .glog-item.level-success .glog-msg { color: #6ee7b7; }
 .glog-item.level-warning .glog-msg { color: #fcd34d; }
@@ -346,140 +317,6 @@
 .qc.assigned { background: #78350f; color: #fbbf24; }
 .qc.completed { background: #064e3b; color: #6ee7b7; }
 .qc.empty { color: var(--text-muted); font-weight: 400; }
-
-/* ==================== DATA FLOW ARROWS ==================== */
-.pyramid-tier { display: contents; }
-
-.flow-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 20px;
-  opacity: 0.3;
-  transition: opacity 0.3s;
-}
-.flow-arrow.active { opacity: 1; }
-
-.flow-line {
-  width: 2px;
-  flex: 1;
-  background: var(--border);
-  position: relative;
-  overflow: hidden;
-  border-radius: 1px;
-}
-
-.flow-arrow.active .flow-line { background: #3b82f644; }
-
-.flow-pulse {
-  position: absolute;
-  width: 100%;
-  height: 8px;
-  border-radius: 1px;
-  background: #3b82f6;
-  opacity: 0;
-}
-
-.flow-arrow.active .flow-pulse {
-  animation: flowDown 1.5s ease-in-out infinite;
-}
-
-.flow-tip {
-  width: 0; height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 5px solid var(--border);
-  transition: border-color 0.3s;
-}
-.flow-arrow.active .flow-tip { border-top-color: #3b82f6; }
-
-@keyframes flowDown {
-  0% { top: -8px; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
-}
-
-/* ==================== FEEDBACK LOOP (L4 → L1, right side) ==================== */
-.pyramid-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 920px;
-  padding-right: 28px;
-}
-
-.feedback-loop {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 28px;
-  opacity: 0.2;
-  transition: opacity 0.3s;
-  pointer-events: none;
-}
-.feedback-loop.active { opacity: 1; }
-
-.fb-line {
-  position: absolute;
-  background: var(--border);
-  border-radius: 1px;
-}
-.feedback-loop.active .fb-line { background: #8b5cf644; }
-
-/* horizontal: exits L4 right side (not bottom of pyramid) */
-.fb-bottom {
-  bottom: 22%;
-  left: -8px;
-  right: 10px;
-  height: 2px;
-}
-/* vertical: right edge going up from L4 to L1 */
-.fb-side {
-  right: 10px;
-  top: 12px;
-  bottom: 22%;
-  width: 2px;
-  overflow: hidden;
-}
-/* horizontal: enters L1 top-right */
-.fb-top {
-  top: 12px;
-  left: -8px;
-  right: 10px;
-  height: 2px;
-}
-
-.fb-pulse {
-  position: absolute;
-  width: 100%;
-  height: 10px;
-  background: #8b5cf6;
-  border-radius: 1px;
-  opacity: 0;
-}
-.feedback-loop.active .fb-pulse {
-  animation: flowUp 2.5s ease-in-out infinite;
-}
-
-/* arrow tip pointing left into L1 */
-.fb-tip {
-  position: absolute;
-  top: 8px;
-  left: -12px;
-  width: 0; height: 0;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-right: 6px solid var(--border);
-}
-.feedback-loop.active .fb-tip { border-right-color: #8b5cf6; }
-
-@keyframes flowUp {
-  0% { bottom: -10px; opacity: 0; }
-  15% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { bottom: 100%; opacity: 0; }
-}
 
 /* ==================== ANIMATIONS ==================== */
 @keyframes pulse {

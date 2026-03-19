@@ -2572,42 +2572,13 @@ def _execute_hypothesis_gen(
     prompts: PromptManager | None = None,
 ) -> StageResult:
     synthesis = _read_prior_artifact(run_dir, "synthesis.md") or ""
-
-    # --- Inject prior knowledge from shared knowledge base ---
-    _shared_dir = getattr(config.experiment, "shared_results_dir", "") or ""
-    _prior_knowledge = ""
-    if _shared_dir:
-        _kb_index = Path(_shared_dir) / "knowledge_base" / "knowledge_index.jsonl"
-        if _kb_index.exists():
-            try:
-                _kb_lines = _kb_index.read_text(encoding="utf-8").strip().split("\n")
-                _kb_entries = []
-                for _line in _kb_lines[-20:]:
-                    _e = json.loads(_line)
-                    _kb_entries.append(
-                        f"- **{_e.get('topic', '?')}**: "
-                        f"Conclusions: {'; '.join(_e.get('conclusions', [])[:3])}. "
-                        f"Insights: {'; '.join(_e.get('insights', [])[:2])}. "
-                        f"Directions: {'; '.join(_e.get('suggested_directions', [])[:2])}"
-                    )
-                if _kb_entries:
-                    _prior_knowledge = (
-                        "\n\n## PRIOR RESEARCH KNOWLEDGE (from completed projects)\n"
-                        "Consider these findings when generating hypotheses. "
-                        "Build upon successful approaches and avoid repeating failed ones.\n\n"
-                        + "\n".join(_kb_entries) + "\n"
-                    )
-                    logger.info("S8: Injected %d prior knowledge entries", len(_kb_entries))
-            except Exception:
-                pass
-
     if llm is not None:
         _pm = prompts or PromptManager()
         from researchclaw.prompts import DEBATE_ROLES_HYPOTHESIS  # noqa: PLC0415
 
         # --- Multi-perspective debate ---
         perspectives_dir = stage_dir / "perspectives"
-        variables = {"topic": config.research.topic, "synthesis": synthesis + _prior_knowledge}
+        variables = {"topic": config.research.topic, "synthesis": synthesis}
         perspectives = _multi_perspective_generate(
             llm, DEBATE_ROLES_HYPOTHESIS, variables, perspectives_dir
         )
@@ -2985,128 +2956,6 @@ def _execute_experiment_design(
     )
 
 
-# ---------------------------------------------------------------------------
-# Stage 10: CODEBASE_SEARCH — find & download reusable codebases
-# ---------------------------------------------------------------------------
-
-def _execute_codebase_search(
-    stage_dir: Path,
-    run_dir: Path,
-    config: RCConfig,
-    adapters: AdapterBundle,
-    *,
-    run_id: str = "",
-    prompts: "PromptManager | None" = None,
-    **kwargs: object,
-) -> StageResult:
-    """Search for reusable codebases based on the experiment plan.
-
-    Reads exp_plan.yaml, asks LLM to identify relevant GitHub repos or
-    papers-with-code, attempts to clone/download them, and records results
-    in codebase_candidates.json.
-    """
-    from researchclaw.llm import create_llm_client
-
-    exp_plan = _read_prior_artifact(run_dir, "exp_plan.yaml") or ""
-
-    llm = create_llm_client(config)
-
-    search_prompt = (
-        "Based on the following experiment plan, identify up to 5 existing open-source "
-        "GitHub repositories or papers-with-code that could serve as a starting codebase "
-        "for this experiment. For each candidate, provide:\n"
-        "- repo_url: GitHub URL\n"
-        "- description: why it is relevant\n"
-        "- usability: 'direct' (can use as-is with minor changes) or 'reference' (useful as reference)\n"
-        "- key_files: list of key files/modules to reuse\n\n"
-        "Return a JSON array. If no suitable codebase exists, return an empty array [].\n\n"
-        "Experiment Plan:\n"
-        f"{exp_plan}"
-    )
-
-    import json as _json
-    import os as _os_s10
-
-    candidates: list[dict] = []
-
-    # ── Phase 1: Index LOCAL codebases already on disk ────────────────
-    _local_codebases_dir = getattr(config.experiment, "codebases_dir", "") or ""
-    if _local_codebases_dir and _os_s10.path.isdir(_local_codebases_dir):
-        for name in sorted(_os_s10.listdir(_local_codebases_dir)):
-            full = _os_s10.path.join(_local_codebases_dir, name)
-            if _os_s10.path.isdir(full) and not name.startswith("."):
-                candidates.append({
-                    "repo_url": f"local://{full}",
-                    "description": f"Local codebase: {name}",
-                    "usability": "direct",
-                    "key_files": [],
-                    "local_path": full,
-                    "download_status": "success",
-                })
-
-    # ── Phase 2: LLM-based GitHub search ──────────────────────────────
-    try:
-        response = llm.chat(
-            [{"role": "user", "content": search_prompt}],
-            system="You are an expert research engineer. Return valid JSON only.",
-            json_mode=True,
-        )
-
-        try:
-            remote_candidates = _json.loads(response.content)
-            if not isinstance(remote_candidates, list):
-                remote_candidates = []
-        except _json.JSONDecodeError:
-            remote_candidates = []
-
-        codebase_dir = stage_dir / "codebases"
-        codebase_dir.mkdir(exist_ok=True)
-        for i, cand in enumerate(remote_candidates):
-            url = cand.get("repo_url", "")
-            usability = cand.get("usability", "reference")
-            if usability == "direct" and url and "github.com" in url:
-                local_path = codebase_dir / f"repo_{i}"
-                try:
-                    import subprocess
-                    result = subprocess.run(
-                        ["git", "clone", "--depth", "1", url, str(local_path)],
-                        capture_output=True, text=True, timeout=60,
-                    )
-                    if result.returncode == 0:
-                        cand["local_path"] = str(local_path)
-                        cand["download_status"] = "success"
-                    else:
-                        cand["download_status"] = f"failed: {result.stderr[:200]}"
-                except Exception as e:
-                    cand["download_status"] = f"error: {e}"
-            else:
-                cand["download_status"] = "skipped"
-        candidates.extend(remote_candidates)
-
-    except Exception as e:
-        logger.warning("LLM codebase search failed: %s", e)
-
-    # ── Phase 3: Persist results ──────────────────────────────────────
-    try:
-        output = _json.dumps(candidates, indent=2, ensure_ascii=False)
-        (stage_dir / "codebase_candidates.json").write_text(output, encoding="utf-8")
-    except Exception:
-        (stage_dir / "codebase_candidates.json").write_text("[]", encoding="utf-8")
-
-    n_local = sum(1 for c in candidates if str(c.get("repo_url", "")).startswith("local://"))
-    n_remote = sum(1 for c in candidates if c.get("download_status") == "success") - n_local
-    n_total = len(candidates)
-    summary = f"Found {n_total} candidates ({n_local} local, {n_remote} remote downloaded)"
-
-    return StageResult(
-        stage=Stage.CODEBASE_SEARCH,
-        status=StageStatus.DONE,
-        artifacts=("codebase_candidates.json",),
-        evidence_refs=("stage-09/exp_plan.yaml",),
-        decision=summary,
-    )
-
-
 def _execute_code_generation(
     stage_dir: Path,
     run_dir: Path,
@@ -3116,35 +2965,9 @@ def _execute_code_generation(
     llm: LLMClient | None = None,
     prompts: PromptManager | None = None,
 ) -> StageResult:
-    # Use dedicated coding model if configured (e.g. claude-opus-4-6)
-    coding_model = getattr(config.llm, "coding_model", None) or ""
-    if coding_model and llm is not None:
-        import dataclasses as _dc_cm
-        _orig_model = llm.config.primary_model
-        # Build a deduplicated fallback chain: primary + all existing fallbacks (excluding coding_model duplicates)
-        _seen = {coding_model}
-        _full_fallbacks = []
-        for _m in [_orig_model] + list(llm.config.fallback_models):
-            if _m not in _seen:
-                _seen.add(_m)
-                _full_fallbacks.append(_m)
-        _coding_llm_cfg = _dc_cm.replace(
-            llm.config,
-            primary_model=coding_model,
-            fallback_models=_full_fallbacks,
-        )
-        from researchclaw.llm.client import LLMClient as _LLMClient
-        llm = _LLMClient(_coding_llm_cfg)
-        _fb_str = ", ".join(_full_fallbacks)
-        print(f"[CODE_GENERATION] Using coding model: {coding_model} (fallbacks: {_fb_str})", flush=True)
-        logger.info("S11 CODE_GENERATION: using coding model '%s'", coding_model)
-
-    # Read codebase_candidates.json from S10 if available
-    _codebase_info = _read_prior_artifact(run_dir, "codebase_candidates.json") or "[]"
-
     exp_plan = _read_prior_artifact(run_dir, "exp_plan.yaml") or ""
     metric = config.experiment.metric_key
-    max_repair = 5
+    max_repair = 5  # BUG-14: Increased from 3 to give more chances for critical bugs
     files: dict[str, str] = {}
     validation_log: list[str] = []
 
@@ -3170,20 +2993,8 @@ def _execute_code_generation(
             else:
                 pkg_extras = _base_pkgs + ", and additional pip-installable packages (auto-detected from imports)"
         else:
-            pkg_prefix = "sandbox mode (local subprocess — full filesystem access)"
-            _sandbox_net = getattr(config.experiment.sandbox, "network_policy", "full")
-            _base_pkgs_sb = (
-                ", torchvision, torchaudio, matplotlib, seaborn, scipy, "
-                "tqdm, gymnasium, networkx, PyYAML, Pillow, "
-                "transformers, datasets, accelerate, peft, bitsandbytes, "
-                "timm, einops, torchmetrics, h5py, diffusers, safetensors, huggingface_hub"
-            )
-            if _sandbox_net == "full":
-                pkg_extras = _base_pkgs_sb + ", and any pip-installable packages"
-            elif _sandbox_net == "none":
-                pkg_extras = _base_pkgs_sb + " (ONLY pre-installed packages — NO pip install available)"
-            else:
-                pkg_extras = _base_pkgs_sb
+            pkg_prefix = "sandbox mode"
+            pkg_extras = ""
         if hw_profile and hw_profile.get("has_gpu"):
             gpu_type = hw_profile.get("gpu_type", "cuda")
             gpu_name = hw_profile.get("gpu_name", "GPU")
@@ -3225,88 +3036,14 @@ def _execute_code_generation(
             f"- Implement a time guard: stop gracefully at 80% of budget\n"
         )
 
-    # --- Codebase candidates from S10 ---
-    extra_guidance = ""
-    try:
-        import json as _json_cb
-        _cb_list = _json_cb.loads(_codebase_info)
-        _direct = [c for c in _cb_list if isinstance(c, dict) and c.get("download_status") == "success"]
-        if _direct:
-            extra_guidance += "\n## EXISTING CODEBASE (MUST USE AS BASE)\n"
-            extra_guidance += "The following codebases have been downloaded and are available locally.\n"
-            extra_guidance += "You MUST build upon this existing code rather than writing from scratch.\n\n"
-            for cb in _direct:
-                extra_guidance += f"- **{cb.get('repo_url', '?')}** → `{cb.get('local_path', '?')}`\n"
-                extra_guidance += f"  Description: {cb.get('description', '?')}\n"
-                extra_guidance += f"  Key files: {', '.join(cb.get('key_files', []))}\n\n"
-    except Exception:
-        pass
-
-    # --- Local data paths (datasets, checkpoints, codebases) ---
-    _datasets_dir = getattr(config.experiment, "datasets_dir", "") or ""
-    _checkpoints_dir = getattr(config.experiment, "checkpoints_dir", "") or ""
-    _codebases_dir = getattr(config.experiment, "codebases_dir", "") or ""
-
-    _data_paths_block = "\n## LOCAL DATA PATHS (MUST USE)\n"
-    _has_data_paths = False
-
-    if _datasets_dir:
-        import os as _os_dp
-        _os_dp.makedirs(_datasets_dir, exist_ok=True)
-        _existing_datasets = [d for d in _os_dp.listdir(_datasets_dir) if not d.startswith(".")] if _os_dp.path.isdir(_datasets_dir) else []
-        _data_paths_block += f"### Datasets Directory: `{_datasets_dir}`\n"
-        if _existing_datasets:
-            _data_paths_block += f"Available datasets: {', '.join(_existing_datasets)}\n"
-            _data_paths_block += "Use these local datasets directly via `os.path.join(DATASETS_DIR, '<name>')`. Do NOT download datasets.\n"
-        else:
-            _data_paths_block += "Directory is empty. Generate synthetic data or download minimal test data programmatically.\n"
-        _data_paths_block += f"In code: `DATASETS_DIR = '{_datasets_dir}'`\n\n"
-        _has_data_paths = True
-
-    if _checkpoints_dir:
-        _os_dp.makedirs(_checkpoints_dir, exist_ok=True)
-        _existing_ckpts = [f for f in _os_dp.listdir(_checkpoints_dir) if not f.startswith(".")] if _os_dp.path.isdir(_checkpoints_dir) else []
-        _data_paths_block += f"### Checkpoints Directory: `{_checkpoints_dir}`\n"
-        if _existing_ckpts:
-            _data_paths_block += f"Available checkpoints: {', '.join(_existing_ckpts)}\n"
-            _data_paths_block += "Load these checkpoints directly. Do NOT re-download if already present.\n"
-        else:
-            _data_paths_block += "No checkpoints yet. Download required model weights to this directory using `huggingface_hub` or `torch.hub`.\n"
-            _data_paths_block += "Always check if file exists before downloading: `if not os.path.exists(path): download()`\n"
-        _data_paths_block += f"In code: `CHECKPOINTS_DIR = '{_checkpoints_dir}'`\n\n"
-        _has_data_paths = True
-
-    if _codebases_dir:
-        _os_dp.makedirs(_codebases_dir, exist_ok=True)
-        _existing_repos = [d for d in _os_dp.listdir(_codebases_dir) if _os_dp.path.isdir(_os_dp.path.join(_codebases_dir, d)) and not d.startswith(".")] if _os_dp.path.isdir(_codebases_dir) else []
-        if _existing_repos:
-            from researchclaw.utils.codebase_manifest import generate_manifest, manifest_to_prompt
-            _data_paths_block += f"### Codebases Directory: `{_codebases_dir}`\n"
-            _data_paths_block += (
-                "**CRITICAL**: You MUST build your experiment code ON TOP of these existing codebases. "
-                "Do NOT write everything from scratch. Import, extend, or wrap the existing code.\n\n"
-            )
-            for _repo_name in _existing_repos:
-                _repo_path = _os_dp.path.join(_codebases_dir, _repo_name)
-                try:
-                    _manifest = generate_manifest(_repo_path)
-                    _data_paths_block += manifest_to_prompt(_manifest) + "\n\n"
-                except Exception as _e:
-                    _data_paths_block += f"#### Codebase: `{_repo_name}` (manifest generation failed: {_e})\n"
-                    _data_paths_block += f"Path: `{_repo_path}` — add to sys.path and explore manually.\n\n"
-            _data_paths_block += f"In code: `CODEBASES_DIR = '{_codebases_dir}'`\n\n"
-            _has_data_paths = True
-
-    if _has_data_paths:
-        extra_guidance += _data_paths_block
-
     # --- Dataset guidance + setup script + HP reporting (docker/sandbox modes) ---
+    extra_guidance = ""
     _net_policy = getattr(getattr(config, "docker", None), "network_policy", "setup_only")
     if config.experiment.mode in ("sandbox", "docker"):
         _net_policy = (
             config.experiment.docker.network_policy
             if config.experiment.mode == "docker"
-            else getattr(config.experiment.sandbox, "network_policy", "full")
+            else "none"  # sandbox mode has no network
         )
         if _net_policy == "none":
             # Network disabled: inject strict offline-only guidance
@@ -3315,11 +3052,6 @@ def _execute_code_generation(
             except Exception:  # noqa: BLE001
                 pass
         elif _net_policy == "full":
-            if config.experiment.mode == "sandbox":
-                try:
-                    extra_guidance += _pm.block("sandbox_local_guidance")
-                except Exception:  # noqa: BLE001
-                    pass
             try:
                 extra_guidance += _pm.block("dataset_guidance")
                 extra_guidance += _pm.block("network_full_guidance")
@@ -3466,41 +3198,8 @@ def _execute_code_generation(
     except Exception:  # noqa: BLE001
         logger.debug("Domain guidance injection skipped", exc_info=True)
 
-    # --- PRIORITY OVERRIDE: Local data paths trump BenchmarkAgent selections ---
-    if _has_data_paths:
-        _override = "\n\n## ⚠️ MANDATORY DATA OVERRIDE (HIGHEST PRIORITY)\n"
-        _override += (
-            "**The LOCAL DATA PATHS listed above OVERRIDE any dataset/checkpoint "
-            "selections from BenchmarkAgent or other sections.**\n\n"
-            "Specifically:\n"
-        )
-        if _datasets_dir and _os_dp.path.isdir(_datasets_dir):
-            _local_ds = [d for d in _os_dp.listdir(_datasets_dir) if not d.startswith(".")]
-            if _local_ds:
-                _override += (
-                    f"- **Datasets**: Use ONLY the datasets in `{_datasets_dir}` "
-                    f"({', '.join(_local_ds)}). Do NOT download CelebA, CIFAR, "
-                    f"ImageNet, or any other external dataset. Load data directly "
-                    f"from the local directory.\n"
-                )
-        if _checkpoints_dir and _os_dp.path.isdir(_checkpoints_dir):
-            _local_ck = [f for f in _os_dp.listdir(_checkpoints_dir) if not f.startswith(".")]
-            if _local_ck:
-                _override += (
-                    f"- **Checkpoints**: Use ONLY the checkpoints in `{_checkpoints_dir}` "
-                    f"({', '.join(_local_ck)}). Load model weights from this local "
-                    f"directory. Do NOT download from HuggingFace Hub.\n"
-                )
-        _override += (
-            "\nIf BenchmarkAgent above suggests a different dataset (e.g. CelebA), "
-            "**IGNORE that suggestion** and adapt the experiment design to work with "
-            "the local data instead. The local data is already on disk and ready to use.\n"
-        )
-        extra_guidance += _override
-
     # --- Code generation: Beast Mode → CodeAgent → Legacy single-shot ---
     _code_agent_active = False
-    _code_agent_original_files: dict[str, str] = {}
     _beast_mode_used = False
     _code_max_tokens = 8192
 
@@ -3702,7 +3401,6 @@ def _execute_code_generation(
         )
         files = _agent_result.files
         _code_agent_active = True
-        _code_agent_original_files = {k: v for k, v in files.items()}
 
         # Write agent artifacts
         (stage_dir / "code_agent_log.json").write_text(
@@ -3872,40 +3570,22 @@ def _execute_code_generation(
                     ):
                         _has_critical = True
         if _has_critical:
-            # Try falling back to code_agent's original output (before executor repair loop)
-            if _code_agent_active and _code_agent_original_files:
-                _fallback_ok = True
-                for _fn, _fc in _code_agent_original_files.items():
-                    if _fn.endswith(".py") and not validate_code(_fc).ok:
-                        _fallback_ok = False
-                        break
-                if _fallback_ok:
-                    logger.warning(
-                        "Stage 10: Repair loop failed but code_agent original code is valid. "
-                        "Falling back to pre-repair version."
-                    )
-                    files = _code_agent_original_files
-                    all_valid = True
-                    validation_log.append(
-                        "Repair loop failed — reverted to code_agent original output"
-                    )
-            if not all_valid:
-                logger.error(
-                    "Stage 10: CRITICAL validation issues remain after %d repair "
-                    "attempts. Blocking stage.", max_repair,
-                )
-                (stage_dir / "validation_report.md").write_text(
-                    "# Code Validation Report\n\n"
-                    f"**Status**: BLOCKED — critical issues remain after {max_repair} repairs\n\n"
-                    + "\n".join(f"- {e}" for e in validation_log),
-                    encoding="utf-8",
-                )
-                return StageResult(
-                    stage=Stage.CODE_GENERATION,
-                    status=StageStatus.FAILED,
-                    artifacts=("validation_report.md",),
-                    evidence_refs=(),
-                )
+            logger.error(
+                "Stage 10: CRITICAL validation issues remain after %d repair "
+                "attempts. Blocking stage.", max_repair,
+            )
+            (stage_dir / "validation_report.md").write_text(
+                "# Code Validation Report\n\n"
+                f"**Status**: BLOCKED — critical issues remain after {max_repair} repairs\n\n"
+                + "\n".join(f"- {e}" for e in validation_log),
+                encoding="utf-8",
+            )
+            return StageResult(
+                stage=Stage.CODE_GENERATION,
+                status=StageStatus.FAILED,
+                artifacts=("validation_report.md",),
+                evidence_refs=(),
+            )
 
     # --- Write experiment directory ---
     exp_dir = stage_dir / "experiment"
@@ -3932,7 +3612,6 @@ def _execute_code_generation(
     from researchclaw.experiment.validator import (
         auto_fix_unbound_locals,
         check_code_complexity,
-        check_main_entry_point,
         deep_validate_files,
     )
 
@@ -3953,13 +3632,6 @@ def _execute_code_generation(
         logger.info(
             "Stage 10: auto-fixed %d total UnboundLocalError risks", _total_ub_fixes
         )
-
-    # --- main.py entry point check ---
-    if "main.py" in files:
-        _entry_warnings = check_main_entry_point(files["main.py"])
-        for w in _entry_warnings:
-            logger.warning("Stage 10 code quality: %s", w)
-            print(f"Stage 10 code quality: {w}", flush=True)
 
     complexity_warnings: list[str] = []
     for fname, code in files.items():
@@ -4360,425 +4032,6 @@ Multi-file experiment project with {len(files)} file(s): {file_list}
     )
 
 
-def _find_free_gpu() -> str:
-    """Find the GPU with lowest memory usage via nvidia-smi. Returns GPU id as string, or '0'."""
-    try:
-        import subprocess as _sp_gpu
-        result = _sp_gpu.run(
-            ["nvidia-smi", "--query-gpu=index,memory.used", "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=5,
-        )
-        if result.returncode != 0:
-            return "0"
-        gpus = []
-        for line in result.stdout.strip().split("\n"):
-            parts = [p.strip() for p in line.split(",")]
-            if len(parts) >= 2:
-                gpus.append((int(parts[0]), float(parts[1])))
-        if not gpus:
-            return "0"
-        gpus.sort(key=lambda x: x[1])
-        return str(gpus[0][0])
-    except Exception:
-        return "0"
-
-
-def _execute_sanity_check(
-    stage_dir: Path,
-    run_dir: Path,
-    config: RCConfig,
-    adapters: AdapterBundle,
-    *,
-    run_id: str = "",
-    prompts: "PromptManager | None" = None,
-    llm: "LLMClient | None" = None,
-    **kwargs: object,
-) -> StageResult:
-    """Phased sanity check with iterative LLM-driven fix loop.
-
-    Runs 4 mini-tests in order: (1) import, (2) data loading,
-    (3) checkpoint loading + metric calc, (4) end-to-end mini run.
-    On failure, the coding model receives ALL relevant source files and
-    the error, produces targeted patches, and the test is re-run.
-    Loops up to ``max_fix_iterations`` (default 3, configurable via
-    ``config.experiment.sanity_check_max_iterations``).
-    """
-    import os as _os_san
-    import subprocess as _sp
-    import time as _t
-
-    _sanity_gpu = _find_free_gpu()
-    logger.info("SANITY_CHECK: using GPU %s for smoke test", _sanity_gpu)
-
-    experiment_dir = None
-    for _s_dir in sorted(run_dir.glob("stage-*"), reverse=True):
-        _candidate = _s_dir / "experiment"
-        if _candidate.is_dir():
-            experiment_dir = _candidate
-            break
-
-    if experiment_dir is None:
-        (stage_dir / "sanity_report.json").write_text(
-            json.dumps({"status": "skip", "reason": "No experiment/ directory found"}, indent=2),
-            encoding="utf-8",
-        )
-        return StageResult(
-            stage=Stage.SANITY_CHECK,
-            status=StageStatus.DONE,
-            artifacts=("sanity_report.json",),
-            decision="skipped — no experiment code found",
-        )
-
-    python_path = config.experiment.sandbox.python_path or "python3"
-    max_fix_iters = int(getattr(config.experiment, "sanity_check_max_iterations", 3))
-    report: dict[str, object] = {"status": "pending", "max_fix_iterations": max_fix_iters}
-    all_iterations: list[dict[str, object]] = []
-
-    env_base = {**_os_san.environ, "PYTHONUNBUFFERED": "1", "CUDA_VISIBLE_DEVICES": _sanity_gpu}
-
-    # ── Helpers ────────────────────────────────────────────────────────────
-
-    def _read_all_sources() -> dict[str, str]:
-        """Read every .py file in the experiment directory."""
-        sources: dict[str, str] = {}
-        for py_file in sorted(experiment_dir.glob("*.py")):
-            try:
-                sources[py_file.name] = py_file.read_text(encoding="utf-8")
-            except OSError:
-                pass
-        return sources
-
-    def _run_snippet(code: str, timeout: int = 60) -> tuple[bool, str, str]:
-        """Run a Python snippet, return (passed, stdout_tail, stderr_tail)."""
-        try:
-            r = _sp.run(
-                [python_path, "-c", code],
-                capture_output=True, text=True, timeout=timeout,
-                cwd=str(experiment_dir), env=env_base,
-            )
-            return (
-                r.returncode == 0,
-                (r.stdout or "")[-500:],
-                (r.stderr or "")[-1000:],
-            )
-        except _sp.TimeoutExpired:
-            return True, "", "timeout (code runs but slow — acceptable)"
-
-    # ── Mini-test definitions ─────────────────────────────────────────────
-    # Each test is (name, code_snippet, timeout_sec).  Tests run in order;
-    # later tests depend on earlier ones passing.
-
-    _mini_tests: list[tuple[str, str, int]] = [
-        (
-            "import_check",
-            (
-                "import sys, os, glob, importlib\n"
-                "sys.path.insert(0, '.')\n"
-                "py_files = sorted(glob.glob('*.py'))\n"
-                "print(f'  found {len(py_files)} .py files: {py_files}')\n"
-                "for fname in py_files:\n"
-                "    mod_name = fname[:-3]\n"
-                "    if mod_name.startswith('_'):\n"
-                "        continue\n"
-                "    print(f'  importing {mod_name} ...')\n"
-                "    importlib.import_module(mod_name)\n"
-                "print('IMPORT_OK')\n"
-            ),
-            60,
-        ),
-        (
-            "data_loading",
-            (
-                "import sys, os, glob, importlib, torch\n"
-                "sys.path.insert(0, '.')\n"
-                "# Auto-discover data loading from any module\n"
-                "loader_names = ['load_freecustom_splits', 'load_celeba_splits',\n"
-                "                'load_splits', 'get_datasets', 'load_data',\n"
-                "                'load_dataset', 'prepare_data', 'get_dataloaders']\n"
-                "loader = None\n"
-                "loader_mod = None\n"
-                "for fname in sorted(glob.glob('*.py')):\n"
-                "    mod_name = fname[:-3]\n"
-                "    if mod_name.startswith('_') or mod_name == 'setup':\n"
-                "        continue\n"
-                "    try:\n"
-                "        mod = importlib.import_module(mod_name)\n"
-                "    except Exception:\n"
-                "        continue\n"
-                "    for ln in loader_names:\n"
-                "        fn = getattr(mod, ln, None)\n"
-                "        if callable(fn):\n"
-                "            loader = fn\n"
-                "            loader_mod = mod_name\n"
-                "            break\n"
-                "    if loader:\n"
-                "        break\n"
-                "if loader is None:\n"
-                "    # If no standard loader, check if datasets dir is referenced\n"
-                "    datasets_dir = os.environ.get('DATASETS_DIR', '')\n"
-                "    if datasets_dir and os.path.isdir(datasets_dir):\n"
-                "        print(f'  No loader func found, but datasets dir exists: {datasets_dir}')\n"
-                "        print(f'  contents: {os.listdir(datasets_dir)[:5]}')\n"
-                "        print('DATA_LOAD_OK')\n"
-                "    else:\n"
-                "        print('  No data loader found, skipping (will test in e2e)')\n"
-                "        print('DATA_LOAD_OK')\n"
-                "else:\n"
-                "    print(f'  found loader: {loader_mod}.{loader.__name__}')\n"
-                "    result = loader()\n"
-                "    if isinstance(result, dict):\n"
-                "        for k, v in result.items():\n"
-                "            print(f'  split={k} len={len(v) if hasattr(v, \"__len__\") else \"?\"}')\n"
-                "    else:\n"
-                "        print(f'  result type={type(result).__name__}')\n"
-                "    print('DATA_LOAD_OK')\n"
-            ),
-            60,
-        ),
-        (
-            "checkpoint_and_metrics",
-            (
-                "import sys, os, glob, importlib, torch\n"
-                "sys.path.insert(0, '.')\n"
-                "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n"
-                "print(f'  device={device}')\n"
-                "# Scan all modules for CLIP/metric loading functions\n"
-                "clip_loaders = ['load_clip_bundle', 'load_clip', 'get_clip_model']\n"
-                "metric_fns = ['compute_metrics', 'calculate_metrics', 'eval_metrics']\n"
-                "vae_fns = ['load_vae', 'get_vae', 'load_model']\n"
-                "found_any = False\n"
-                "for fname in sorted(glob.glob('*.py')):\n"
-                "    mod_name = fname[:-3]\n"
-                "    if mod_name.startswith('_') or mod_name == 'setup':\n"
-                "        continue\n"
-                "    try:\n"
-                "        mod = importlib.import_module(mod_name)\n"
-                "    except Exception:\n"
-                "        continue\n"
-                "    for fn_name in clip_loaders:\n"
-                "        fn = getattr(mod, fn_name, None)\n"
-                "        if callable(fn):\n"
-                "            print(f'  calling {mod_name}.{fn_name}(device)...')\n"
-                "            result = fn(device)\n"
-                "            print(f'  → {type(result).__name__}')\n"
-                "            found_any = True\n"
-                "            break\n"
-                "    for fn_name in vae_fns:\n"
-                "        fn = getattr(mod, fn_name, None)\n"
-                "        if callable(fn):\n"
-                "            try:\n"
-                "                print(f'  calling {mod_name}.{fn_name}(device)...')\n"
-                "                result = fn(device)\n"
-                "                print(f'  → {type(result).__name__}')\n"
-                "                found_any = True\n"
-                "            except Exception as e:\n"
-                "                print(f'  → skipped: {e}')\n"
-                "            break\n"
-                "# Check checkpoints dir\n"
-                "ckpt_dir = os.environ.get('CHECKPOINTS_DIR', '/home/user/PyramidResearchTeam/backend/checkpoints')\n"
-                "if os.path.isdir(ckpt_dir):\n"
-                "    print(f'  checkpoints dir: {os.listdir(ckpt_dir)[:5]}')\n"
-                "    found_any = True\n"
-                "if not found_any:\n"
-                "    print('  No checkpoint/metric loaders found, will test in e2e')\n"
-                "print('CKPT_METRICS_OK')\n"
-            ),
-            90,
-        ),
-        (
-            "mini_e2e_run",
-            (
-                "import sys, os\n"
-                "os.environ['SANITY_CHECK'] = '1'\n"
-                "sys.path.insert(0, '.')\n"
-                "sys.argv = ['main.py']\n"
-                "exec(open('main.py').read())\n"
-                "print('E2E_RUN_OK')\n"
-            ),
-            120,
-        ),
-    ]
-
-    # ── LLM fix helper ────────────────────────────────────────────────────
-
-    def _ask_llm_fix(
-        test_name: str,
-        test_code: str,
-        stderr: str,
-        sources: dict[str, str],
-        iteration: int,
-    ) -> list[dict[str, str]]:
-        """Ask the coding model to fix files.  Returns list of {file, code}."""
-        if llm is None:
-            return []
-
-        source_block = ""
-        for fname, code in sources.items():
-            source_block += f"\n### {fname}\n```python\n{code[:4000]}\n```\n"
-
-        fix_prompt = (
-            f"## Sanity Check Failure (iteration {iteration + 1}/{max_fix_iters})\n\n"
-            f"**Failed test:** `{test_name}`\n\n"
-            f"**Test code that was executed:**\n```python\n{test_code}\n```\n\n"
-            f"**Error output (stderr tail):**\n```\n{stderr[-2000:]}\n```\n\n"
-            f"## All source files in the experiment directory:\n{source_block}\n\n"
-            "## Instructions\n"
-            "Analyze the error and fix the RELEVANT source file(s).\n"
-            "Return ONE OR MORE file blocks in this exact format:\n\n"
-            "### FILENAME.py\n"
-            "```python\n"
-            "...complete fixed file content...\n"
-            "```\n\n"
-            "Rules:\n"
-            "- Return the COMPLETE file content for each file you modify.\n"
-            "- Do NOT change files that are not related to the error.\n"
-            "- Do NOT change function signatures or class APIs unless necessary to fix the bug.\n"
-            "- Do NOT add new dependencies that are not already imported.\n"
-            "- Focus on the specific error; do not refactor or restructure.\n"
-        )
-
-        try:
-            coding_model = getattr(config.llm, "coding_model", "") or None
-            resp = llm.chat(
-                [{"role": "user", "content": fix_prompt}],
-                system=(
-                    "You are an expert Python ML engineer. "
-                    "Fix the exact bug described.  Return only the fixed file(s) "
-                    "in the requested format.  No explanations outside code blocks."
-                ),
-                model=coding_model,
-                max_tokens=16384,
-            )
-            raw = resp.content if hasattr(resp, "content") else str(resp)
-        except Exception as exc:
-            logger.warning("SANITY_CHECK: LLM fix call failed: %s", exc)
-            return []
-
-        # Parse "### filename.py\n```python\n...\n```" blocks
-        patches: list[dict[str, str]] = []
-        import re as _re_fix
-        blocks = _re_fix.split(r"###\s+(\S+\.py)\s*\n", raw)
-        # blocks = ['', 'data.py', '```python\n...\n```\n', 'metrics.py', ...]
-        for i in range(1, len(blocks) - 1, 2):
-            fname = blocks[i].strip()
-            code_block = blocks[i + 1]
-            if "```python" in code_block:
-                code = code_block.split("```python", 1)[1].split("```", 1)[0].strip()
-            elif "```" in code_block:
-                code = code_block.split("```", 1)[1].split("```", 1)[0].strip()
-            else:
-                code = code_block.strip()
-            if code and len(code) > 30:
-                patches.append({"file": fname, "code": code})
-
-        return patches
-
-    # ── Main iteration loop ───────────────────────────────────────────────
-
-    final_passed = False
-
-    for iteration in range(max_fix_iters + 1):  # iteration 0 = first run, then up to N fixes
-        iter_record: dict[str, object] = {
-            "iteration": iteration,
-            "is_fix_attempt": iteration > 0,
-            "checks": [],
-        }
-        iter_checks: list[dict[str, object]] = []
-        failed_test = None
-
-        for test_name, test_code, timeout in _mini_tests:
-            t0 = _t.monotonic()
-            passed, stdout_tail, stderr_tail = _run_snippet(test_code, timeout)
-            check_record: dict[str, object] = {
-                "name": test_name,
-                "passed": passed,
-                "duration_sec": round(_t.monotonic() - t0, 2),
-                "stdout_tail": stdout_tail[-300:],
-                "stderr_tail": stderr_tail[-500:] if not passed else "",
-            }
-            iter_checks.append(check_record)
-            logger.info(
-                "SANITY_CHECK iter=%d test=%s passed=%s (%.1fs)",
-                iteration, test_name, passed, check_record["duration_sec"],
-            )
-
-            if not passed:
-                failed_test = (test_name, test_code, stderr_tail)
-                break  # stop at first failure; fix before continuing
-
-        iter_record["checks"] = iter_checks
-        all_tests_passed = failed_test is None
-
-        if all_tests_passed:
-            iter_record["result"] = "all_passed"
-            all_iterations.append(iter_record)
-            final_passed = True
-            logger.info("SANITY_CHECK: all %d tests passed on iteration %d", len(_mini_tests), iteration)
-            break
-
-        # If this was the last allowed iteration, record and break
-        if iteration >= max_fix_iters:
-            iter_record["result"] = "failed_max_iterations"
-            all_iterations.append(iter_record)
-            logger.warning(
-                "SANITY_CHECK: giving up after %d fix iterations. Last failure: %s",
-                max_fix_iters, failed_test[0],
-            )
-            break
-
-        # ── Ask coding model to fix ──────────────────────────────────────
-        sources = _read_all_sources()
-        patches = _ask_llm_fix(
-            test_name=failed_test[0],
-            test_code=failed_test[1],
-            stderr=failed_test[2],
-            sources=sources,
-            iteration=iteration,
-        )
-
-        applied_patches: list[str] = []
-        for patch in patches:
-            target = experiment_dir / patch["file"]
-            # Backup original on first iteration only
-            bak = experiment_dir / f"{patch['file']}.bak_iter0"
-            if not bak.exists() and target.exists():
-                bak.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
-            target.write_text(patch["code"], encoding="utf-8")
-            applied_patches.append(patch["file"])
-            logger.info("SANITY_CHECK: patched %s (%d chars)", patch["file"], len(patch["code"]))
-
-        iter_record["result"] = "fix_applied"
-        iter_record["patches"] = applied_patches
-        iter_record["failed_test"] = failed_test[0]
-        all_iterations.append(iter_record)
-
-        if not applied_patches:
-            logger.warning("SANITY_CHECK: LLM returned no patches, stopping iteration")
-            break
-
-    # ── Write report ──────────────────────────────────────────────────────
-
-    report["status"] = "pass" if final_passed else "fail"
-    report["iterations"] = all_iterations
-    report["total_iterations"] = len(all_iterations)
-    (stage_dir / "sanity_report.json").write_text(
-        json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8",
-    )
-
-    summary = (
-        f"{'PASS' if final_passed else 'FAIL'}: "
-        f"{len(all_iterations)} iteration(s), "
-        f"{len(_mini_tests)} test phases"
-    )
-    return StageResult(
-        stage=Stage.SANITY_CHECK,
-        status=StageStatus.DONE,
-        artifacts=("sanity_report.json",),
-        evidence_refs=("experiment/",),
-        decision=summary,
-    )
-
-
 def _execute_resource_planning(
     stage_dir: Path,
     run_dir: Path,
@@ -4850,41 +4103,6 @@ def _execute_experiment_run(
 ) -> StageResult:
     from researchclaw.experiment.factory import create_sandbox
     from researchclaw.experiment.runner import ExperimentRunner
-
-    # --- Query shared baseline results before running experiments ---
-    _shared_dir = getattr(config.experiment, "shared_results_dir", "") or ""
-    if _shared_dir and llm is not None:
-        try:
-            import sys as _sys_sr
-            _services_dir = str(Path(__file__).resolve().parent.parent.parent.parent / "services")
-            if _services_dir not in _sys_sr.path:
-                _sys_sr.path.insert(0, _services_dir)
-            from result_registry import ResultRegistry
-            _registry = ResultRegistry(_shared_dir)
-            if _registry.count() > 0:
-                _exp_plan = _read_prior_artifact(run_dir, "exp_plan.yaml") or ""
-                _matches = _registry.query_by_llm(llm.chat, _exp_plan)
-                if _matches:
-                    _cached = []
-                    for m in _matches:
-                        entry = _registry.get_entry(m.get("cached_id", ""))
-                        if entry:
-                            _cached.append({
-                                "id": entry.id,
-                                "description": entry.description,
-                                "metrics": entry.metrics,
-                                "reason": m.get("reason", ""),
-                                "project": entry.project_id,
-                            })
-                    if _cached:
-                        (stage_dir / "cached_baselines.json").write_text(
-                            json.dumps(_cached, indent=2, ensure_ascii=False), encoding="utf-8",
-                        )
-                        _names = ", ".join(c["description"][:40] for c in _cached)
-                        print(f"[SHARED RESULTS] Found {len(_cached)} reusable baselines: {_names}", flush=True)
-                        logger.info("Shared results: %d cached baselines matched", len(_cached))
-        except Exception as _sr_exc:
-            logger.debug("Shared results query failed: %s", _sr_exc)
 
     schedule_text = _read_prior_artifact(run_dir, "schedule.json") or "{}"
     # Try multi-file experiment directory first, fall back to single file
@@ -6368,37 +5586,6 @@ Generated: {_utcnow_iso()}
         except Exception as _chart_exc:
             logger.warning("Stage 14: Early chart generation failed: %s", _chart_exc)
 
-    # --- Register baseline results to shared registry ---
-    _shared_dir = getattr(config.experiment, "shared_results_dir", "") or ""
-    if _shared_dir:
-        try:
-            import sys as _sys_rr
-            _services_dir = str(Path(__file__).resolve().parent.parent.parent.parent / "services")
-            if _services_dir not in _sys_rr.path:
-                _sys_rr.path.insert(0, _services_dir)
-            from result_registry import ResultRegistry
-            _registry = ResultRegistry(_shared_dir)
-            _summary_path = stage_dir / "experiment_summary.json"
-            if _summary_path.exists():
-                _summary = json.loads(_summary_path.read_text(encoding="utf-8"))
-                _best = _summary.get("best_run", {})
-                _metrics = _best.get("metrics", {})
-                if _metrics:
-                    _registry.register(
-                        project_id=getattr(config.project, "name", "unknown"),
-                        description=f"{config.research.topic[:100]} - baseline results",
-                        model="",
-                        dataset="",
-                        task=config.research.topic[:50],
-                        metrics={k: float(v) for k, v in _metrics.items() if isinstance(v, (int, float))},
-                        tags=[d.lower() for d in config.research.domains] + ["baseline"],
-                        source_stage=int(Stage.RESULT_ANALYSIS),
-                    )
-                    logger.info("Registered %d metrics to shared results registry", len(_metrics))
-                    print(f"[SHARED RESULTS] Registered baseline metrics: {list(_metrics.keys())}", flush=True)
-        except Exception as _rr_exc:
-            logger.debug("Shared results registration failed: %s", _rr_exc)
-
     return StageResult(
         stage=Stage.RESULT_ANALYSIS,
         status=StageStatus.DONE,
@@ -6550,123 +5737,6 @@ Generated: {_utcnow_iso()}
         artifacts=("decision.md", "decision_structured.json"),
         evidence_refs=("stage-15/decision.md",),
         decision=decision,
-    )
-
-
-def _execute_knowledge_summary(
-    stage_dir: Path,
-    run_dir: Path,
-    config: RCConfig,
-    adapters: AdapterBundle,
-    *,
-    llm: LLMClient | None = None,
-    prompts: PromptManager | None = None,
-    **kwargs: object,
-) -> StageResult:
-    """Summarize experiment findings into the shared knowledge base.
-
-    Reads analysis, decision, and experiment plan, then produces a structured
-    knowledge entry (JSON) and appends it to the shared knowledge base.
-    L1 lobsters read this knowledge base when generating new hypotheses.
-    """
-    from researchclaw.llm import create_llm_client
-
-    if llm is None:
-        llm = create_llm_client(config)
-
-    analysis = _read_prior_artifact(run_dir, "analysis.md") or ""
-    decision = _read_prior_artifact(run_dir, "decision.md") or ""
-    exp_plan = _read_prior_artifact(run_dir, "exp_plan.yaml") or ""
-    hypotheses = _read_prior_artifact(run_dir, "hypotheses.md") or ""
-
-    summary_prompt = (
-        "Based on the following research experiment, create a structured knowledge entry.\n\n"
-        "## Hypotheses\n" + hypotheses[:2000] + "\n\n"
-        "## Experiment Plan\n" + exp_plan[:2000] + "\n\n"
-        "## Analysis\n" + analysis[:3000] + "\n\n"
-        "## Decision\n" + decision[:1000] + "\n\n"
-        "Create a JSON object with these fields:\n"
-        '- "topic": one-line research topic\n'
-        '- "hypotheses": list of hypotheses tested\n'
-        '- "method": experimental methodology summary (2-3 sentences)\n'
-        '- "settings": key experimental settings (model, dataset, hyperparams, hardware)\n'
-        '- "results": dict of metric_name -> value for main results\n'
-        '- "conclusions": list of key conclusions (what worked, what didn\'t)\n'
-        '- "insights": list of surprising or useful insights for future research\n'
-        '- "limitations": list of limitations\n'
-        '- "suggested_directions": list of promising follow-up directions\n'
-        "Return valid JSON only."
-    )
-
-    try:
-        resp = llm.chat(
-            [{"role": "user", "content": summary_prompt}],
-            system="You are a research scientist. Summarize experiment findings into a structured knowledge entry. Return valid JSON only.",
-            json_mode=True,
-        )
-        content = resp.content if hasattr(resp, 'content') else str(resp)
-
-        import json as _json_ks
-        try:
-            entry = _json_ks.loads(content)
-        except _json_ks.JSONDecodeError:
-            if "```json" in content:
-                content = content.split("```json")[1].split("```")[0]
-            elif "```" in content:
-                content = content.split("```")[1].split("```")[0]
-            entry = _json_ks.loads(content)
-
-        if not isinstance(entry, dict):
-            entry = {"raw": str(entry)}
-
-        entry["project_id"] = getattr(config.project, "name", "unknown")
-        entry["research_topic"] = config.research.topic
-        entry["domains"] = list(config.research.domains)
-        entry["timestamp"] = _utcnow_iso()
-
-        (stage_dir / "knowledge_entry.json").write_text(
-            _json_ks.dumps(entry, indent=2, ensure_ascii=False), encoding="utf-8",
-        )
-
-        # Write to shared knowledge base
-        _shared_dir = getattr(config.experiment, "shared_results_dir", "") or ""
-        if _shared_dir:
-            import os as _os_ks
-            kb_dir = Path(_shared_dir) / "knowledge_base"
-            kb_dir.mkdir(parents=True, exist_ok=True)
-            kb_file = kb_dir / f"{entry['project_id']}_{_utcnow_iso().replace(':', '-')}.json"
-            kb_file.write_text(
-                _json_ks.dumps(entry, indent=2, ensure_ascii=False), encoding="utf-8",
-            )
-
-            # Append summary to knowledge_index.jsonl for quick L1 lookup
-            index_file = kb_dir / "knowledge_index.jsonl"
-            compact = {
-                "project": entry.get("project_id", ""),
-                "topic": entry.get("topic", entry.get("research_topic", "")),
-                "conclusions": entry.get("conclusions", []),
-                "insights": entry.get("insights", []),
-                "suggested_directions": entry.get("suggested_directions", []),
-                "results": entry.get("results", {}),
-            }
-            with open(index_file, "a", encoding="utf-8") as f:
-                f.write(_json_ks.dumps(compact, ensure_ascii=False) + "\n")
-
-            logger.info("Knowledge entry written to shared KB: %s", kb_file.name)
-            print(f"[KNOWLEDGE] Written to shared KB: {len(entry.get('conclusions', []))} conclusions, {len(entry.get('insights', []))} insights", flush=True)
-
-    except Exception as e:
-        logger.warning("Knowledge summary generation failed: %s", e)
-        (stage_dir / "knowledge_entry.json").write_text(
-            json.dumps({"error": str(e), "topic": config.research.topic}, indent=2),
-            encoding="utf-8",
-        )
-
-    return StageResult(
-        stage=Stage.KNOWLEDGE_SUMMARY,
-        status=StageStatus.DONE,
-        artifacts=("knowledge_entry.json",),
-        evidence_refs=("analysis.md", "decision.md"),
     )
 
 
@@ -7793,48 +6863,6 @@ def _execute_paper_draft(
     prompts: PromptManager | None = None,
 ) -> StageResult:
     outline = _read_prior_artifact(run_dir, "outline.md") or ""
-
-    # ── SHORT paper fast-path: skip heavy validation, single LLM call ──
-    _paper_len = getattr(config.experiment, "paper_length", "") or "full"
-    if _paper_len == "short" and llm is not None:
-        preamble = _build_context_preamble(
-            config, run_dir, include_analysis=True, include_experiment_data=True,
-        )
-        analysis = _read_prior_artifact(run_dir, "analysis.md") or ""
-        exp_summary_text = _read_prior_artifact(run_dir, "experiment_summary.json") or ""
-        _extra = ""
-        if exp_summary_text:
-            _extra = f"\n\nExperiment Summary JSON:\n```json\n{exp_summary_text[:3000]}\n```\n"
-        _short_user = (
-            f"{preamble}\n\n{_extra}\n\nOutline:\n{outline}\n\n"
-            "Write a SHORT WORKSHOP PAPER (2-3 pages, ~1500-2000 words total) "
-            "in markdown. Include these sections:\n"
-            "1. **Title** (catchy, <=14 words)\n"
-            "2. **Abstract** (100-150 words)\n"
-            "3. **Introduction** (300-400 words): motivation, gap, approach, contributions\n"
-            "4. **Method** (300-400 words): concise method description\n"
-            "5. **Experiments** (300-400 words): setup, results with real numbers from data above\n"
-            "6. **Conclusion** (100-150 words)\n\n"
-            "Use ## headers. Be concise and direct. "
-            "Do NOT include a References section. "
-            "Start DIRECTLY with '## Title'."
-        )
-        _short_sys = (
-            "You are an academic writer producing a concise short/workshop paper. "
-            "Use formal academic tone. Report only real experimental numbers."
-        )
-        resp = _chat_with_prompt(llm, _short_sys, _short_user, max_tokens=4000)
-        draft = resp.content
-        logger.info("Stage 20: Short paper mode — single LLM call (%d words)", len(draft.split()))
-        (stage_dir / "paper_draft.md").write_text(draft, encoding="utf-8")
-        return StageResult(
-            stage=Stage.PAPER_DRAFT,
-            status=StageStatus.DONE,
-            artifacts=("paper_draft.md",),
-            evidence_refs=("stage-20/paper_draft.md",),
-        )
-    # ── END short fast-path ──
-
     preamble = _build_context_preamble(
         config,
         run_dir,
@@ -8508,7 +7536,7 @@ def _execute_paper_draft(
         ref_match = ref_pattern.search(draft)
         if ref_match:
             draft = draft[:ref_match.start()].rstrip()
-            logger.info("Stage 20: Stripped LLM-generated References section (R7 fix)")
+            logger.info("Stage 17: Stripped LLM-generated References section (R7 fix)")
     else:
         # Build template with real data if available
         results_section = "Template results summary."
@@ -10465,15 +9493,12 @@ _STAGE_EXECUTORS: dict[Stage, Callable[..., StageResult]] = {
     Stage.SYNTHESIS: _execute_synthesis,
     Stage.HYPOTHESIS_GEN: _execute_hypothesis_gen,
     Stage.EXPERIMENT_DESIGN: _execute_experiment_design,
-    Stage.CODEBASE_SEARCH: _execute_codebase_search,
     Stage.CODE_GENERATION: _execute_code_generation,
-    Stage.SANITY_CHECK: _execute_sanity_check,
     Stage.RESOURCE_PLANNING: _execute_resource_planning,
     Stage.EXPERIMENT_RUN: _execute_experiment_run,
     Stage.ITERATIVE_REFINE: _execute_iterative_refine,
     Stage.RESULT_ANALYSIS: _execute_result_analysis,
     Stage.RESEARCH_DECISION: _execute_research_decision,
-    Stage.KNOWLEDGE_SUMMARY: _execute_knowledge_summary,
     Stage.PAPER_OUTLINE: _execute_paper_outline,
     Stage.PAPER_DRAFT: _execute_paper_draft,
     Stage.PEER_REVIEW: _execute_peer_review,
