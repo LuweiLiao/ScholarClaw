@@ -13,6 +13,9 @@ eval "$(/home/user/.local/share/fnm/fnm env 2>/dev/null)" 2>/dev/null
 
 mkdir -p "$LOG" "$PIDF"
 
+# Ascend NPU CANN environment (no-op if not installed)
+source /usr/local/Ascend/ascend-toolkit/set_env.sh 2>/dev/null
+
 G='\033[0;32m'; R='\033[0;31m'; Y='\033[0;33m'; N='\033[0m'
 
 do_start() {
@@ -20,10 +23,10 @@ do_start() {
     echo ""
 
     # 1) Resource Monitor
-    if ss -tlnp 2>/dev/null | grep -q ":8785 "; then
+    if ss -tlnp 2>/dev/null | grep -q ":8875 "; then
         echo -e "  ${Y}⏭ resource_monitor 已在运行${N}"
     else
-        nohup $PY -u "$BASE/backend/services/resource_monitor.py" --port 8785 \
+        nohup $PY -u "$BASE/backend/services/resource_monitor.py" --port 8875 \
             > "$LOG/resource_monitor.log" 2>&1 &
         echo $! > "$PIDF/resource_monitor.pid"
         sleep 1
@@ -31,7 +34,7 @@ do_start() {
     fi
 
     # 2) Agent Bridge
-    if ss -tlnp 2>/dev/null | grep -q ":8786 "; then
+    if ss -tlnp 2>/dev/null | grep -q ":8876 "; then
         echo -e "  ${Y}⏭ agent_bridge 已在运行${N}"
     else
         LLM_CFG=""
@@ -40,7 +43,7 @@ do_start() {
             [ -f "$_cfg" ] && LLM_CFG="--llm-config $_cfg" && break
         done
         nohup $PY -u "$BASE/backend/services/agent_bridge.py" \
-            --port 8786 --python "$PY" \
+            --port 8876 --python "$PY" \
             --agent-dir "$BASE/backend/agent" \
             --runs-dir "$BASE/backend/runs" \
             --pool-idea 2 --pool-exp 2 --pool-code 3 --pool-exec 4 \
@@ -52,11 +55,11 @@ do_start() {
     fi
 
     # 3) Frontend Vite
-    if ss -tlnp 2>/dev/null | grep -q ":5190 "; then
+    if ss -tlnp 2>/dev/null | grep -q ":5883 "; then
         echo -e "  ${Y}⏭ frontend 已在运行${N}"
     else
         cd "$FE"
-        nohup npx vite --host 0.0.0.0 --port 5190 \
+        nohup npx vite --host 0.0.0.0 --port 5883 \
             > "$LOG/frontend.log" 2>&1 &
         echo $! > "$PIDF/frontend.pid"
         sleep 2
@@ -66,9 +69,9 @@ do_start() {
 
     echo ""
     echo "📍 服务地址:"
-    echo -e "   ${G}前端 UI:      http://localhost:5190/${N}"
-    echo "   资源监控 WS:  ws://localhost:8785"
-    echo "   Agent Bridge: ws://localhost:8786"
+    echo -e "   ${G}前端 UI:      http://localhost:5883/${N}"
+    echo "   资源监控 WS:  ws://localhost:8875"
+    echo "   Agent Bridge: ws://localhost:8876"
     echo ""
 }
 
@@ -95,24 +98,16 @@ do_stop() {
             rm -f "$f"
         fi
     done
-    # Fallback: kill only LISTENING server processes on our ports (not clients/SSH)
-    for port in 5190 8785 8786; do
-        ss -tlnp 2>/dev/null | grep ":$port " | grep -oP 'pid=\K[0-9]+' | while read pid; do
-            proc_cmd=$(ps -p "$pid" -o args= 2>/dev/null || true)
-            case "$proc_cmd" in
-                *resource_monitor*|*agent_bridge*|*vite*|*node*)
-                    kill "$pid" 2>/dev/null
-                    echo -e "  ${G}⏹ port $port (PID=$pid)${N}"
-                    ;;
-            esac
-        done
+    # Also kill by port in case PID file was stale
+    for port in 5883 8875 8876; do
+        lsof -ti:$port 2>/dev/null | xargs -r kill -9 2>/dev/null
     done
     echo ""
 }
 
 do_status() {
     echo "📊 服务状态:"
-    for pair in "resource_monitor:8785" "agent_bridge:8786" "frontend:5190"; do
+    for pair in "resource_monitor:8875" "agent_bridge:8876" "frontend:5883"; do
         svc="${pair%%:*}"; port="${pair##*:}"
         if ss -tlnp 2>/dev/null | grep -q ":$port "; then
             echo -e "  ${G}● $svc${N} (port $port)"
