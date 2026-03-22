@@ -1350,7 +1350,16 @@ def _extract_code_block(content: str) -> str:
     match = re.search(r"```(?:python)?\s*(.*?)\s*```", content, flags=re.DOTALL)
     if match is not None:
         return match.group(1).strip()
-    return content.strip()
+    # Handle truncated output: opening ``` without closing ```
+    trunc = re.search(r"```(?:python)?\s*\n(.+)", content, flags=re.DOTALL)
+    if trunc is not None:
+        code = trunc.group(1).strip()
+        if "\nimport " in code or "\ndef " in code or "\nclass " in code:
+            return code
+    # Last resort: if content looks like Python, return it; otherwise empty
+    if content.strip().startswith(("import ", "from ", "#!/", "def ", "class ")):
+        return content.strip()
+    return ""
 
 
 def _extract_multi_file_blocks(content: str) -> dict[str, str]:
@@ -2039,6 +2048,25 @@ def _expand_search_queries(queries: list[str], topic: str) -> list[str]:
     return expanded
 
 
+def _check_literature_sites_reachable(timeout: float = 8.0) -> dict[str, bool]:
+    """Quick connectivity check for literature API endpoints."""
+    import urllib.request
+    sites = {
+        "openalex": "https://api.openalex.org/works?filter=title.search:test&per_page=1",
+        "semantic_scholar": "https://api.semanticscholar.org/graph/v1/paper/search?query=test&limit=1",
+        "arxiv": "https://export.arxiv.org/api/query?search_query=test&max_results=1",
+    }
+    results: dict[str, bool] = {}
+    for name, url in sites.items():
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "ResearchClaw/0.3"})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                results[name] = resp.status < 500
+        except Exception:
+            results[name] = False
+    return results
+
+
 def _execute_literature_collect(
     stage_dir: Path,
     run_dir: Path,
@@ -2050,6 +2078,35 @@ def _execute_literature_collect(
 ) -> StageResult:
     """Stage 4: Collect literature — prefer real APIs, fallback to LLM."""
     topic = config.research.topic
+
+    # Pre-flight: check if any literature site is reachable
+    site_status = _check_literature_sites_reachable(timeout=8.0)
+    reachable = [name for name, ok in site_status.items() if ok]
+    unreachable = [name for name, ok in site_status.items() if not ok]
+    if unreachable:
+        logger.warning(
+            "Literature sites unreachable: %s (reachable: %s)",
+            ", ".join(unreachable), ", ".join(reachable) or "none",
+        )
+    if not reachable:
+        logger.warning(
+            "ALL literature sites unreachable (%s) — skipping literature collection",
+            ", ".join(unreachable),
+        )
+        skip_note = (
+            f"Skipped: all literature API endpoints unreachable "
+            f"({', '.join(unreachable)}). Downstream stages will rely on "
+            f"LLM knowledge only."
+        )
+        (stage_dir / "candidates.jsonl").write_text("", encoding="utf-8")
+        (stage_dir / "skip_reason.txt").write_text(skip_note, encoding="utf-8")
+        return StageResult(
+            stage=Stage.LITERATURE_COLLECT,
+            status=StageStatus.DONE,
+            artifacts=("candidates.jsonl", "skip_reason.txt"),
+            evidence_refs=(),
+            decision=skip_note,
+        )
 
     # Read queries.json from Stage 3 (F1.5 output)
     queries_text = _read_prior_artifact(run_dir, "queries.json")
@@ -2322,6 +2379,17 @@ def _execute_literature_screen(
     prompts: PromptManager | None = None,
 ) -> StageResult:
     candidates_text = _read_prior_artifact(run_dir, "candidates.jsonl") or ""
+
+    if not candidates_text.strip():
+        logger.info("Stage 5: No candidates from literature collection — skipping screen")
+        (stage_dir / "shortlist.jsonl").write_text("", encoding="utf-8")
+        return StageResult(
+            stage=Stage.LITERATURE_SCREEN,
+            status=StageStatus.DONE,
+            artifacts=("shortlist.jsonl",),
+            evidence_refs=(),
+            decision="Skipped: no candidates available (upstream literature collection was skipped or empty)",
+        )
 
     # --- P1-1: keyword relevance pre-filter ---
     # Before LLM screening, drop papers whose title+abstract share no keywords
@@ -2732,6 +2800,77 @@ def _execute_experiment_design(
             _dg_block = _pm.block("dataset_guidance")
         except (KeyError, Exception):  # noqa: BLE001
             _dg_block = ""
+        # ── Inject project-specific local data paths into experiment design ──
+        import os as _os_s9
+        _datasets_dir_s9 = getattr(config.experiment, "datasets_dir", "") or ""
+        _codebases_dir_s9 = getattr(config.experiment, "codebases_dir", "") or ""
+        _checkpoints_dir_s9 = getattr(config.experiment, "checkpoints_dir", "") or ""
+        _local_data_parts: list[str] = []
+        if _datasets_dir_s9 and _os_s9.path.isdir(_datasets_dir_s9):
+            _ds_items = [d for d in sorted(_os_s9.listdir(_datasets_dir_s9)) if not d.startswith(".")]
+            if _ds_items:
+                _local_data_parts.append(
+                    f"### LOCAL DATASETS (MUST USE — do NOT use synthetic data)\n"
+                    f"Directory: `{_datasets_dir_s9}`\n"
+                    f"Available: {', '.join(_ds_items)}\n"
+                    f"In code: `DATASETS_DIR = '{_datasets_dir_s9}'`\n"
+                    f"Design your experiment to use these REAL datasets. "
+                    f"NEVER generate synthetic torch.randn() data when real data is available."
+                )
+                for _ds_name in _ds_items:
+                    _ds_path = _os_s9.path.join(_datasets_dir_s9, _ds_name)
+                    if _os_s9.path.isdir(_ds_path):
+                        _ds_sub = []
+                        for _root, _dirs, _files in _os_s9.walk(_ds_path):
+                            _rel = _os_s9.path.relpath(_root, _ds_path)
+                            for _f in _files[:5]:
+                                _ds_sub.append(_os_s9.path.join(_rel, _f) if _rel != "." else _f)
+                            if len(_ds_sub) > 20:
+                                break
+                        if _ds_sub:
+                            _local_data_parts.append(
+                                f"  Dataset `{_ds_name}` sample files: {', '.join(_ds_sub[:15])}"
+                            )
+        if _codebases_dir_s9 and _os_s9.path.isdir(_codebases_dir_s9):
+            _cb_items = [d for d in sorted(_os_s9.listdir(_codebases_dir_s9))
+                         if _os_s9.path.isdir(_os_s9.path.join(_codebases_dir_s9, d)) and not d.startswith(".")]
+            if _cb_items:
+                _local_data_parts.append(
+                    f"\n### LOCAL CODEBASES (MUST BUILD ON TOP OF)\n"
+                    f"Directory: `{_codebases_dir_s9}`\n"
+                    f"Available: {', '.join(_cb_items)}\n"
+                    f"**CRITICAL**: Your experiment MUST extend/wrap these existing codebases. "
+                    f"Do NOT design a from-scratch implementation when a reference codebase exists."
+                )
+                for _cb_name in _cb_items:
+                    _cb_path = _os_s9.path.join(_codebases_dir_s9, _cb_name)
+                    try:
+                        from researchclaw.utils.codebase_manifest import generate_manifest, manifest_to_prompt
+                        _cb_manifest = generate_manifest(_cb_path)
+                        _cb_prompt = manifest_to_prompt(_cb_manifest)
+                        if len(_cb_prompt) > 6000:
+                            _cb_prompt = _cb_prompt[:6000] + "\n  ... (truncated)"
+                        _local_data_parts.append(_cb_prompt)
+                    except Exception:  # noqa: BLE001
+                        _local_data_parts.append(f"  Codebase `{_cb_name}` at `{_cb_path}`")
+        if _checkpoints_dir_s9 and _os_s9.path.isdir(_checkpoints_dir_s9):
+            _ck_items = [d for d in sorted(_os_s9.listdir(_checkpoints_dir_s9)) if not d.startswith(".")]
+            if _ck_items:
+                _local_data_parts.append(
+                    f"\n### LOCAL CHECKPOINTS (pre-trained weights available)\n"
+                    f"Directory: `{_checkpoints_dir_s9}`\n"
+                    f"Available: {', '.join(_ck_items)}\n"
+                    f"Use these checkpoints directly — do NOT plan to download them."
+                )
+        if _local_data_parts:
+            _dg_block += (
+                "\n\n## PROJECT-SPECIFIC LOCAL RESOURCES (HIGHEST PRIORITY)\n"
+                + "\n".join(_local_data_parts)
+                + "\n\nWhen designing the experiment, your `datasets` section MUST reference "
+                "these local resources. The experiment code will have direct filesystem access "
+                "to these paths.\n"
+            )
+
         # I-08: Inject RL step guidance for RL topics
         _rl_kws = ("reinforcement learning", "ppo", "sac", "td3", "ddpg",
                     "dqn", "mujoco", "continuous control", "actor-critic",
@@ -3113,7 +3252,7 @@ def _execute_code_generation(
             f"\n## Compute Budget Constraint\n"
             f"- Total execution time limit: {time_budget_sec} seconds\n"
             f"- Design experiments that complete within this budget\n"
-            f"- Implement a time guard: stop gracefully at 80% of budget\n"
+            f"- Implement a time guard using `time.time()` checks (NOT try/except) to stop at 80% of budget\n"
         )
 
     # --- Dataset guidance + setup script + HP reporting (docker/sandbox modes) ---
@@ -3126,23 +3265,31 @@ def _execute_code_generation(
             else "none"  # sandbox mode has no network
         )
         if _net_policy == "none":
-            # Network disabled: inject strict offline-only guidance
             try:
                 extra_guidance += _pm.block("network_disabled_guidance")
             except Exception:  # noqa: BLE001
                 pass
         elif _net_policy == "full":
+            if config.experiment.mode == "sandbox":
+                try:
+                    extra_guidance += _pm.block("sandbox_local_guidance")
+                except Exception:  # noqa: BLE001
+                    pass
+            if not _has_data_paths:
+                try:
+                    extra_guidance += _pm.block("dataset_guidance")
+                except Exception:  # noqa: BLE001
+                    pass
             try:
-                extra_guidance += _pm.block("dataset_guidance")
                 extra_guidance += _pm.block("network_full_guidance")
             except Exception:  # noqa: BLE001
                 pass
         else:
-            # setup_only or pip_only — existing behavior
-            try:
-                extra_guidance += _pm.block("dataset_guidance")
-            except Exception:  # noqa: BLE001
-                pass
+            if not _has_data_paths:
+                try:
+                    extra_guidance += _pm.block("dataset_guidance")
+                except Exception:  # noqa: BLE001
+                    pass
             if config.experiment.mode == "docker":
                 try:
                     extra_guidance += _pm.block("setup_script_guidance")
@@ -3278,6 +3425,18 @@ def _execute_code_generation(
     except Exception:  # noqa: BLE001
         logger.debug("Domain guidance injection skipped", exc_info=True)
 
+    # --- Local-data reminder (compact, no contradictions since generic
+    #     dataset_guidance was already skipped when _has_data_paths is True) ---
+    if _has_data_paths:
+        _override = (
+            "\n\n## ⚠️ LOCAL DATA CONSTRAINT\n"
+            "Use ONLY the local datasets, checkpoints, and codebases listed in "
+            "the LOCAL DATA PATHS section above. Do NOT download external datasets "
+            "(CelebA, CIFAR, ImageNet, etc.) or model weights from the internet "
+            "when local alternatives are available.\n"
+        )
+        extra_guidance += _override
+
     # --- Code generation: Beast Mode → CodeAgent → Legacy single-shot ---
     _code_agent_active = False
     _beast_mode_used = False
@@ -3286,8 +3445,8 @@ def _execute_code_generation(
     # ── Beast Mode: OpenCode external agent (optional) ─────────────────
     _oc_cfg = config.experiment.opencode
     if _oc_cfg.enabled:
-        from researchclaw.pipeline.opencode_bridge import (
-            OpenCodeBridge,
+        from researchclaw.pipeline.openhands_bridge import (
+            OpenHandsBridge,
             OpenCodeResult,
             count_historical_failures,
             score_complexity,
@@ -3301,7 +3460,6 @@ def _execute_code_generation(
             threshold=_oc_cfg.complexity_threshold,
         )
 
-        # Persist complexity analysis
         (stage_dir / "complexity_analysis.json").write_text(
             json.dumps(
                 {
@@ -3320,13 +3478,12 @@ def _execute_code_generation(
         if _cplx.recommendation == "beast_mode":
             _proceed = _oc_cfg.auto
             if not _proceed:
-                # Non-auto mode: check for HITL adapter
                 if adapters.hitl is not None:
                     try:
                         _proceed = adapters.hitl.confirm(
                             f"Beast Mode: complexity={_cplx.score:.2f} "
                             f"(threshold={_oc_cfg.complexity_threshold}). "
-                            f"Route to OpenCode?"
+                            f"Route to OpenHands?"
                         )
                     except Exception:  # noqa: BLE001
                         logger.info(
@@ -3341,18 +3498,17 @@ def _execute_code_generation(
 
             if _proceed:
                 _oc_model = _oc_cfg.model or config.llm.primary_model
-                _bridge = OpenCodeBridge(
-                    model=_oc_model,
+                _bridge = OpenHandsBridge(
+                    model=f"openai/{_oc_model}" if "/" not in _oc_model else _oc_model,
                     llm_base_url=config.llm.base_url,
                     api_key_env=config.llm.api_key_env,
-                    llm_provider=config.llm.provider,
+                    api_key=getattr(config.llm, "api_key", "") or "",
                     timeout_sec=_oc_cfg.timeout_sec,
                     max_retries=_oc_cfg.max_retries,
-                    workspace_cleanup=_oc_cfg.workspace_cleanup,
                 )
 
                 logger.info(
-                    "Beast mode: ENGAGED (complexity=%.2f, model=%s)",
+                    "Beast mode (OpenHands): ENGAGED (complexity=%.2f, model=%s)",
                     _cplx.score,
                     _oc_model,
                 )
@@ -3365,6 +3521,9 @@ def _execute_code_generation(
                     pkg_hint=pkg_hint + "\n" + compute_budget,
                     extra_guidance=extra_guidance,
                     time_budget_sec=config.experiment.time_budget_sec,
+                    codebases_dir=_codebases_dir,
+                    datasets_dir=_datasets_dir,
+                    checkpoints_dir=_checkpoints_dir,
                 )
 
                 # Persist beast mode log
@@ -3442,8 +3601,19 @@ def _execute_code_generation(
                 _domain_profile.display_name,
                 _domain_profile.domain_id,
             )
-            # Run code search for non-ML domains (ML has enough built-in knowledge)
-            if not _is_ml(_domain_profile):
+            # Run code search for non-ML domains, or ML domains with local codebases
+            import os as _os_cs
+            _codebases_dir_cs = getattr(config.experiment, "codebases_dir", "") or ""
+            _has_local_codebases = (
+                bool(_codebases_dir_cs)
+                and _os_cs.path.isdir(_codebases_dir_cs)
+                and any(
+                    _os_cs.path.isdir(_os_cs.path.join(_codebases_dir_cs, d))
+                    for d in _os_cs.listdir(_codebases_dir_cs)
+                    if not d.startswith(".")
+                )
+            )
+            if not _is_ml(_domain_profile) or _has_local_codebases:
                 try:
                     from researchclaw.agents.code_searcher import CodeSearchAgent
                     _cs_agent = CodeSearchAgent(llm=llm)
@@ -3768,7 +3938,9 @@ def _execute_code_generation(
             f"the ablation to genuinely remove/reduce a component (e.g., zero out "
             f"attention weights, halve hidden dimensions, remove a loss term)\n"
             f"- KD: teacher must be frozen, add projection layers if teacher_dim != "
-            f"student_dim, use temperature T=4 for soft targets\n\n"
+            f"student_dim, use temperature T=4 for soft targets\n"
+            f"- NO try/except blocks — fix the root cause of errors instead of "
+            f"catching them. All errors must crash with a full traceback.\n\n"
             f"Current code:\n{all_code_ctx}\n"
         )
         try:
@@ -3900,7 +4072,8 @@ def _execute_code_generation(
                         f"Code review found {len(critical_issues)} CRITICAL issues "
                         f"(score: {review_score}/10):\n{fix_descriptions}\n\n"
                         f"Fix ALL critical issues. Return complete corrected files "
-                        f"using ```filename:xxx.py format.\n\n"
+                        f"using ```filename:xxx.py format.\n"
+                        f"Do NOT add try/except blocks — fix the root cause instead.\n\n"
                         f"Current code:\n"
                         + "\n\n".join(
                             f"```filename:{f}\n{c}\n```" for f, c in files.items()
@@ -3980,7 +4153,8 @@ def _execute_code_generation(
                     f"in the topic, not a generic proxy.\n\n"
                     f"{pkg_hint}\n{compute_budget}\n"
                     f"PLAN:\n{exp_plan}\n\n"
-                    f"Return multiple files using ```filename:xxx.py format."
+                    f"Return multiple files using ```filename:xxx.py format.\n"
+                    f"Do NOT use try/except blocks — let errors crash with full tracebacks."
                 )
                 regen_resp = _chat_with_prompt(
                     llm,
@@ -4041,7 +4215,8 @@ def _execute_code_generation(
                     f"same input. Add a startup assertion that runs one forward pass "
                     f"per condition on identical input and prints:\n"
                     f"  ABLATION_CHECK: <cond1> vs <cond2> outputs_differ=True\n\n"
-                    f"Return ALL files using ```filename:xxx.py format.\n\n"
+                    f"Return ALL files using ```filename:xxx.py format.\n"
+                    f"Do NOT use try/except blocks — fix root causes instead.\n\n"
                     f"Current code:\n{all_code_ctx}\n"
                 )
                 try:
@@ -4092,7 +4267,7 @@ Multi-file experiment project with {len(files)} file(s): {file_list}
 ## Constraints
 - Time budget per run: {config.experiment.time_budget_sec}s
 - Max iterations: {config.experiment.max_iterations}
-- Self-contained execution (no external data, no network)
+- {"Uses local data/codebases from project config" if (getattr(config.experiment, "datasets_dir", "") or getattr(config.experiment, "codebases_dir", "")) else "Self-contained execution (no external data, no network)"}
 - Validated: {main_validation.summary()}
 
 ## Generated
@@ -4109,6 +4284,523 @@ Multi-file experiment project with {len(files)} file(s): {file_list}
         status=StageStatus.DONE,
         artifacts=tuple(artifacts),
         evidence_refs=tuple(f"stage-10/{a}" for a in artifacts),
+    )
+
+
+def _find_free_gpu() -> str:
+    """Find the GPU with lowest memory usage via nvidia-smi. Returns GPU id as string, or '0'."""
+    try:
+        import subprocess as _sp_gpu
+        result = _sp_gpu.run(
+            ["nvidia-smi", "--query-gpu=index,memory.used", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode != 0:
+            return "0"
+        gpus = []
+        for line in result.stdout.strip().split("\n"):
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) >= 2:
+                gpus.append((int(parts[0]), float(parts[1])))
+        if not gpus:
+            return "0"
+        gpus.sort(key=lambda x: x[1])
+        return str(gpus[0][0])
+    except Exception:
+        return "0"
+
+
+def _execute_sanity_check(
+    stage_dir: Path,
+    run_dir: Path,
+    config: RCConfig,
+    adapters: AdapterBundle,
+    *,
+    run_id: str = "",
+    prompts: "PromptManager | None" = None,
+    llm: "LLMClient | None" = None,
+    **kwargs: object,
+) -> StageResult:
+    """Phased sanity check with iterative LLM-driven fix loop.
+
+    Runs 4 mini-tests in order: (1) import, (2) data loading,
+    (3) checkpoint loading + metric calc, (4) end-to-end mini run.
+    On failure, the coding model receives ALL relevant source files and
+    the error, produces targeted patches, and the test is re-run.
+    Loops up to ``max_fix_iterations`` (default 3, configurable via
+    ``config.experiment.sanity_check_max_iterations``).
+    """
+    import os as _os_san
+    import subprocess as _sp
+    import time as _t
+
+    _sanity_gpu = _find_free_gpu()
+    logger.info("SANITY_CHECK: using GPU %s for smoke test", _sanity_gpu)
+
+    coding_model = getattr(config.llm, "coding_model", None) or ""
+    if coding_model and llm is not None:
+        import dataclasses as _dc_sc
+        _orig_model = llm.config.primary_model
+        _seen = {coding_model}
+        _full_fallbacks = []
+        for _m in [_orig_model] + list(llm.config.fallback_models):
+            if _m not in _seen:
+                _seen.add(_m)
+                _full_fallbacks.append(_m)
+        _coding_llm_cfg = _dc_sc.replace(
+            llm.config,
+            primary_model=coding_model,
+            fallback_models=_full_fallbacks,
+        )
+        from researchclaw.llm.client import LLMClient as _LLMClient_sc
+        llm = _LLMClient_sc(_coding_llm_cfg)
+        _fb_str = ", ".join(_full_fallbacks)
+        print(f"[SANITY_CHECK] Using coding model: {coding_model} (fallbacks: {_fb_str})", flush=True)
+        logger.info("S12 SANITY_CHECK: using coding model '%s'", coding_model)
+
+    experiment_dir = None
+    for _s_dir in sorted(run_dir.glob("stage-*"), reverse=True):
+        _candidate = _s_dir / "experiment"
+        if _candidate.is_dir():
+            experiment_dir = _candidate
+            break
+
+    if experiment_dir is None:
+        (stage_dir / "sanity_report.json").write_text(
+            json.dumps({"status": "skip", "reason": "No experiment/ directory found"}, indent=2),
+            encoding="utf-8",
+        )
+        return StageResult(
+            stage=Stage.SANITY_CHECK,
+            status=StageStatus.DONE,
+            artifacts=("sanity_report.json",),
+            decision="skipped — no experiment code found",
+        )
+
+    python_path = config.experiment.sandbox.python_path or "python3"
+    max_fix_iters = int(getattr(config.experiment, "sanity_check_max_iterations", 3))
+    report: dict[str, object] = {"status": "pending", "max_fix_iterations": max_fix_iters}
+    all_iterations: list[dict[str, object]] = []
+
+    env_base = {**_os_san.environ, "PYTHONUNBUFFERED": "1", "CUDA_VISIBLE_DEVICES": _sanity_gpu}
+
+    # ── Helpers ────────────────────────────────────────────────────────────
+
+    def _read_all_sources() -> dict[str, str]:
+        """Read every .py file in the experiment directory."""
+        sources: dict[str, str] = {}
+        for py_file in sorted(experiment_dir.glob("*.py")):
+            try:
+                sources[py_file.name] = py_file.read_text(encoding="utf-8")
+            except OSError:
+                pass
+        return sources
+
+    def _run_snippet(code: str, timeout: int = 60) -> tuple[bool, str, str]:
+        """Run a Python snippet, return (passed, stdout_tail, stderr_tail)."""
+        try:
+            r = _sp.run(
+                [python_path, "-c", code],
+                capture_output=True, text=True, timeout=timeout,
+                cwd=str(experiment_dir), env=env_base,
+            )
+            return (
+                r.returncode == 0,
+                (r.stdout or "")[-500:],
+                (r.stderr or "")[-1000:],
+            )
+        except _sp.TimeoutExpired:
+            return True, "", "timeout (code runs but slow — acceptable)"
+
+    # ── Mini-test definitions ─────────────────────────────────────────────
+    # Each test is (name, code_snippet, timeout_sec).  Tests run in order;
+    # later tests depend on earlier ones passing.
+
+    _mini_tests: list[tuple[str, str, int]] = [
+        (
+            "import_check",
+            (
+                "import sys, os, glob, importlib\n"
+                "sys.path.insert(0, '.')\n"
+                "py_files = sorted(glob.glob('*.py'))\n"
+                "print(f'  found {len(py_files)} .py files: {py_files}')\n"
+                "for fname in py_files:\n"
+                "    mod_name = fname[:-3]\n"
+                "    if mod_name.startswith('_'):\n"
+                "        continue\n"
+                "    print(f'  importing {mod_name} ...')\n"
+                "    importlib.import_module(mod_name)\n"
+                "print('IMPORT_OK')\n"
+            ),
+            60,
+        ),
+        (
+            "data_loading",
+            (
+                "import sys, os, glob, importlib, torch\n"
+                "sys.path.insert(0, '.')\n"
+                "# Auto-discover data loading from any module\n"
+                "loader_names = ['load_splits', 'get_datasets', 'load_data',\n"
+                "                'load_dataset_splits',\n"
+                "                'load_dataset', 'prepare_data', 'get_dataloaders']\n"
+                "loader = None\n"
+                "loader_mod = None\n"
+                "for fname in sorted(glob.glob('*.py')):\n"
+                "    mod_name = fname[:-3]\n"
+                "    if mod_name.startswith('_') or mod_name == 'setup':\n"
+                "        continue\n"
+                "    try:\n"
+                "        mod = importlib.import_module(mod_name)\n"
+                "    except Exception:\n"
+                "        continue\n"
+                "    for ln in loader_names:\n"
+                "        fn = getattr(mod, ln, None)\n"
+                "        if callable(fn):\n"
+                "            loader = fn\n"
+                "            loader_mod = mod_name\n"
+                "            break\n"
+                "    if loader:\n"
+                "        break\n"
+                "if loader is None:\n"
+                "    # If no standard loader, check if datasets dir is referenced\n"
+                "    datasets_dir = os.environ.get('DATASETS_DIR', '')\n"
+                "    if datasets_dir and os.path.isdir(datasets_dir):\n"
+                "        print(f'  No loader func found, but datasets dir exists: {datasets_dir}')\n"
+                "        print(f'  contents: {os.listdir(datasets_dir)[:5]}')\n"
+                "        print('DATA_LOAD_OK')\n"
+                "    else:\n"
+                "        print('  No data loader found, skipping (will test in e2e)')\n"
+                "        print('DATA_LOAD_OK')\n"
+                "else:\n"
+                "    print(f'  found loader: {loader_mod}.{loader.__name__}')\n"
+                "    result = loader()\n"
+                "    if isinstance(result, dict):\n"
+                "        for k, v in result.items():\n"
+                "            print(f'  split={k} len={len(v) if hasattr(v, \"__len__\") else \"?\"}')\n"
+                "    else:\n"
+                "        print(f'  result type={type(result).__name__}')\n"
+                "    print('DATA_LOAD_OK')\n"
+            ),
+            60,
+        ),
+        (
+            "checkpoint_and_metrics",
+            (
+                "import sys, os, glob, importlib, torch\n"
+                "sys.path.insert(0, '.')\n"
+                "device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')\n"
+                "print(f'  device={device}')\n"
+                "# Scan all modules for CLIP/metric loading functions\n"
+                "clip_loaders = ['load_clip_bundle', 'load_clip', 'get_clip_model']\n"
+                "metric_fns = ['compute_metrics', 'calculate_metrics', 'eval_metrics']\n"
+                "vae_fns = ['load_vae', 'get_vae', 'load_model']\n"
+                "found_any = False\n"
+                "for fname in sorted(glob.glob('*.py')):\n"
+                "    mod_name = fname[:-3]\n"
+                "    if mod_name.startswith('_') or mod_name == 'setup':\n"
+                "        continue\n"
+                "    try:\n"
+                "        mod = importlib.import_module(mod_name)\n"
+                "    except Exception:\n"
+                "        continue\n"
+                "    for fn_name in clip_loaders:\n"
+                "        fn = getattr(mod, fn_name, None)\n"
+                "        if callable(fn):\n"
+                "            print(f'  calling {mod_name}.{fn_name}(device)...')\n"
+                "            result = fn(device)\n"
+                "            print(f'  → {type(result).__name__}')\n"
+                "            found_any = True\n"
+                "            break\n"
+                "    for fn_name in vae_fns:\n"
+                "        fn = getattr(mod, fn_name, None)\n"
+                "        if callable(fn):\n"
+                "            try:\n"
+                "                print(f'  calling {mod_name}.{fn_name}(device)...')\n"
+                "                result = fn(device)\n"
+                "                print(f'  → {type(result).__name__}')\n"
+                "                found_any = True\n"
+                "            except Exception as e:\n"
+                "                print(f'  → skipped: {e}')\n"
+                "            break\n"
+                "# Check checkpoints dir\n"
+                "ckpt_dir = os.environ.get('CHECKPOINTS_DIR', '/home/user/PyramidResearchTeam/backend/checkpoints')\n"
+                "if os.path.isdir(ckpt_dir):\n"
+                "    print(f'  checkpoints dir: {os.listdir(ckpt_dir)[:5]}')\n"
+                "    found_any = True\n"
+                "if not found_any:\n"
+                "    print('  No checkpoint/metric loaders found, will test in e2e')\n"
+                "print('CKPT_METRICS_OK')\n"
+            ),
+            90,
+        ),
+        (
+            "mini_e2e_run",
+            (
+                "import sys, os, io\n"
+                "os.environ['SANITY_CHECK'] = '1'\n"
+                "sys.path.insert(0, '.')\n"
+                "sys.argv = ['main.py']\n"
+                "_captured = io.StringIO()\n"
+                "_old_stdout = sys.stdout\n"
+                "sys.stdout = _captured\n"
+                "try:\n"
+                "    exec(open('main.py').read())\n"
+                "finally:\n"
+                "    sys.stdout = _old_stdout\n"
+                "_output = _captured.getvalue()\n"
+                "print(_output)\n"
+                "if not _output.strip():\n"
+                "    raise RuntimeError('main.py produced no stdout output — it must print metrics')\n"
+                "if 'condition=' not in _output and 'primary_metric' not in _output and 'metric' not in _output.lower():\n"
+                "    raise RuntimeError('main.py stdout has no metric output (expected condition=... or primary_metric lines)')\n"
+                "print('E2E_RUN_OK')\n"
+            ),
+            120,
+        ),
+    ]
+
+    # ── LLM fix helper ────────────────────────────────────────────────────
+
+    def _ask_llm_fix(
+        test_name: str,
+        test_code: str,
+        stderr: str,
+        sources: dict[str, str],
+        iteration: int,
+    ) -> list[dict[str, str]]:
+        """Ask the coding model to fix files.  Returns list of {file, code}."""
+        if llm is None:
+            return []
+
+        source_block = ""
+        total_source_chars = sum(len(c) for c in sources.values())
+        per_file_limit = max(60000, 200000 // max(len(sources), 1))
+        for fname, code in sources.items():
+            if len(code) <= per_file_limit:
+                source_block += f"\n### {fname}\n```python\n{code}\n```\n"
+            else:
+                source_block += (
+                    f"\n### {fname} (TRUNCATED — {len(code)} chars, showing first & last)\n"
+                    f"```python\n{code[:per_file_limit // 2]}\n"
+                    f"\n# ... [{len(code) - per_file_limit} chars omitted] ...\n\n"
+                    f"{code[-(per_file_limit // 2):]}\n```\n"
+                )
+
+        fix_prompt = (
+            f"## Sanity Check Failure (iteration {iteration + 1}/{max_fix_iters})\n\n"
+            f"**Failed test:** `{test_name}`\n\n"
+            f"**Test code that was executed:**\n```python\n{test_code}\n```\n\n"
+            f"**Error output (stderr tail):**\n```\n{stderr[-2000:]}\n```\n\n"
+            f"## All source files in the experiment directory:\n{source_block}\n\n"
+            "## Instructions\n"
+            "Analyze the error and fix the RELEVANT source file(s).\n"
+            "Return ONE OR MORE file blocks in this exact format:\n\n"
+            "### FILENAME.py\n"
+            "```python\n"
+            "...complete fixed file content...\n"
+            "```\n\n"
+            "Rules:\n"
+            "- Return the COMPLETE file content for each file you modify.\n"
+            "- Do NOT change files that are not related to the error.\n"
+            "- Do NOT change function signatures or class APIs unless necessary to fix the bug.\n"
+            "- Do NOT add new dependencies that are not already imported.\n"
+            "- Do NOT wrap code in try/except blocks. Fix the ROOT CAUSE of the error "
+            "instead of catching and suppressing it. Errors must crash with a full traceback.\n"
+            "- Focus on the specific error; do not refactor or restructure.\n"
+        )
+
+        try:
+            resp = llm.chat(
+                [{"role": "user", "content": fix_prompt}],
+                system=(
+                    "You are an expert Python ML engineer. "
+                    "Fix the exact bug described.  Return only the fixed file(s) "
+                    "in the requested format.  No explanations outside code blocks."
+                ),
+                max_tokens=32768,
+            )
+            raw = resp.content if hasattr(resp, "content") else str(resp)
+        except Exception as exc:
+            logger.warning("SANITY_CHECK: LLM fix call failed: %s", exc)
+            return []
+
+        # Parse "### filename.py\n```python\n...\n```" blocks
+        patches: list[dict[str, str]] = []
+        import re as _re_fix
+        blocks = _re_fix.split(r"###\s+(\S+\.py)\s*\n", raw)
+        # blocks = ['', 'data.py', '```python\n...\n```\n', 'metrics.py', ...]
+        for i in range(1, len(blocks) - 1, 2):
+            fname = blocks[i].strip()
+            code_block = blocks[i + 1]
+            if "```python" in code_block:
+                code = code_block.split("```python", 1)[1].split("```", 1)[0].strip()
+            elif "```" in code_block:
+                code = code_block.split("```", 1)[1].split("```", 1)[0].strip()
+            else:
+                code = code_block.strip()
+            if code and len(code) > 30:
+                patches.append({"file": fname, "code": code})
+
+        return patches
+
+    # ── Fix log for detailed debugging ──────────────────────────────────
+    fix_log_entries: list[dict[str, object]] = []
+
+    def _write_fix_log() -> None:
+        """Persist the fix log after every iteration for crash-safety."""
+        (stage_dir / "fix_log.json").write_text(
+            json.dumps(fix_log_entries, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+    # ── Main iteration loop ───────────────────────────────────────────────
+
+    final_passed = False
+
+    for iteration in range(max_fix_iters + 1):  # iteration 0 = first run, then up to N fixes
+        iter_record: dict[str, object] = {
+            "iteration": iteration,
+            "is_fix_attempt": iteration > 0,
+            "checks": [],
+        }
+        iter_checks: list[dict[str, object]] = []
+        failed_test = None
+
+        for test_name, test_code, timeout in _mini_tests:
+            t0 = _t.monotonic()
+            passed, stdout_tail, stderr_tail = _run_snippet(test_code, timeout)
+            check_record: dict[str, object] = {
+                "name": test_name,
+                "passed": passed,
+                "duration_sec": round(_t.monotonic() - t0, 2),
+                "stdout_tail": stdout_tail[-300:],
+                "stderr_tail": stderr_tail[-500:] if not passed else "",
+            }
+            iter_checks.append(check_record)
+            logger.info(
+                "SANITY_CHECK iter=%d test=%s passed=%s (%.1fs)",
+                iteration, test_name, passed, check_record["duration_sec"],
+            )
+
+            if not passed:
+                failed_test = (test_name, test_code, stderr_tail)
+                break  # stop at first failure; fix before continuing
+
+        iter_record["checks"] = iter_checks
+        all_tests_passed = failed_test is None
+
+        if all_tests_passed:
+            iter_record["result"] = "all_passed"
+            all_iterations.append(iter_record)
+            final_passed = True
+            fix_log_entries.append({
+                "iteration": iteration,
+                "event": "all_tests_passed",
+                "tests_passed": [c["name"] for c in iter_checks],
+            })
+            _write_fix_log()
+            logger.info("SANITY_CHECK: all %d tests passed on iteration %d", len(_mini_tests), iteration)
+            break
+
+        # If this was the last allowed iteration, record and break
+        if iteration >= max_fix_iters:
+            iter_record["result"] = "failed_max_iterations"
+            all_iterations.append(iter_record)
+            fix_log_entries.append({
+                "iteration": iteration,
+                "event": "give_up",
+                "failed_test": failed_test[0],
+                "error_tail": failed_test[2][-1000:],
+            })
+            _write_fix_log()
+            logger.warning(
+                "SANITY_CHECK: giving up after %d fix iterations. Last failure: %s",
+                max_fix_iters, failed_test[0],
+            )
+            break
+
+        # ── Ask coding model to fix ──────────────────────────────────────
+        sources = _read_all_sources()
+        patches = _ask_llm_fix(
+            test_name=failed_test[0],
+            test_code=failed_test[1],
+            stderr=failed_test[2],
+            sources=sources,
+            iteration=iteration,
+        )
+
+        applied_patches: list[str] = []
+        rejected_patches: list[dict[str, object]] = []
+        for patch in patches:
+            target = experiment_dir / patch["file"]
+            bak = experiment_dir / f"{patch['file']}.bak_iter0"
+            if not bak.exists() and target.exists():
+                bak.write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+            if target.exists():
+                orig_lines = len(target.read_text(encoding="utf-8").splitlines())
+                patch_lines = len(patch["code"].splitlines())
+                if orig_lines > 50 and patch_lines < orig_lines * 0.5:
+                    logger.warning(
+                        "SANITY_CHECK: REJECTING patch for %s — "
+                        "patch has %d lines but original has %d lines "
+                        "(>50%% shrinkage, likely truncated LLM output)",
+                        patch["file"], patch_lines, orig_lines,
+                    )
+                    rejected_patches.append({
+                        "file": patch["file"],
+                        "reason": f"shrinkage: {patch_lines} vs {orig_lines} lines",
+                    })
+                    continue
+            target.write_text(patch["code"], encoding="utf-8")
+            applied_patches.append(patch["file"])
+            logger.info("SANITY_CHECK: patched %s (%d chars)", patch["file"], len(patch["code"]))
+
+        fix_log_entries.append({
+            "iteration": iteration,
+            "event": "fix_attempt",
+            "failed_test": failed_test[0],
+            "error_tail": failed_test[2][-1500:],
+            "llm_patches_returned": len(patches),
+            "patches_applied": applied_patches,
+            "patches_rejected": rejected_patches,
+            "patched_file_sizes": {
+                p: len((experiment_dir / p).read_text(encoding="utf-8"))
+                for p in applied_patches
+                if (experiment_dir / p).exists()
+            },
+        })
+        _write_fix_log()
+
+        iter_record["result"] = "fix_applied"
+        iter_record["patches"] = applied_patches
+        iter_record["failed_test"] = failed_test[0]
+        all_iterations.append(iter_record)
+
+        if not applied_patches:
+            logger.warning("SANITY_CHECK: LLM returned no patches, stopping iteration")
+            break
+
+    # ── Write report ──────────────────────────────────────────────────────
+
+    report["status"] = "pass" if final_passed else "fail"
+    report["iterations"] = all_iterations
+    report["total_iterations"] = len(all_iterations)
+    (stage_dir / "sanity_report.json").write_text(
+        json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8",
+    )
+    _write_fix_log()
+
+    summary = (
+        f"{'PASS' if final_passed else 'FAIL'}: "
+        f"{len(all_iterations)} iteration(s), "
+        f"{len(_mini_tests)} test phases"
+    )
+    return StageResult(
+        stage=Stage.SANITY_CHECK,
+        status=StageStatus.DONE,
+        artifacts=("sanity_report.json", "fix_log.json"),
+        evidence_refs=("experiment/",),
+        decision=summary,
     )
 
 
@@ -4206,6 +4898,11 @@ def _execute_experiment_run(
                 for _pyf in Path(exp_dir_path).glob("*.py"):
                     _all_code += "\n" + _pyf.read_text(encoding="utf-8")
             _ensure_sandbox_deps(_all_code, config.experiment.sandbox.python_path)
+
+        _run_gpu = _find_free_gpu()
+        os.environ["CUDA_VISIBLE_DEVICES"] = _run_gpu
+        logger.info("Stage 14 EXPERIMENT_RUN: using GPU %s", _run_gpu)
+        print(f"[EXPERIMENT_RUN] Using GPU: {_run_gpu}", flush=True)
 
         sandbox = create_sandbox(config.experiment, runs_dir / "sandbox")
         # Use run_project for multi-file, run for single-file
@@ -4545,6 +5242,11 @@ def _execute_iterative_refine(
                 return fv
         return None
 
+    _refine_gpu = _find_free_gpu()
+    os.environ["CUDA_VISIBLE_DEVICES"] = _refine_gpu
+    logger.info("Stage 15 ITERATIVE_REFINE: using GPU %s", _refine_gpu)
+    print(f"[ITERATIVE_REFINE] Using GPU: {_refine_gpu}", flush=True)
+
     requested_iterations = int(getattr(config.experiment, "max_iterations", 10) or 10)
     max_iterations = max(1, min(requested_iterations, 10))
 
@@ -4855,24 +5557,53 @@ def _execute_iterative_refine(
                 timeout_refine_attempts,
             )
 
+        _refine_max_tokens = ip.max_tokens or 8192
+        _code_char_estimate = sum(len(c) for c in best_files.values())
+        _code_token_estimate = _code_char_estimate // 3
+        _refine_max_tokens = max(_refine_max_tokens, _code_token_estimate + 4096)
+        if any(config.llm.primary_model.startswith(p) for p in ("gpt-5", "o3", "o4")):
+            _refine_max_tokens = max(_refine_max_tokens, 32768)
+        else:
+            _refine_max_tokens = max(_refine_max_tokens, 16384)
+
+        user_prompt += (
+            "\n\nIMPORTANT: Output the COMPLETE code file(s) FIRST, "
+            "inside properly closed ```python ... ``` blocks. "
+            "Do NOT write explanations before the code. "
+            "Any commentary must come AFTER all code blocks."
+        )
+
         response = _chat_with_prompt(
             llm,
             ip.system,
             user_prompt,
-            max_tokens=ip.max_tokens or 8192,
+            max_tokens=_refine_max_tokens,
         )
         extracted_files = _extract_multi_file_blocks(response.content)
-        # If LLM returns only single block, treat as main.py update
         if not extracted_files:
             single_code = _extract_code_block(response.content)
             if single_code.strip():
                 extracted_files = {"main.py": single_code}
-        # R8-2: Merge with best_files to preserve supporting modules
-        # (e.g., graphs.py, game.py) that the LLM didn't rewrite
+        # Guard: reject extracted files that shrank >50% vs best_files
+        # (likely truncated LLM output that would destroy the codebase)
+        _safe_extracted: dict[str, str] = {}
+        for _ef_name, _ef_code in extracted_files.items():
+            _orig = best_files.get(_ef_name, "")
+            _orig_lines = len(_orig.splitlines())
+            _new_lines = len(_ef_code.splitlines())
+            if _orig_lines > 50 and _new_lines < _orig_lines * 0.5:
+                logger.warning(
+                    "Stage 15 iter %d: REJECTING %s — %d lines vs original %d "
+                    "(>50%% shrinkage, likely truncated)",
+                    iteration, _ef_name, _new_lines, _orig_lines,
+                )
+            else:
+                _safe_extracted[_ef_name] = _ef_code
+        extracted_files = _safe_extracted
+
         candidate_files = dict(best_files)
         if extracted_files:
             candidate_files.update(extracted_files)
-        # If LLM returned nothing at all, candidate_files == best_files (unchanged)
 
         # Validate main.py
         main_code = candidate_files.get("main.py", "")

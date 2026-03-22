@@ -28,21 +28,29 @@ export interface StageMeta {
 }
 
 export const STAGE_META: Record<RCStage, StageMeta> = {
-  1:  { id: 1,  name: '课题初始化',   key: 'TOPIC_INIT',         outputs: ['goal.md', 'hardware_profile.json'] },
-  2:  { id: 2,  name: '问题分解',     key: 'PROBLEM_DECOMPOSE',   outputs: ['problem_tree.md'] },
-  3:  { id: 3,  name: '检索策略',     key: 'SEARCH_STRATEGY',     outputs: ['search_plan.yaml', 'sources.json', 'queries.json'] },
-  4:  { id: 4,  name: '文献收集',     key: 'LITERATURE_COLLECT',  outputs: ['candidates.jsonl'] },
-  5:  { id: 5,  name: '文献筛选 ⛩',  key: 'LITERATURE_SCREEN',   outputs: ['shortlist.jsonl'] },
-  6:  { id: 6,  name: '知识提取',     key: 'KNOWLEDGE_EXTRACT',   outputs: ['cards/'] },
-  7:  { id: 7,  name: '知识综合',     key: 'SYNTHESIS',           outputs: ['synthesis.md'] },
-  8:  { id: 8,  name: '假设生成',     key: 'HYPOTHESIS_GEN',      outputs: ['hypotheses.md'] },
-  9:  { id: 9,  name: '实验设计 ⛩',  key: 'EXPERIMENT_DESIGN',   outputs: ['exp_plan.yaml'] },
-  10: { id: 10, name: '代码生成',     key: 'CODE_GENERATION',     outputs: ['experiment/', 'experiment_spec.md'] },
-  11: { id: 11, name: '资源规划',     key: 'RESOURCE_PLANNING',   outputs: ['schedule.json'] },
-  12: { id: 12, name: '实验执行',     key: 'EXPERIMENT_RUN',      outputs: ['runs/'] },
-  13: { id: 13, name: '迭代优化',     key: 'ITERATIVE_REFINE',    outputs: ['refinement_log.json', 'experiment_final/'] },
-  14: { id: 14, name: '结果分析',     key: 'RESULT_ANALYSIS',     outputs: ['analysis.md', 'experiment_summary.json', 'charts/'] },
-  15: { id: 15, name: '研究决策',     key: 'RESEARCH_DECISION',   outputs: ['decision.md'] },
+  1:  { id: 1,  displayNumber: 1,  name: '课题初始化',   key: 'TOPIC_INIT',         outputs: ['goal.md', 'hardware_profile.json'] },
+  2:  { id: 2,  displayNumber: 2,  name: '问题分解',     key: 'PROBLEM_DECOMPOSE',   outputs: ['problem_tree.md'] },
+  3:  { id: 3,  displayNumber: 3,  name: '检索策略',     key: 'SEARCH_STRATEGY',     outputs: ['search_plan.yaml', 'sources.json', 'queries.json'] },
+  4:  { id: 4,  displayNumber: 4,  name: '文献收集',     key: 'LITERATURE_COLLECT',  outputs: ['candidates.jsonl'] },
+  5:  { id: 5,  displayNumber: 5,  name: '文献筛选 ⛩',  key: 'LITERATURE_SCREEN',   outputs: ['shortlist.jsonl'] },
+  6:  { id: 6,  displayNumber: 6,  name: '知识提取',     key: 'KNOWLEDGE_EXTRACT',   outputs: ['cards/'] },
+  7:  { id: 7,  displayNumber: 7,  name: '知识综合',     key: 'SYNTHESIS',           outputs: ['synthesis.md'] },
+  100:{ id: 100,displayNumber: 0,  name: '沟通讨论',    key: 'DISCUSSION',          outputs: ['discussion_transcript.md', 'consensus_synthesis.md'] },
+  8:  { id: 8,  displayNumber: 8,  name: '假设生成',     key: 'HYPOTHESIS_GEN',      outputs: ['hypotheses.md'] },
+  9:  { id: 9,  displayNumber: 9,  name: '实验设计 ⛩',  key: 'EXPERIMENT_DESIGN',   outputs: ['exp_plan.yaml'] },
+  10: { id: 10, displayNumber: 10, name: '代码库检索',   key: 'CODEBASE_SEARCH',     outputs: ['codebase_candidates.json'] },
+  11: { id: 11, displayNumber: 11, name: '代码生成',     key: 'CODE_GENERATION',     outputs: ['experiment/', 'experiment_spec.md'] },
+  12: { id: 12, displayNumber: 12, name: '代码检验',     key: 'SANITY_CHECK',        outputs: ['sanity_report.json'] },
+  13: { id: 13, displayNumber: 13, name: '资源规划',     key: 'RESOURCE_PLANNING',   outputs: ['schedule.json'] },
+  14: { id: 14, displayNumber: 14, name: '实验执行',     key: 'EXPERIMENT_RUN',      outputs: ['runs/'] },
+  15: { id: 15, displayNumber: 15, name: '迭代优化',     key: 'ITERATIVE_REFINE',    outputs: ['refinement_log.json', 'experiment_final/'] },
+  16: { id: 16, displayNumber: 16, name: '结果分析',     key: 'RESULT_ANALYSIS',     outputs: ['analysis.md', 'experiment_summary.json', 'charts/'] },
+  17: { id: 17, displayNumber: 17, name: '研究决策',     key: 'RESEARCH_DECISION',   outputs: ['decision.md'] },
+  18: { id: 18, displayNumber: 18, name: '知识归纳',     key: 'KNOWLEDGE_SUMMARY',   outputs: ['knowledge_entry.json'] },
+  19: { id: 19, displayNumber: 19, name: '论文大纲',     key: 'PAPER_OUTLINE',       outputs: ['outline.md'] },
+  20: { id: 20, displayNumber: 20, name: '论文初稿',     key: 'PAPER_DRAFT',         outputs: ['paper_draft.md'] },
+  21: { id: 21, displayNumber: 21, name: '同行评审',     key: 'PEER_REVIEW',         outputs: ['reviews.md'] },
+  22: { id: 22, displayNumber: 22, name: '论文修订',     key: 'PAPER_REVISION',      outputs: ['paper_revised.md'] },
 };
 
 // ===================== Pyramid Layer Definitions =====================
@@ -119,7 +127,7 @@ export interface RepoMeta {
 
 export const REPO_META: Record<RepoId, RepoMeta> = {
   [RepoId.KNOWLEDGE]: {
-    name: 'Idea & Knowledge 仓库',
+    name: 'Idea 仓库',
     icon: '💡',
     desc: '文献卡片、知识综合、研究假设',
     fromLayer: AgentLayer.IDEA,
@@ -154,9 +162,8 @@ export const REPO_META: Record<RepoId, RepoMeta> = {
 
 export const ALL_REPOS: readonly RepoId[] = [
   RepoId.KNOWLEDGE,
-  RepoId.EXP_DESIGN,
-  RepoId.CODEBASE,
-  RepoId.RESULTS,
+  RepoId.INSIGHTS,
+  RepoId.PAPERS,
 ];
 
 // ===================== Agent & Runtime Types =====================

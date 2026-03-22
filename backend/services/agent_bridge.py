@@ -272,6 +272,36 @@ class TaskQueue:
 
 
 @dataclass
+class DiscussionGroup:
+    """Tracks a group of L1 agents discussing the same topic."""
+    project_id: str
+    topic: str
+    config_path: str
+    agent_ids: list[str] = field(default_factory=list)
+    run_dirs: dict[str, str] = field(default_factory=dict)   # agent_id -> run_dir
+    completed_s7: set[str] = field(default_factory=set)       # agent_ids done with S7
+    completed_s8: set[str] = field(default_factory=set)       # agent_ids done with S8
+    best_agent_id: str = ""
+    status: str = "gathering"    # gathering | waiting | discussing | done
+    discussion_process: subprocess.Popen | None = field(default=None, repr=False)
+    discussion_output_dir: str = ""
+
+    def all_ready(self) -> bool:
+        return len(self.completed_s7) >= len(self.agent_ids) and len(self.agent_ids) >= 2
+
+    def all_s8_done(self) -> bool:
+        return len(self.completed_s8) >= len(self.agent_ids) and len(self.agent_ids) >= 2
+
+    def synthesis_dirs(self) -> list[str]:
+        dirs = []
+        for aid in self.agent_ids:
+            rd = self.run_dirs.get(aid, "")
+            if rd:
+                dirs.append(str(Path(rd) / "stage-07"))
+        return dirs
+
+
+@dataclass
 class LobsterAgent:
     id: str
     name: str
@@ -308,8 +338,21 @@ class BridgeState:
     python_path: str = ""
     agent_package_dir: str = ""
     runs_base_dir: str = ""
-    llm_client: object | None = field(default=None, repr=False)
-    llm_config_path: str = ""
+    gpu_allocator: GpuAllocator = field(default_factory=GpuAllocator)
+    result_registry: "ResultRegistry | None" = None
+    auto_loop: bool = False
+    # Discussion mode: L1 agents discuss after S7, before S8
+    discussion_mode: bool = False
+    discussion_groups: dict[str, DiscussionGroup] = field(default_factory=dict)
+    discussion_rounds: int = 3
+    discussion_models: list[str] = field(default_factory=lambda: ["gpt-5.3-codex-spark", "claude-opus-4-6"])
+    # Cross-project discussion: agents waiting for a peer to discuss with
+    discussion_waiting: dict[str, "LobsterAgent"] = field(default_factory=dict)
+    # Idea factory: L1 idle → produce ideas via S7+S8
+    idea_factory_topic: str = ""
+    idea_factory_config: str = ""
+    idea_factory_remaining: int = 0  # 0=disabled, -1=infinite, N=count
+    idea_factory_produced: int = 0
 
     def projects_dir(self) -> Path:
         return Path(self.runs_base_dir) / "projects"
@@ -706,8 +749,22 @@ def stop_agent(agent: LobsterAgent) -> list[dict]:
 # ── Task queue operations ───────────────────────────────────────────────────
 
 def submit_new_project(state: BridgeState, project_id: str, config_path: str, topic: str = "") -> list[dict]:
-    """Submit a brand-new project — goes into init_to_idea queue."""
+    """Submit a brand-new project — goes into init_to_idea queue.
+
+    In cross-project discussion mode, each project gets ONE agent.
+    After S7, agents from different projects discuss with each other.
+    """
     messages: list[dict] = []
+    sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+
+    if state.discussion_mode:
+        messages.append(msg_log(
+            sys_agent,
+            f"新项目 [{project_id}] 跨 project 讨论模式: 分配 1 个 agent, S7 后与其他 project agent 讨论",
+            "info", DISCUSSION_STAGE,
+        ))
+
+    # Single-agent per project (both discussion and non-discussion modes)
     run_dir = str(state.projects_dir() / project_id)
     os.makedirs(run_dir, exist_ok=True)
 
@@ -734,28 +791,747 @@ def on_agent_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
         for q in state.queues.values():
             q.complete(agent.assigned_task_id)
 
+    # Cross-project discussion: L1 agent completed S7 → find a peer to discuss with
+    if state.discussion_mode and agent.layer == "idea":
+        state.discussion_waiting[agent.id] = agent
+        agent.current_stage = DISCUSSION_STAGE
+        agent.stage_progress[DISCUSSION_STAGE] = "running"
+        agent.status = "waiting_discussion"
+        agent.current_task = "S7 完成，等待讨论伙伴..."
+        messages.append(msg_agent_update(agent))
+
+        # 1) Find another agent that also completed S7 (different project)
+        peers = [a for a in state.discussion_waiting.values()
+                 if a.id != agent.id and a.project_id != agent.project_id]
+
+        if peers:
+            peer = peers[0]
+            messages.append(msg_log(agent, f"S7 完成，与 [{peer.project_id}] 的 agent 开始跨 project 讨论", "info", DISCUSSION_STAGE))
+            messages.extend(_trigger_cross_project_discussion(state, agent, peer))
+            return messages
+
+        # 2) Find an idle agent (no project, can act as reviewer/critic)
+        idle_agents = [
+            a for a in state.agents.values()
+            if a.layer == "idea" and a.status == "idle"
+            and a.id != agent.id and not a.assigned_task_id
+        ]
+        if idle_agents:
+            reviewer = idle_agents[0]
+            reviewer.status = "discussing"
+            reviewer.current_stage = DISCUSSION_STAGE
+            reviewer.current_task = f"讨论评审: [{agent.project_id}]"
+            reviewer.stage_progress[DISCUSSION_STAGE] = "running"
+            messages.append(msg_agent_update(reviewer))
+            messages.append(msg_log(agent, f"S7 完成，与空闲 agent [{reviewer.name}] 开始讨论评审", "info", DISCUSSION_STAGE))
+            messages.extend(_trigger_cross_project_discussion(state, agent, reviewer))
+            return messages
+
+        # 3) No peer available at all — skip discussion
+        messages.append(msg_log(agent, "S7 完成，无可用讨论伙伴，跳过讨论直接进入 S8", "info", DISCUSSION_STAGE))
+        messages.extend(_skip_discussion_proceed_s8(state, agent))
+        return messages
+
     # Create follow-up task in the next queue
     output_queue_name = LAYER_OUTPUT_QUEUE.get(agent.layer)
     if output_queue_name and output_queue_name in state.queues and agent.project_id:
+        # L4→L5: only push to writing queue if S17 decision is PROCEED (or forced-PROCEED)
+        if agent.layer == "execution" and output_queue_name == "execution_to_writing":
+            _decision_file = Path(agent.run_dir) / "stage-17" / "decision.md"
+            _warning_file = Path(agent.run_dir) / "quality_warning.txt"
+            _summary_file = Path(agent.run_dir) / "pipeline_summary.json"
+            _is_proceed = False
+            if _decision_file.exists():
+                _dec_text = _decision_file.read_text(encoding="utf-8").upper()
+                _is_proceed = "PROCEED" in _dec_text and "REFINE" not in _dec_text.split("PROCEED")[0][-50:]
+            if not _is_proceed and _warning_file.exists():
+                _warn_text = _warning_file.read_text(encoding="utf-8")
+                if "max pivots" in _warn_text.lower():
+                    _is_proceed = True
+                    messages.append(msg_log(agent, "S17 决策为 REFINE 但已达最大迭代次数，强制进入论文写作", "warning"))
+            if not _is_proceed and _summary_file.exists():
+                try:
+                    import json as _json
+                    _summary = _json.loads(_summary_file.read_text(encoding="utf-8"))
+                    if _summary.get("final_status") == "done" and _summary.get("stages_failed", 1) == 0:
+                        _is_proceed = True
+                        messages.append(msg_log(agent, "Pipeline 全部完成，进入论文写作", "info"))
+                except Exception:
+                    pass
+            if not _is_proceed:
+                messages.append(msg_log(agent, f"S17 决策非 PROCEED，跳过论文写作", "info"))
+                output_queue_name = None
+
+        if output_queue_name and output_queue_name in state.queues:
+            _, target_layer = QUEUE_NAMES[output_queue_name]
+            follow_task = Task(
+                id=f"task-{_uid()}",
+                project_id=agent.project_id,
+                run_dir=agent.run_dir,
+                config_path=agent.config_path,
+                topic=getattr(agent, '_topic', ''),
+                source_layer=agent.layer,
+                target_layer=target_layer,
+                created_at=_now_ms(),
+            )
+            state.queues[output_queue_name].push(follow_task)
+            messages.append(msg_log(
+                agent,
+                f"任务完成 → 项目 [{agent.project_id}] 已加入 {output_queue_name} 队列",
+                "success",
+            ))
+
+    # Release GPU allocation for execution layer
+    if agent.layer == "execution" and agent.project_id:
+        released = state.gpu_allocator.release(agent.project_id)
+        if released:
+            messages.append(msg_log(agent, f"GPU {released} 已释放", "info"))
+
+    # Reset agent for next task
+    agent.assigned_task_id = None
+    agent.project_id = ""
+    agent.status = "idle"
+    agent.current_task = "等待任务..."
+    messages.append(msg_agent_update(agent))
+    messages.append(msg_queue_update(state.queues))
+
+    return messages
+
+
+def _create_model_config(base_config_path: str, model_name: str, output_dir: str) -> str:
+    """Create a per-agent config file with a different primary_model."""
+    import yaml
+    with open(base_config_path, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    if "llm" in cfg:
+        cfg["llm"]["primary_model"] = model_name
+    agent_config_path = str(Path(output_dir) / f"config_{model_name.replace('/', '_')}.yaml")
+    with open(agent_config_path, "w", encoding="utf-8") as f:
+        yaml.dump(cfg, f, default_flow_style=False, allow_unicode=True)
+    return agent_config_path
+
+
+def _launch_idea_factory_run(state: BridgeState, agent: LobsterAgent, s7_only: bool = False, model_override: str = "") -> list[dict]:
+    """Launch L1 agent to produce ideas. s7_only=True runs only S7 (for discussion mode)."""
+    messages: list[dict] = []
+
+    idea_id = f"idea-{_uid()}"
+    run_dir = str(Path(state.runs_base_dir).parent / "shared_results" / "idea_runs" / idea_id)
+    os.makedirs(run_dir, exist_ok=True)
+
+    _s6_seed = Path(run_dir) / "stage-06"
+    _s6_seed.mkdir(parents=True, exist_ok=True)
+    (_s6_seed / "cards").mkdir(exist_ok=True)
+
+    _s7_seed = Path(run_dir) / "stage-07"
+    _s7_seed.mkdir(parents=True, exist_ok=True)
+
+    config_path = state.idea_factory_config
+    if model_override:
+        try:
+            config_path = _create_model_config(state.idea_factory_config, model_override, run_dir)
+        except Exception as e:
+            messages.append(msg_log(agent, f"模型配置创建失败 ({model_override}): {e}，使用默认配置", "warning"))
+            config_path = state.idea_factory_config
+
+    task = Task(
+        id=f"task-{_uid()}",
+        project_id=idea_id,
+        run_dir=run_dir,
+        config_path=config_path,
+        topic=state.idea_factory_topic,
+        source_layer="idea_factory",
+        target_layer="idea",
+        created_at=_now_ms(),
+    )
+
+    _assign_task_to_agent(agent, task)
+    agent._is_idea_factory = True  # type: ignore[attr-defined]
+    agent._is_idea_factory_s7_only = s7_only  # type: ignore[attr-defined]
+
+    if s7_only:
+        layer_range = (7, 7)
+    else:
+        layer_range = (7, 8)
+    fs, ts = layer_range
+
+    cmd = [
+        state.python_path, "-m", "researchclaw", "run",
+        "--config", config_path,
+        "--output", task.run_dir,
+        "--from-stage", STAGE_NAMES.get(fs, str(fs)),
+        "--to-stage", STAGE_NAMES.get(ts, str(ts)),
+        "--auto-approve",
+        "--skip-preflight",
+        "--topic", state.idea_factory_topic,
+    ]
+
+    try:
+        log_path = Path(run_dir) / f"agent_{agent.id}.log"
+        log_file = open(log_path, "w", encoding="utf-8")
+        proc = subprocess.Popen(
+            cmd, cwd=state.agent_package_dir,
+            stdout=log_file, stderr=subprocess.STDOUT,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+        )
+        agent.process = proc
+        n = state.idea_factory_produced + 1
+        model_tag = f" [{model_override}]" if model_override else ""
+        agent.current_task = f"Idea 工厂 #{n}{model_tag}" + (" (S7 综合)" if s7_only else " (S7→S8)")
+        messages.append(msg_agent_update(agent))
+        label = f"Idea 工厂 #{n}: 知识综合中 (S7){model_tag}" if s7_only else f"Idea 工厂 #{n}: 生成假设中 (S7→S8){model_tag}"
+        messages.append(msg_log(agent, label, "info"))
+    except Exception as e:
+        agent.status = "error"
+        agent.current_task = f"Idea 工厂启动失败: {e}"
+        messages.append(msg_agent_update(agent))
+
+    return messages
+
+
+def _on_idea_factory_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
+    """Handle idea factory run completion: extract hypotheses, push to idea pool + L2 queue."""
+    messages: list[dict] = []
+    run_dir = Path(agent.run_dir)
+
+    # Read hypotheses
+    hyp_file = None
+    for sd in sorted(run_dir.glob("stage-08*"), reverse=True):
+        f = sd / "hypotheses.md"
+        if f.exists():
+            hyp_file = f
+            break
+
+    if hyp_file:
+        hyp_text = hyp_file.read_text(encoding="utf-8")
+
+        # Write to idea pool
+        pool_dir = Path(state.runs_base_dir).parent / "shared_results" / "idea_pool"
+        pool_dir.mkdir(parents=True, exist_ok=True)
+        pool_file = pool_dir / "ideas.jsonl"
+
+        entry = {
+            "id": agent.project_id,
+            "topic": state.idea_factory_topic,
+            "hypotheses": hyp_text[:2000],
+            "timestamp": _now_ms(),
+            "status": "pending",
+        }
+        with open(pool_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+        # Create L2 task from this idea
+        idea_run_dir = str(Path(state.runs_base_dir) / "projects" / agent.project_id)
+        os.makedirs(idea_run_dir, exist_ok=True)
+
+        # Copy hypotheses to the project run dir so L2 can find it
+        s8_dir = Path(idea_run_dir) / "stage-08"
+        s8_dir.mkdir(parents=True, exist_ok=True)
+        (s8_dir / "hypotheses.md").write_text(hyp_text, encoding="utf-8")
+
+        # Also copy synthesis if available
+        for sd in sorted(run_dir.glob("stage-07*"), reverse=True):
+            sf = sd / "synthesis.md"
+            if sf.exists():
+                s7_dir = Path(idea_run_dir) / "stage-07"
+                s7_dir.mkdir(parents=True, exist_ok=True)
+                (s7_dir / "synthesis.md").write_text(sf.read_text(encoding="utf-8"), encoding="utf-8")
+                break
+
+        # Push to idea_to_experiment queue
+        queue = state.queues.get("idea_to_experiment")
+        if queue:
+            follow_task = Task(
+                id=f"task-{_uid()}",
+                project_id=agent.project_id,
+                run_dir=idea_run_dir,
+                config_path=state.idea_factory_config,
+                topic=state.idea_factory_topic,
+                source_layer="idea",
+                target_layer="experiment",
+                created_at=_now_ms(),
+            )
+            queue.push(follow_task)
+            messages.append(msg_log(agent, f"Idea #{state.idea_factory_produced + 1} → 实验设计队列", "success"))
+
+        state.idea_factory_produced += 1
+        if state.idea_factory_remaining > 0:
+            state.idea_factory_remaining -= 1
+
+        messages.append(msg_log(
+            agent,
+            f"Idea 工厂: 已产出 {state.idea_factory_produced} 个, 剩余 {'无限' if state.idea_factory_remaining == -1 else state.idea_factory_remaining}",
+            "info",
+        ))
+    else:
+        messages.append(msg_log(agent, "Idea 工厂: 未生成假设", "warning"))
+
+    # Reset agent
+    agent.assigned_task_id = None
+    agent.project_id = ""
+    agent.status = "idle"
+    agent.current_task = "等待任务..."
+    agent._is_idea_factory = False  # type: ignore[attr-defined]
+    agent._is_idea_factory_s7_only = False  # type: ignore[attr-defined]
+    agent._is_discussion_s8 = False  # type: ignore[attr-defined]
+    agent._idea_factory_batch_id = None  # type: ignore[attr-defined]
+    messages.append(msg_agent_update(agent))
+
+    return messages
+
+
+def _on_idea_factory_s7_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
+    """Handle idea factory S7-only completion: enter discussion flow."""
+    messages: list[dict] = []
+    agent._is_idea_factory_s7_only = False  # type: ignore[attr-defined]
+
+    batch_id = getattr(agent, '_idea_factory_batch_id', None)
+    if not batch_id or batch_id not in state.discussion_groups:
+        messages.append(msg_log(agent, "S7 完成但无沟通讨论组，回退到非讨论模式", "warning"))
+        agent._is_idea_factory = False  # type: ignore[attr-defined]
+        agent.assigned_task_id = None
+        agent.project_id = ""
+        agent.status = "idle"
+        agent.current_task = "等待任务..."
+        messages.append(msg_agent_update(agent))
+        return messages
+
+    group = state.discussion_groups[batch_id]
+    group.completed_s7.add(agent.id)
+    agent.status = "waiting_discussion"
+    agent.current_stage = DISCUSSION_STAGE
+    agent.current_task = f"等待沟通讨论 ({len(group.completed_s7)}/{len(group.agent_ids)})"
+    agent.stage_progress[DISCUSSION_STAGE] = "running"
+    messages.append(msg_agent_update(agent))
+    messages.append(msg_stage_update(agent.id, DISCUSSION_STAGE, "running"))
+    messages.append(msg_log(agent, f"S7 完成，等待沟通讨论 ({len(group.completed_s7)}/{len(group.agent_ids)})", "info", DISCUSSION_STAGE))
+
+    if group.all_ready():
+        messages.extend(_trigger_discussion(state, group))
+
+    return messages
+
+
+def _trigger_discussion(state: BridgeState, group: DiscussionGroup) -> list[dict]:
+    """Launch the discussion runner when all agents in a group have completed S7."""
+    messages: list[dict] = []
+    group.status = "discussing"
+
+    disc_dir = str(state.projects_dir() / group.project_id / "discussion")
+    os.makedirs(disc_dir, exist_ok=True)
+    group.discussion_output_dir = disc_dir
+
+    for aid in group.agent_ids:
+        agent = state.agents.get(aid)
+        if agent:
+            agent.status = "discussing"
+            agent.current_stage = DISCUSSION_STAGE
+            agent.current_task = "多 Agent 沟通讨论中..."
+            messages.append(msg_agent_update(agent))
+
+    synthesis_dirs = group.synthesis_dirs()
+    runner_path = str(Path(__file__).resolve().parent / "discussion_runner.py")
+    cmd = [
+        state.python_path, runner_path,
+        "--config", group.config_path,
+        "--synthesis-dirs", *synthesis_dirs,
+        "--output", disc_dir,
+        "--rounds", str(state.discussion_rounds),
+    ]
+    if group.topic:
+        cmd.extend(["--topic", group.topic])
+
+    try:
+        log_path = Path(disc_dir) / "discussion.log"
+        log_file = open(log_path, "w", encoding="utf-8")
+        proc = subprocess.Popen(
+            cmd, cwd=state.agent_package_dir,
+            stdout=log_file, stderr=subprocess.STDOUT,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+        )
+        group.discussion_process = proc
+        sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+        messages.append(msg_log(
+            sys_agent,
+            f"项目 [{group.project_id}] 沟通讨论开始: {len(group.agent_ids)} 个 agent, {state.discussion_rounds} 轮 (PID={proc.pid})",
+            "info", DISCUSSION_STAGE,
+        ))
+    except Exception as e:
+        group.status = "done"
+        sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+        messages.append(msg_log(sys_agent, f"沟通讨论启动失败: {e}", "error", DISCUSSION_STAGE))
+        for aid in group.agent_ids:
+            agent = state.agents.get(aid)
+            if agent:
+                agent.status = "error"
+                agent.current_task = f"沟通讨论启动失败: {e}"
+                messages.append(msg_agent_update(agent))
+
+    return messages
+
+
+def _trigger_cross_project_discussion(
+    state: BridgeState, agent1: LobsterAgent, agent2: LobsterAgent,
+) -> list[dict]:
+    """Launch a discussion between two agents from different projects."""
+    messages: list[dict] = []
+
+    for a in (agent1, agent2):
+        a.status = "discussing"
+        a.current_task = f"跨 project 讨论: {agent1.project_id} × {agent2.project_id}"
+        messages.append(msg_agent_update(a))
+
+    p1_id = agent1.project_id or agent1.name
+    p2_id = agent2.project_id or agent2.name
+    disc_name = f"{p1_id}_x_{p2_id}"
+    disc_dir = str(state.projects_dir() / "_cross_discussions" / disc_name)
+    os.makedirs(disc_dir, exist_ok=True)
+
+    synthesis_dirs = []
+    for a in (agent1, agent2):
+        s7 = Path(a.run_dir) / "stage-07" if a.run_dir else None
+        if s7 and s7.exists():
+            synthesis_dirs.append(str(s7))
+
+    group = DiscussionGroup(
+        project_id=disc_name,
+        topic=f"{p1_id} | {p2_id}",
+        config_path=agent1.config_path,
+    )
+    group.agent_ids = [agent1.id, agent2.id]
+    group.run_dirs = {agent1.id: agent1.run_dir, agent2.id: agent2.run_dir}
+    group.status = "discussing"
+    group.discussion_output_dir = disc_dir
+    group._cross_project = True  # type: ignore[attr-defined]
+
+    runner_path = str(Path(__file__).resolve().parent / "discussion_runner.py")
+    cmd = [
+        state.python_path, runner_path,
+        "--config", agent1.config_path,
+        "--synthesis-dirs", *synthesis_dirs,
+        "--output", disc_dir,
+        "--rounds", str(state.discussion_rounds),
+        "--topic", group.topic,
+    ]
+
+    try:
+        log_path = Path(disc_dir) / "discussion.log"
+        log_file = open(log_path, "w", encoding="utf-8")
+        proc = subprocess.Popen(
+            cmd, cwd=state.agent_package_dir,
+            stdout=log_file, stderr=subprocess.STDOUT,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+        )
+        group.discussion_process = proc
+        state.discussion_groups[disc_name] = group
+
+        sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+        messages.append(msg_log(
+            sys_agent,
+            f"跨 project 讨论开始: [{agent1.project_id}] × [{agent2.project_id}], {state.discussion_rounds} 轮 (PID={proc.pid})",
+            "info", DISCUSSION_STAGE,
+        ))
+    except Exception as e:
+        sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+        messages.append(msg_log(sys_agent, f"跨 project 讨论启动失败: {e}", "error", DISCUSSION_STAGE))
+        for a in (agent1, agent2):
+            state.discussion_waiting.pop(a.id, None)
+        messages.extend(_skip_discussion_proceed_s8(state, agent1))
+        messages.extend(_skip_discussion_proceed_s8(state, agent2))
+
+    return messages
+
+
+def _skip_discussion_proceed_s8(state: BridgeState, agent: LobsterAgent) -> list[dict]:
+    """Skip discussion and proceed directly to S8 for a single agent."""
+    messages: list[dict] = []
+    state.discussion_waiting.pop(agent.id, None)
+
+    agent.stage_progress[DISCUSSION_STAGE] = "completed"
+    messages.append(msg_stage_update(agent.id, DISCUSSION_STAGE, "completed"))
+
+    fs, ts = LAYER_RANGE_PHASE2["idea"]
+    agent.status = "working"
+    agent.current_task = f"项目 {agent.project_id} · S8 假设生成 (跳过讨论)"
+    agent.stage_progress[8] = "running"
+    messages.append(msg_agent_update(agent))
+    messages.append(msg_stage_update(agent.id, 8, "running"))
+    messages.append(msg_log(agent, "跳过讨论 → 直接启动 S8 假设生成", "info", 8))
+
+    cmd = [
+        state.python_path, "-m", "researchclaw", "run",
+        "--config", agent.config_path,
+        "--output", agent.run_dir,
+        "--from-stage", STAGE_NAMES.get(fs, str(fs)),
+        "--to-stage", STAGE_NAMES.get(ts, str(ts)),
+        "--auto-approve",
+        "--skip-preflight",
+    ]
+    if agent.project_id:
+        cmd.extend(["--topic", agent.project_id])
+
+    try:
+        log_path = Path(agent.run_dir) / f"agent_{agent.id}_s8.log"
+        log_file = open(log_path, "w", encoding="utf-8")
+        proc = subprocess.Popen(
+            cmd, cwd=state.agent_package_dir,
+            stdout=log_file, stderr=subprocess.STDOUT,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+        )
+        agent.process = proc
+        agent._is_discussion_s8 = True  # type: ignore[attr-defined]
+        messages.append(msg_log(agent, f"S8 启动 (PID={proc.pid})", "info", 8))
+    except Exception as e:
+        agent.status = "error"
+        agent.current_task = f"S8 启动失败: {e}"
+        messages.append(msg_agent_update(agent))
+        messages.append(msg_log(agent, f"S8 启动失败: {e}", "error"))
+
+    return messages
+
+
+def _poll_discussion(state: BridgeState, group: DiscussionGroup) -> list[dict]:
+    """Check if a discussion subprocess has finished and handle completion."""
+    messages: list[dict] = []
+    if group.status != "discussing" or group.discussion_process is None:
+        return messages
+
+    retcode = group.discussion_process.poll()
+    if retcode is None:
+        return messages
+
+    group.discussion_process = None
+    sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+
+    is_cross = getattr(group, "_cross_project", False)
+
+    if retcode != 0:
+        group.status = "done"
+        messages.append(msg_log(sys_agent, f"讨论 [{group.project_id}] 失败 (exit={retcode})", "error", DISCUSSION_STAGE))
+        for aid in group.agent_ids:
+            agent = state.agents.get(aid)
+            if agent:
+                state.discussion_waiting.pop(aid, None)
+                if is_cross:
+                    messages.append(msg_log(agent, "讨论失败，跳过讨论直接进入 S8", "warning", DISCUSSION_STAGE))
+                    messages.extend(_skip_discussion_proceed_s8(state, agent))
+                else:
+                    agent.status = "error"
+                    agent.current_task = f"沟通讨论失败 (exit={retcode})"
+                    agent.stage_progress[DISCUSSION_STAGE] = "failed"
+                    messages.append(msg_agent_update(agent))
+                    messages.append(msg_stage_update(agent.id, DISCUSSION_STAGE, "failed"))
+        return messages
+
+    consensus_file = Path(group.discussion_output_dir) / "consensus_synthesis.md"
+    if not consensus_file.exists():
+        messages.append(msg_log(sys_agent, f"讨论 [{group.project_id}] 完成但未产生共识", "warning", DISCUSSION_STAGE))
+        group.status = "done"
+        for aid in group.agent_ids:
+            agent = state.agents.get(aid)
+            if agent:
+                state.discussion_waiting.pop(aid, None)
+                has_project = bool(agent.run_dir and (Path(agent.run_dir) / "stage-07").exists())
+                if has_project:
+                    messages.extend(_skip_discussion_proceed_s8(state, agent))
+                else:
+                    agent.status = "idle"
+                    agent.current_task = "等待任务..."
+                    agent.current_stage = 0
+                    messages.append(msg_agent_update(agent))
+        return messages
+
+    consensus_text = consensus_file.read_text(encoding="utf-8")
+    messages.append(msg_log(sys_agent, f"讨论 [{group.project_id}] 完成，共识已生成，启动假设生成", "success", DISCUSSION_STAGE))
+    for aid in group.agent_ids:
+        agent = state.agents.get(aid)
+        if agent:
+            agent.stage_progress[DISCUSSION_STAGE] = "completed"
+            messages.append(msg_stage_update(agent.id, DISCUSSION_STAGE, "completed"))
+
+    transcript_file = Path(group.discussion_output_dir) / "discussion_transcript.md"
+    if transcript_file.exists():
+        messages.append(msg_artifact(
+            "knowledge", "discussion_transcript.md",
+            "沟通讨论", f"{transcript_file.stat().st_size / 1024:.1f} KB",
+            group.project_id,
+        ))
+
+    group.status = "done"
+
+    for aid in group.agent_ids:
+        agent = state.agents.get(aid)
+        if not agent:
+            continue
+        state.discussion_waiting.pop(aid, None)
+
+        has_project = bool(agent.run_dir and (Path(agent.run_dir) / "stage-07").exists())
+
+        if has_project:
+            s7_dir = Path(agent.run_dir) / "stage-07"
+            s7_dir.mkdir(parents=True, exist_ok=True)
+            existing_synthesis = s7_dir / "synthesis.md"
+            if existing_synthesis.exists():
+                original = existing_synthesis.read_text(encoding="utf-8")
+                enriched = (
+                    f"{original}\n\n"
+                    f"---\n\n"
+                    f"# {'Cross-Project' if is_cross else 'Multi-Agent'} Discussion Consensus\n\n"
+                    f"{consensus_text}"
+                )
+                existing_synthesis.write_text(enriched, encoding="utf-8")
+            else:
+                (s7_dir / "synthesis.md").write_text(consensus_text, encoding="utf-8")
+
+            messages.extend(_launch_s8_for_agent(state, agent, group))
+        else:
+            agent.status = "idle"
+            agent.current_task = "等待任务..."
+            agent.current_stage = 0
+            agent.stage_progress[DISCUSSION_STAGE] = "completed"
+            messages.append(msg_agent_update(agent))
+            messages.append(msg_log(agent, "讨论评审完成，恢复空闲", "info", DISCUSSION_STAGE))
+
+    return messages
+
+
+def _launch_s8_for_agent(state: BridgeState, agent: LobsterAgent, group: DiscussionGroup) -> list[dict]:
+    """Launch S8 (HYPOTHESIS_GEN) for a single agent after discussion."""
+    messages: list[dict] = []
+    fs, ts = LAYER_RANGE_PHASE2["idea"]
+
+    agent.status = "working"
+    agent.current_task = f"项目 {group.project_id} · S8 假设生成"
+    agent.stage_progress[8] = "running"
+    messages.append(msg_agent_update(agent))
+    messages.append(msg_stage_update(agent.id, 8, "running"))
+    messages.append(msg_log(agent, "沟通讨论完成 → 开始假设生成", "info", 8))
+
+    cmd = [
+        state.python_path, "-m", "researchclaw", "run",
+        "--config", group.config_path,
+        "--output", agent.run_dir,
+        "--from-stage", STAGE_NAMES.get(fs, str(fs)),
+        "--to-stage", STAGE_NAMES.get(ts, str(ts)),
+        "--auto-approve",
+        "--skip-preflight",
+    ]
+    if group.topic:
+        cmd.extend(["--topic", group.topic])
+
+    try:
+        log_path = Path(agent.run_dir) / f"agent_{agent.id}_s8.log"
+        log_file = open(log_path, "w", encoding="utf-8")
+        proc = subprocess.Popen(
+            cmd, cwd=state.agent_package_dir,
+            stdout=log_file, stderr=subprocess.STDOUT,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+        )
+        agent.process = proc
+        agent._is_discussion_s8 = True  # type: ignore[attr-defined]
+        messages.append(msg_log(agent, f"S8 启动 (PID={proc.pid})", "info", 8))
+    except Exception as e:
+        agent.status = "error"
+        agent.current_task = f"S8 启动失败: {e}"
+        messages.append(msg_agent_update(agent))
+        messages.append(msg_log(agent, f"S8 启动失败: {e}", "error"))
+
+    return messages
+
+
+def _select_best_hypothesis(state: BridgeState, group: DiscussionGroup) -> str:
+    """Pick the best agent perspective based on hypothesis quality heuristics.
+
+    Scores each agent's hypotheses.md by: number of hypotheses found,
+    total length (richer detail = better), and presence of novelty_report.
+    Returns the agent_id with the highest score.
+    """
+    best_id = group.agent_ids[0]
+    best_score = -1
+    for aid in group.agent_ids:
+        rd = group.run_dirs.get(aid, "")
+        if not rd:
+            continue
+        score = 0
+        hypo_file = Path(rd) / "stage-08" / "hypotheses.md"
+        if hypo_file.exists():
+            text = hypo_file.read_text(encoding="utf-8", errors="replace")
+            score += len(text)
+            score += text.lower().count("hypothesis") * 500
+            score += text.lower().count("## ") * 300
+        novelty_file = Path(rd) / "stage-08" / "novelty_report.json"
+        if novelty_file.exists():
+            score += 2000
+        if score > best_score:
+            best_score = score
+            best_id = aid
+    return best_id
+
+
+def _on_discussion_s8_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
+    """Handle S8 completion — wait for all agents, then pick the best hypothesis
+    and create only ONE downstream task to avoid duplicate experiments."""
+    messages: list[dict] = []
+    agent._is_discussion_s8 = False  # type: ignore[attr-defined]
+
+    project_id = agent.project_id
+    group = state.discussion_groups.get(project_id)
+
+    if group:
+        group.completed_s8.add(agent.id)
+        messages.append(msg_log(
+            agent,
+            f"S8 完成 ({len(group.completed_s8)}/{len(group.agent_ids)})，等待其他 agent...",
+            "info",
+        ))
+
+    # Not all agents done yet — park this agent, wait for peers
+    if group and not group.all_s8_done():
+        agent.status = "idle"
+        agent.current_task = "等待任务..."
+        agent.assigned_task_id = None
+        agent.project_id = ""
+        messages.append(msg_agent_update(agent))
+        return messages
+
+    # All S8 done — select the best hypothesis and create ONE downstream task
+    sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+
+    if group:
+        best_id = _select_best_hypothesis(state, group)
+        group.best_agent_id = best_id
+        best_run_dir = group.run_dirs.get(best_id, agent.run_dir)
+        other_ids = [a for a in group.agent_ids if a != best_id]
+        messages.append(msg_log(
+            sys_agent,
+            f"项目 [{project_id}] 所有 agent S8 完成 → 选择最优假设 (agent {best_id})，"
+            f"合并为单一实验路径（淘汰 {', '.join(other_ids)}）",
+            "success",
+        ))
+    else:
+        best_run_dir = agent.run_dir
+
+    output_queue_name = LAYER_OUTPUT_QUEUE.get("idea")
+    if output_queue_name and output_queue_name in state.queues and project_id:
         _, target_layer = QUEUE_NAMES[output_queue_name]
         follow_task = Task(
             id=f"task-{_uid()}",
-            project_id=agent.project_id,
-            run_dir=agent.run_dir,
+            project_id=project_id,
+            run_dir=best_run_dir,
             config_path=agent.config_path,
-            topic=getattr(agent, '_topic', ''),
-            source_layer=agent.layer,
+            topic=getattr(agent, '_topic', '') or (group.topic if group else ''),
+            source_layer="idea",
             target_layer=target_layer,
             created_at=_now_ms(),
         )
         state.queues[output_queue_name].push(follow_task)
         messages.append(msg_log(
-            agent,
-            f"任务完成 → 项目 [{agent.project_id}] 已加入 {output_queue_name} 队列",
+            sys_agent,
+            f"项目 [{project_id}] 最优假设已加入 {output_queue_name} 队列（单一实验路径）",
             "success",
         ))
 
-    # Reset agent for next task
+    # Reset this agent (peers were already reset when they finished earlier)
     agent.assigned_task_id = None
     agent.project_id = ""
     agent.status = "idle"
@@ -971,6 +1747,35 @@ async def poll_loop(state: BridgeState, interval: float):
                 if agent.assigned_task_id:
                     for q in state.queues.values():
                         q.fail(agent.assigned_task_id)
+                if agent.layer == "execution" and agent.project_id:
+                    released = state.gpu_allocator.release(agent.project_id)
+                    if released:
+                        all_messages.append(msg_log(agent, f"GPU {released} 已释放 (错误后)", "warning"))
+                # Clean up discussion group if agent failed (idea factory or user project)
+                _batch_id = getattr(agent, '_idea_factory_batch_id', None)
+                _disc_key = _batch_id or (agent.project_id if agent.project_id in state.discussion_groups else None)
+                if _disc_key and _disc_key in state.discussion_groups:
+                    _grp = state.discussion_groups[_disc_key]
+                    if agent.id in _grp.agent_ids:
+                        _grp.agent_ids.remove(agent.id)
+                        _grp.run_dirs.pop(agent.id, None)
+                        _grp.completed_s7.discard(agent.id)
+                    remaining = [state.agents.get(a) for a in _grp.agent_ids if state.agents.get(a)]
+                    waiting = [a for a in remaining if a.status == "waiting_discussion"]
+                    if waiting and len(_grp.agent_ids) < 2:
+                        # Only 1 agent left — skip discussion, launch S8 directly
+                        sole = waiting[0]
+                        all_messages.append(msg_log(
+                            sole,
+                            f"伙伴 agent 失败，跳过讨论 → 直接进入 S8 假设生成",
+                            "warning", DISCUSSION_STAGE,
+                        ))
+                        sole.stage_progress[DISCUSSION_STAGE] = "skipped"
+                        all_messages.append(msg_stage_update(sole.id, DISCUSSION_STAGE, "skipped"))
+                        all_messages.extend(_launch_s8_for_agent(state, sole, _grp))
+                        _grp.status = "done"
+                    elif not remaining:
+                        del state.discussion_groups[_disc_key]
                 agent.assigned_task_id = None
                 agent.status = "idle"
                 agent.current_task = "等待任务..."
