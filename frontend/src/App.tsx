@@ -328,16 +328,31 @@ export default function App() {
 
         <div className="pyramid-container">
           <ResourceMonitor stats={state.resources} connected={state.resConnected} />
-          <div className="pyramid">
-            {ALL_LAYERS.map((layer, idx) => (
-              <LayerPanel
-                key={layer}
-                layer={layer}
-                agents={agentMap[layer]}
-                logs={logMap[layer]}
-                tierIndex={idx}
-              />
-            ))}
+          <div className="pyramid-wrapper">
+            <div className="pyramid">
+              {ALL_LAYERS.map((layer, idx) => {
+                const hasWorking = agentMap[layer].some((a) => ['working', 'waiting_discussion', 'discussing'].includes(a.status));
+                return (
+                  <div key={layer} className="pyramid-tier">
+                    <LayerPanel
+                      layer={layer}
+                      agents={agentMap[layer]}
+                      logs={logMap[layer]}
+                      tierIndex={idx}
+                    />
+                    {idx < ALL_LAYERS.length - 1 && (
+                      <DataFlowArrow active={hasWorking} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className={`feedback-loop ${agentMap[AgentLayer.EXECUTION].some((a) => a.status === 'done') ? 'active' : ''}`}>
+              <div className="fb-line fb-bottom" />
+              <div className="fb-line fb-side"><div className="fb-pulse" /></div>
+              <div className="fb-line fb-top" />
+              <div className="fb-tip" />
+            </div>
           </div>
         </div>
 
