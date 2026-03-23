@@ -597,7 +597,7 @@ class BridgeState:
     result_registry: "ResultRegistry | None" = None
     auto_loop: bool = False
     # Discussion mode: L1 agents discuss after S7, before S8
-    discussion_mode: bool = False
+    discussion_mode: bool = True
     discussion_groups: dict[str, DiscussionGroup] = field(default_factory=dict)
     discussion_rounds: int = 3
     discussion_models: list[str] = field(default_factory=lambda: ["gpt-5.3-codex-spark", "claude-opus-4-6"])
@@ -2728,7 +2728,26 @@ if __name__ == "__main__":
     parser.add_argument("--pool-exp", type=int, default=2)
     parser.add_argument("--pool-code", type=int, default=3)
     parser.add_argument("--pool-exec", type=int, default=4)
-    parser.add_argument("--llm-config", default="",
-                        help="Path to ResearchClaw YAML config for feedback LLM")
+    parser.add_argument("--pool-write", type=int, default=2)
+    parser.add_argument("--total-gpus", type=int, default=8,
+                        help="Total number of GPUs available")
+    parser.add_argument("--gpus-per-project", type=int, default=2,
+                        help="GPUs allocated per project in execution layer")
+    parser.add_argument("--auto-loop", action="store_true", default=False,
+                        help="Enable auto-loop: L4 completion feeds back to L1 for new research cycle")
+    parser.add_argument("--discussion-mode", action="store_true", default=True,
+                        help="Enable L1 discussion: agents discuss after S7 before generating hypotheses")
+    parser.add_argument("--no-discussion-mode", action="store_false", dest="discussion_mode",
+                        help="Disable L1 discussion mode")
+    parser.add_argument("--discussion-rounds", type=int, default=3,
+                        help="Number of LLM discussion rounds (default: 3)")
+    parser.add_argument("--discussion-models", default="gpt-5.3-codex-spark,claude-opus-4-6",
+                        help="Comma-separated LLM models for discussion agents (different companies for diversity)")
+    parser.add_argument("--idea-count", type=int, default=0,
+                        help="Idea factory: number of ideas to produce (0=disabled, -1=infinite)")
+    parser.add_argument("--idea-topic", default="",
+                        help="Idea factory: research topic for idea generation")
+    parser.add_argument("--idea-config", default="",
+                        help="Idea factory: config file path")
     args = parser.parse_args()
     asyncio.run(main(args))

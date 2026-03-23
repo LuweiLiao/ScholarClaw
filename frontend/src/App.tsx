@@ -72,7 +72,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'project_list':
       return { ...state, projects: action.payload };
     case 'select_project':
-      return { ...state, selectedProjectId: state.selectedProjectId === action.payload ? null : action.payload };
+      return { ...state, selectedProjectId: action.payload };
     case 'set_mock':
       return { ...state, mockMode: action.payload };
     case 'clear_agents':
@@ -109,6 +109,8 @@ export default function App() {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [agentWsUrl, setAgentWsUrl] = useState(`${WS_PROTO}//${window.location.host}/ws/agents`);
   const [resWsUrl, setResWsUrl] = useState(`${WS_PROTO}//${window.location.host}/ws/resources`);
+  const [showSettings, setShowSettings] = useState(false);
+  const [discussionMode, setDiscussionMode] = useState(true);
   const [locale, setLocale] = useState<Locale>(() =>
     (localStorage.getItem('claw-locale') as Locale) || 'zh'
   );
@@ -235,6 +237,19 @@ export default function App() {
     }
   };
 
+  const toggleDiscussionMode = () => {
+    const next = !discussionMode;
+    setDiscussionMode(next);
+    const ws = agentWsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ command: 'set_discussion_mode', enabled: next }));
+    }
+  };
+
+  const showDiscussionInfo = () => {
+    window.alert(`${t('discussion.dialog_title')}\n\n${t('discussion.dialog_body')}`);
+  };
+
   // ── Memoized derived state ──
   const ideaAgents = useMemo(() => state.agents.filter((a) => a.layer === AgentLayer.IDEA), [state.agents]);
   const expAgents = useMemo(() => state.agents.filter((a) => a.layer === AgentLayer.EXPERIMENT), [state.agents]);
@@ -322,10 +337,10 @@ export default function App() {
           <span className="header-subtitle">1.0.0</span>
         </div>
         <div className="header-stats">
-          <span className="stat">{t('header.stat_agents')} <b>{state.agents.length}</b></span>
-          <span className="stat">{t('header.stat_active')} <b>{workingCount}</b></span>
-          <span className="stat">{t('header.stat_error')} <b>{errorCount}</b></span>
-          <span className="stat" dangerouslySetInnerHTML={{ __html: t('header.stat_artifacts', { n: `<b>${state.artifacts.length}</b>` }) }} />
+          <span className="stat">Agent <b>{state.agents.length}</b></span>
+          <span className="stat">{t('header.active')} <b>{workingCount}</b></span>
+          <span className="stat">❌ <b>{errorCount}</b></span>
+          <span className="stat">📦 <b>{state.artifacts.length}</b></span>
         </div>
         <div className="header-right">
           <button
@@ -352,6 +367,9 @@ export default function App() {
             connected={state.connected}
             selectedProjectId={state.selectedProjectId}
             artifactsByProject={artifactsByProject}
+            discussionMode={discussionMode}
+            onToggleDiscussion={toggleDiscussionMode}
+            onShowDiscussionInfo={showDiscussionInfo}
             onSelect={(projectId) => dispatch({ type: 'select_project', payload: projectId })}
             onResume={(projectId) => {
               const ws = agentWsRef.current;
