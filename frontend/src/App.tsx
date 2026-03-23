@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useCallback, useRef, useState, useMemo } from 'react';
-import { AgentLayer, ALL_LAYERS } from './types';
+import { AgentLayer, ALL_LAYERS, ALL_REPOS } from './types';
 import type { AppState, WSMessage, ResourceStats, LobsterAgent, QueueMap, ProjectInfo, Artifact } from './types';
 import { INITIAL_AGENTS, createMockMessageGenerator } from './mock';
 import LayerPanel from './components/LayerPanel';
@@ -7,6 +7,7 @@ import ResourceMonitor from './components/ResourceMonitor';
 import LogPanel from './components/LogPanel';
 import QueuePanel from './components/QueuePanel';
 import DataFlowArrow from './components/DataFlowArrow';
+import DataShelf from './components/DataShelf';
 import ProjectPanel from './components/ProjectPanel';
 import { LocaleContext, makeT } from './i18n';
 import type { Locale } from './i18n';
@@ -267,7 +268,16 @@ export default function App() {
     return map;
   }, [state.artifacts]);
 
-  const workingCount = useMemo(() => state.agents.filter((a) => a.status === 'working').length, [state.agents]);
+  const artifactsByRepo = useMemo(() => {
+    const map: Record<string, Artifact[]> = {};
+    for (const a of state.artifacts) {
+      if (!map[a.repoId]) map[a.repoId] = [];
+      map[a.repoId].push(a);
+    }
+    return map;
+  }, [state.artifacts]);
+
+  const workingCount = useMemo(() => state.agents.filter((a) => ['working', 'waiting_discussion', 'discussing'].includes(a.status)).length, [state.agents]);
   const errorCount = useMemo(() => state.agents.filter((a) => a.status === 'error').length, [state.agents]);
 
   const sendFeedback = useCallback((content: string, targetLayer?: string) => {
@@ -371,7 +381,20 @@ export default function App() {
               }
             }}
           />
-          <QueuePanel queues={state.queues} />
+          <div className="shelf-section">
+            <div className="shelf-section-header">
+              <span className="shelf-section-title">{t('header.shared_repo')}</span>
+            </div>
+            <div className="shelf-list">
+              {ALL_REPOS.map((repoId) => (
+                <DataShelf
+                  key={repoId}
+                  repoId={repoId}
+                  artifacts={artifactsByRepo[repoId] || []}
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="pyramid-container">
@@ -405,7 +428,10 @@ export default function App() {
           </div>
         </div>
 
-        <LogPanel logs={state.logs} />
+        <div className="side-panel log-panel">
+          <LogPanel logs={state.logs} />
+          <QueuePanel queues={state.queues} />
+        </div>
       </div>
 
       <HumanFeedbackPanel
