@@ -3,16 +3,13 @@
 # Usage: ./start.sh [start|stop|restart|status]
 
 BASE="$(cd "$(dirname "$0")" && pwd)"
-PY="/home/user/miniforge3/bin/python3"
+PY="/home/TanZS/miniconda3/bin/python3"
 FE="$BASE/frontend"
 LOG="$BASE/logs"
 PIDF="$BASE/.pids"
 
-export RESEARCHCLAW_API_KEY="${RESEARCHCLAW_API_KEY:-sk-QLo52KgqSRHiI3H3JydKzJJJw4W0URzsNnGy8d3QB1yYtFqM}"
-
-FNM_DIR="${FNM_DIR:-$HOME/.local/share/fnm}"
-export PATH="$FNM_DIR:$PATH"
-eval "$($FNM_DIR/fnm env 2>/dev/null)" 2>/dev/null
+export PATH="/home/TanZS/.local/share/fnm:$PATH"
+eval "$(/home/TanZS/.local/share/fnm/fnm env 2>/dev/null)" 2>/dev/null
 
 mkdir -p "$LOG" "$PIDF"
 
