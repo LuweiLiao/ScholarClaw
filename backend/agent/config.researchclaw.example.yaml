@@ -36,10 +36,12 @@ openclaw_bridge:
 
 llm:
   provider: "openai-compatible"
-  base_url: "https://api.vectorengine.ai/v1"
-  api_key_env: "RESEARCHCLAW_API_KEY"
-  api_key: "sk-QLo52KgqSRHiI3H3JydKzJJJw4W0URzsNnGy8d3QB1yYtFqM"
-  primary_model: "gpt-5.4"
+  base_url: "https://api.openai.com/v1"
+  api_key_env: "OPENAI_API_KEY"
+  api_key: ""
+  primary_model: "gpt-4o"
+  # coding_model: "claude-sonnet-4-20250514"   # S11 代码生成专用 (留空则用主模型)
+  # image_model: "gemini-3-pro-image-preview"  # L5 论文图像生成 (teaser/框架/方法图，留空则用默认)
   fallback_models:
     - "gpt-5.4"
     - "gpt-5.4"
