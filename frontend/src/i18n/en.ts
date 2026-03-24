@@ -41,6 +41,7 @@ const en: Record<string, string> = {
   'project.stages_label': 'stages',
   'project.pause': '⏸ Pause',
   'project.restart': '🔄 Restart',
+  'project.download_latex': 'Download LaTeX',
   'project.restart_confirm': 'Restart project "{id}"?\nAll progress will be reset.',
   'project.intervention_needed': 'Manual Intervention Required',
   'project.delete': '🗑 Delete',

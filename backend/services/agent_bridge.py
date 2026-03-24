@@ -75,10 +75,12 @@ STAGE_OUTPUTS: dict[int, list[str]] = {
     1: ["goal.md", "hardware_profile.json"], 2: ["problem_tree.md"],
     3: ["search_plan.yaml", "sources.json", "queries.json"], 4: ["candidates.jsonl"],
     5: ["shortlist.jsonl"], 6: ["cards/"], 7: ["synthesis.md"], 8: ["hypotheses.md"],
-    9: ["exp_plan.yaml"], 10: ["experiment/", "experiment_spec.md"],
-    11: ["schedule.json"], 12: ["runs/"],
-    13: ["refinement_log.json", "experiment_final/"],
-    14: ["analysis.md", "experiment_summary.json", "charts/"], 15: ["decision.md"],
+    9: ["exp_plan.yaml"], 10: ["codebase_candidates.json"],
+    11: ["experiment/", "experiment_spec.md"], 12: ["sanity_report.json"],
+    13: ["schedule.json"], 14: ["runs/"],
+    15: ["refinement_log.json", "experiment_final/"],
+    16: ["analysis.md", "experiment_summary.json", "charts/"], 17: ["decision.md"], 18: ["knowledge_entry.json"],
+    19: ["outline.md"], 20: ["paper_draft.md"], 21: ["reviews.md"], 22: ["paper_revised.md", "latex_package.zip"],
 }
 
 # Curated artifacts to display in the frontend DataShelf (subset of STAGE_OUTPUTS)
@@ -87,8 +89,8 @@ DISPLAY_ARTIFACTS: set[str] = {
     "hypotheses.md",
     # 知识库
     "knowledge_entry.json",
-    # 论文仓库 — only final paper
-    "paper_revised.md",
+    # 论文仓库 — final paper + LaTeX package
+    "paper_revised.md", "latex_package.zip",
     # 结果
     "analysis.md", "charts/", "decision.md",
     # 实验设计
@@ -2965,6 +2967,19 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
             )
         messages.append(msg_feedback_ack(message_id, plan_hint, target_layer))
 
+    elif cmd == "get_download_url":
+        project_id = data.get("projectId", "")
+        filename = data.get("filename", "latex_package.zip")
+        if project_id:
+            messages.append({
+                "type": "download_url",
+                "payload": {
+                    "projectId": project_id,
+                    "filename": filename,
+                    "url": f"/download/{project_id}/{filename}",
+                },
+            })
+
     return messages
 
 
@@ -3196,8 +3211,52 @@ async def main(args: argparse.Namespace):
     print(f"   LLM feedback:  {'✅ 已启用' if llm else '❌ 未配置 (--llm-config)'}")
     print()
 
+    def _make_process_request(st: BridgeState):
+        """Create HTTP request handler for file downloads."""
+        from http import HTTPStatus
+        from websockets.http11 import Response as WSResponse
+
+        def _http_response(status_code: int, body: bytes, content_type: str = "text/plain",
+                           extra_headers: dict | None = None) -> WSResponse:
+            reason = HTTPStatus(status_code).phrase
+            headers = {"Content-Type": content_type, "Content-Length": str(len(body)),
+                        "Access-Control-Allow-Origin": "*"}
+            if extra_headers:
+                headers.update(extra_headers)
+            return WSResponse(status_code, reason, websockets.Headers(headers), body)
+
+        async def process_request(connection, request):
+            if request.path.startswith("/download/"):
+                from urllib.parse import unquote
+                parts = unquote(request.path[len("/download/"):]).split("/", 1)
+                if len(parts) < 2:
+                    return _http_response(404, b"Not found\n")
+                project_id, filename = parts[0], parts[1]
+                proj_dir = Path(st.runs_base_dir) / "projects" / project_id
+                if not proj_dir.is_dir():
+                    return _http_response(404, f"Project {project_id} not found\n".encode())
+                file_path = None
+                for stage_dir in sorted(proj_dir.glob("run-*/stage-*"), reverse=True):
+                    candidate = stage_dir / filename
+                    if candidate.is_file():
+                        file_path = candidate
+                        break
+                if not file_path:
+                    return _http_response(404, f"File {filename} not found\n".encode())
+                try:
+                    data = file_path.read_bytes()
+                    return _http_response(200, data, "application/octet-stream",
+                                          {"Content-Disposition": f'attachment; filename="{file_path.name}"'})
+                except Exception as e:
+                    return _http_response(500, f"Error: {e}\n".encode())
+            return None
+        return process_request
+
     handler = lambda ws: ws_handler(state, ws)
-    async with websockets.serve(handler, "0.0.0.0", args.port):
+    async with websockets.serve(
+        handler, "0.0.0.0", args.port,
+        process_request=_make_process_request(state),
+    ):
         await poll_loop(state, args.interval)
 
 
