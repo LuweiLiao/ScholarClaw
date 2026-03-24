@@ -81,6 +81,22 @@ STAGE_OUTPUTS: dict[int, list[str]] = {
     14: ["analysis.md", "experiment_summary.json", "charts/"], 15: ["decision.md"],
 }
 
+# Curated artifacts to display in the frontend DataShelf (subset of STAGE_OUTPUTS)
+DISPLAY_ARTIFACTS: set[str] = {
+    # Idea 仓库 — only S8 hypotheses
+    "hypotheses.md",
+    # 知识库
+    "knowledge_entry.json",
+    # 论文仓库 — only final paper
+    "paper_revised.md",
+    # 结果
+    "analysis.md", "charts/", "decision.md",
+    # 实验设计
+    "exp_plan.yaml",
+    # 代码
+    "experiment/", "experiment_spec.md", "experiment_final/",
+}
+
 REPO_FOR_STAGE: dict[int, str] = {
     1: "knowledge", 2: "knowledge", 3: "knowledge", 4: "knowledge",
     5: "knowledge", 6: "knowledge", 7: "knowledge", 8: "knowledge",
@@ -358,16 +374,39 @@ def _restart_project(state: "BridgeState", project_id: str) -> list[dict]:
         messages.append(msg_log(sys_agent, f"项目 [{project_id}] 缺少配置文件路径, 无法重启", "error"))
         return messages
 
-    for item in proj_dir.iterdir():
-        if item.name == "project_meta.json":
-            continue
-        if item.is_dir():
-            shutil.rmtree(item, ignore_errors=True)
-        else:
-            item.unlink(missing_ok=True)
-
-    messages.append(msg_log(sys_agent, f"项目 [{project_id}] 已清除进度，正在重新启动…", "info"))
-    messages.extend(submit_new_project(state, project_id, config_path, topic, mode=mode))
+    # Lab mode with run-* sub-dirs: clear progress inside each angle but keep structure
+    angle_dirs = sorted(proj_dir.glob("run-*"))
+    if mode == "lab" and angle_dirs:
+        for angle_dir in angle_dirs:
+            if not angle_dir.is_dir():
+                continue
+            for item in angle_dir.iterdir():
+                if item.name in ("project_meta.json",):
+                    continue
+                if item.is_dir():
+                    shutil.rmtree(item, ignore_errors=True)
+                else:
+                    item.unlink(missing_ok=True)
+        # Also clean any non-run files at project root (except meta)
+        for item in proj_dir.iterdir():
+            if item.name == "project_meta.json" or item.name.startswith("run-"):
+                continue
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+            else:
+                item.unlink(missing_ok=True)
+        messages.append(msg_log(sys_agent, f"项目 [{project_id}] 已清除进度，正在重新启动…", "info"))
+        messages.extend(resume_project(state, project_id))
+    else:
+        for item in proj_dir.iterdir():
+            if item.name == "project_meta.json":
+                continue
+            if item.is_dir():
+                shutil.rmtree(item, ignore_errors=True)
+            else:
+                item.unlink(missing_ok=True)
+        messages.append(msg_log(sys_agent, f"项目 [{project_id}] 已清除进度，正在重新启动…", "info"))
+        messages.extend(submit_new_project(state, project_id, config_path, topic, mode=mode))
     return messages
 
 
@@ -851,8 +890,12 @@ def msg_artifact(repo_id: str, filename: str, agent_name: str, size: str,
     return {"type": "artifact_produced", "payload": payload}
 
 
-def _extract_artifact_summary(path: Path, filename: str, max_chars: int = 300) -> str:
+_NO_CONTENT_ARTIFACTS: set[str] = {"paper_revised.md", "paper_draft.md", "outline.md", "reviews.md"}
+
+def _extract_artifact_summary(path: Path, filename: str, max_chars: int = 500) -> str:
     """Extract a human-readable summary from an artifact file."""
+    if filename in _NO_CONTENT_ARTIFACTS:
+        return ""
     try:
         if path.is_dir():
             children = list(path.iterdir())
@@ -871,6 +914,22 @@ def _extract_artifact_summary(path: Path, filename: str, max_chars: int = 300) -
         text = path.read_text(encoding="utf-8", errors="ignore")
         if not text.strip():
             return ""
+
+        if filename == "hypotheses.md":
+            lines = text.strip().split("\n")
+            hyp_titles = []
+            for line in lines:
+                stripped = line.strip()
+                if stripped.startswith("##") and "hypothesis" in stripped.lower():
+                    title = stripped.lstrip("#").strip().lstrip("—").lstrip("-").strip()
+                    title = title.removeprefix("Final Hypothesis").strip()
+                    title = title.removeprefix("Hypothesis").strip()
+                    title = title.lstrip("0123456789").strip().lstrip("—").lstrip("-").strip()
+                    title = title.replace("**", "").replace("*", "")
+                    if title:
+                        hyp_titles.append(f"• {title}")
+            if hyp_titles:
+                return "\n".join(hyp_titles)[:max_chars]
 
         if filename.endswith(".md"):
             lines = text.strip().split("\n")
@@ -899,6 +958,23 @@ def _extract_artifact_summary(path: Path, filename: str, max_chars: int = 300) -
         if filename.endswith(".json"):
             data = json.loads(text)
             if isinstance(data, dict):
+                # knowledge_entry.json: extract topic + hypothesis names
+                if "topic" in data and "hypotheses" in data and isinstance(data["hypotheses"], list):
+                    topic = str(data["topic"])[:120]
+                    hyp_names = []
+                    for h in data["hypotheses"][:5]:
+                        if isinstance(h, dict):
+                            name = h.get("name") or h.get("id", "")
+                            status = h.get("status", "")
+                            entry = str(name)[:60]
+                            if status:
+                                entry += f" ({status[:20]})"
+                            hyp_names.append(entry)
+                    summary = topic
+                    if hyp_names:
+                        summary += "\n" + "\n".join(f"• {n}" for n in hyp_names)
+                    return summary[:max_chars]
+
                 keys = list(data.keys())[:8]
                 preview_parts = []
                 for k in keys[:4]:
@@ -973,6 +1049,8 @@ def _sync_completed_stages(
                 key = f"{s}:{expected}"
                 if key not in agent._known_artifacts and artifact_path.exists():
                     agent._known_artifacts.add(key)
+                    if expected not in DISPLAY_ARTIFACTS:
+                        continue
                     size = "dir" if artifact_path.is_dir() else f"{artifact_path.stat().st_size / 1024:.1f} KB"
                     content = _extract_artifact_summary(artifact_path, expected)
                     messages.append(msg_artifact(
@@ -1099,6 +1177,8 @@ def _passthrough_agent(agent: LobsterAgent) -> list[dict]:
                 key = f"{s}:{expected}"
                 if key not in agent._known_artifacts and artifact_path.exists():
                     agent._known_artifacts.add(key)
+                    if expected not in DISPLAY_ARTIFACTS:
+                        continue
                     size = "dir" if artifact_path.is_dir() else f"{artifact_path.stat().st_size / 1024:.1f} KB"
                     content = _extract_artifact_summary(artifact_path, expected)
                     messages.append(msg_artifact(
@@ -1665,8 +1745,8 @@ def resume_project(state: BridgeState, project_id: str) -> list[dict]:
 
     state._fail_counts.pop(project_id, None)  # reset fail counter on manual resume
 
-    run_dir = str(state.projects_dir() / project_id)
-    if not Path(run_dir).exists():
+    proj_dir = state.projects_dir() / project_id
+    if not proj_dir.exists():
         messages.append(msg_log(sys_agent, f"项目 [{project_id}] 不存在", "error"))
         return messages
 
@@ -1675,16 +1755,18 @@ def resume_project(state: BridgeState, project_id: str) -> list[dict]:
             messages.append(msg_log(sys_agent, f"项目 [{project_id}] 已在运行中", "warning"))
             return messages
 
-    meta = _read_json(Path(run_dir) / "project_meta.json")
+    meta = _read_json(proj_dir / "project_meta.json")
     config_path = meta.get("config_path", "") if meta else ""
     topic = meta.get("topic", "") if meta else ""
+    mode = meta.get("mode", "lab") if meta else "lab"
 
     # Clear intervention flag on resume
-    _meta_path = Path(run_dir) / "project_meta.json"
     if meta and meta.get("intervention"):
         meta.pop("intervention", None)
         try:
-            _meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+            (proj_dir / "project_meta.json").write_text(
+                json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
         except Exception:
             pass
 
@@ -1692,7 +1774,66 @@ def resume_project(state: BridgeState, project_id: str) -> list[dict]:
         messages.append(msg_log(sys_agent, f"项目 [{project_id}] 缺少配置文件路径, 无法恢复", "error"))
         return messages
 
-    messages.extend(submit_new_project(state, project_id, config_path, topic))
+    # Lab mode with run-* sub-directories: resume each angle separately
+    angle_dirs = sorted(proj_dir.glob("run-*"))
+    if mode == "lab" and angle_dirs:
+        task_count = 0
+        for angle_dir in angle_dirs:
+            if not angle_dir.is_dir():
+                continue
+            slug = angle_dir.name.removeprefix("run-")
+            angle_config_key = f"{project_id}--{slug}"
+            angle_config = str(Path(state.runs_base_dir) / "project_configs" / f"{angle_config_key}.yaml")
+            if not Path(angle_config).exists():
+                angle_config = config_path
+
+            run_dir = str(angle_dir)
+            resume_info = _determine_resume_target(run_dir)
+            if resume_info:
+                target_layer, next_stage = resume_info
+                queue_name = _queue_for_layer(target_layer)
+                source_layer = {
+                    "idea": "init", "experiment": "idea", "coding": "experiment",
+                    "execution": "coding", "writing": "execution",
+                }.get(target_layer, "init")
+                stage_name = STAGE_NAMES.get(next_stage, f"S{next_stage}")
+                messages.append(msg_log(
+                    sys_agent,
+                    f"  方向 [{slug}] 断点恢复 → {stage_name} (Stage {next_stage})",
+                    "success",
+                ))
+            else:
+                queue_name = "init_to_idea"
+                source_layer = "init"
+                target_layer = "idea"
+                messages.append(msg_log(sys_agent, f"  方向 [{slug}] 从头开始", "info"))
+
+            task = Task(
+                id=f"task-{_uid()}",
+                project_id=project_id,
+                run_dir=run_dir,
+                config_path=angle_config,
+                topic=f"[{slug}] {topic}",
+                source_layer=source_layer,
+                target_layer=target_layer,
+                created_at=_now_ms(),
+            )
+            state.queues[queue_name].push(task)
+            task_count += 1
+
+        if task_count >= 2:
+            state.lab_batches[project_id] = task_count
+
+        messages.append(msg_queue_update(state.queues))
+        messages.append(msg_project_list(list_all_projects(state)))
+        messages.append(msg_log(
+            sys_agent,
+            f"Lab 模式: 项目 [{project_id}] — {task_count} 个方向已恢复",
+            "success",
+        ))
+        return messages
+
+    messages.extend(submit_new_project(state, project_id, config_path, topic, mode=mode))
     return messages
 
 
@@ -1866,7 +2007,21 @@ def quick_submit_project(
 
     project_dir = state.projects_dir() / base_id
     project_dir.mkdir(parents=True, exist_ok=True)
-    _save_project_meta(str(project_dir), base_id, "", topic.strip())
+
+    _po = path_overrides or {}
+    try:
+        project_config_path = _generate_config_from_template(
+            state, base_id, topic.strip(),
+            reference_papers=reference_papers,
+            codebases_dir=_po.get("codebases_dir", ""),
+            datasets_dir=_po.get("datasets_dir", ""),
+            checkpoints_dir=_po.get("checkpoints_dir", ""),
+        )
+    except Exception as e:
+        messages.append(msg_log(sys_agent, f"配置生成失败: {e}", "error"))
+        return messages
+
+    _save_project_meta(str(project_dir), base_id, project_config_path, topic.strip(), mode="lab")
 
     messages.append(msg_log(
         sys_agent,
@@ -2732,40 +2887,12 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
 
         _save_feedback(state, content, target_layer, message_id)
 
-        injected_projects = []
-        for agent in state.agents.values():
-            if not agent.run_dir or agent.status not in ("working", "idle"):
-                continue
-            if target_layer != "all" and agent.layer != target_layer:
-                continue
-            if agent.project_id:
-                injected_projects.append(agent.project_id)
-
-        if state.llm_client is not None:
-            ack_text = "正在分析你的反馈，请稍候..."
-            if injected_projects:
-                unique = sorted(set(injected_projects))
-                ack_text = f"已注入 {len(unique)} 个项目，正在调用大模型分析反馈..."
-            messages.append(msg_feedback_ack(message_id, ack_text, target_layer, ""))
-            asyncio.ensure_future(_async_llm_feedback(state, content, target_layer, message_id))
-        else:
-            target_desc = "全局" if target_layer == "all" else STAGE_NAMES.get(
-                LAYER_STAGES.get(target_layer, [0])[0], target_layer
-            )
-            if injected_projects:
-                unique = sorted(set(injected_projects))
-                plan_hint = (
-                    f"已将反馈注入 {len(unique)} 个项目的 prompt 上下文中 "
-                    f"({', '.join(unique)})。"
-                    f"当前阶段完成后，下一个阶段的 LLM 将读取并参考你的反馈来调整执行计划。"
-                    f"\n(未配置 LLM，无法提供即时智能分析)"
-                )
-            else:
-                plan_hint = (
-                    f"已记录针对 [{target_desc}] 的反馈。"
-                    f"当前无匹配的运行中项目，反馈将在新任务启动时生效。"
-                )
-            messages.append(msg_feedback_ack(message_id, plan_hint, target_layer, plan_hint))
+    elif cmd == "set_discussion_mode":
+        enabled = bool(data.get("enabled", False))
+        state.discussion_mode = enabled
+        rounds = data.get("rounds")
+        if rounds is not None:
+            state.discussion_rounds = int(rounds)
 
     elif cmd == "chat_input":
         content = data.get("content", "").strip()
@@ -2841,27 +2968,46 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
     return messages
 
 
-async def _async_llm_feedback(state: BridgeState, content: str, target_layer: str, message_id: str):
-    """Background task: call LLM to analyze feedback, then broadcast the result."""
-    try:
-        result = await _process_feedback_with_llm(state, content, target_layer, message_id)
-        if result:
-            await broadcast(state, [result])
+def _scan_existing_artifacts(state: BridgeState) -> list[dict]:
+    """Scan all project directories for completed stage artifacts to send on connect."""
+    messages: list[dict] = []
+    projects_dir = state.projects_dir()
+    if not projects_dir.exists():
+        return messages
+
+    for proj_dir in sorted(projects_dir.iterdir()):
+        if not proj_dir.is_dir():
+            continue
+        project_id = proj_dir.name
+
+        # Collect all run dirs: project root + any run-* sub-dirs (Lab mode)
+        run_dirs: list[Path] = []
+        angle_dirs = list(proj_dir.glob("run-*"))
+        if angle_dirs:
+            run_dirs.extend(d for d in angle_dirs if d.is_dir())
         else:
-            fallback = msg_plan_update(
-                "LLM 分析暂不可用，你的反馈已保存并将在下一个阶段自动注入 prompt 中。",
-                target_layer,
-                "反馈已保存，等待下一阶段执行时生效。",
-            )
-            await broadcast(state, [fallback])
-    except Exception as e:
-        print(f"[error] Async LLM feedback failed: {e}")
-        fallback = msg_plan_update(
-            f"分析反馈时出错: {e}。你的反馈已保存，将在下一个阶段自动生效。",
-            target_layer,
-            "反馈已保存，分析出错。",
-        )
-        await broadcast(state, [fallback])
+            run_dirs.append(proj_dir)
+
+        seen: set[str] = set()
+        for run_dir in run_dirs:
+            for s, outputs in STAGE_OUTPUTS.items():
+                stage_dir = run_dir / f"stage-{s:02d}"
+                if not stage_dir.is_dir():
+                    continue
+                for expected in outputs:
+                    if expected not in DISPLAY_ARTIFACTS:
+                        continue
+                    artifact_path = stage_dir / expected.rstrip("/")
+                    dedup_key = f"{project_id}:{s}:{expected}"
+                    if dedup_key in seen or not artifact_path.exists():
+                        continue
+                    seen.add(dedup_key)
+                    size = "dir" if artifact_path.is_dir() else f"{artifact_path.stat().st_size / 1024:.1f} KB"
+                    content = _extract_artifact_summary(artifact_path, expected)
+                    messages.append(msg_artifact(
+                        REPO_FOR_STAGE.get(s, "knowledge"), expected, project_id, size, project_id, content, stage=s,
+                    ))
+    return messages
 
 
 async def ws_handler(state: BridgeState, websocket: websockets.ServerConnection):
@@ -2874,6 +3020,13 @@ async def ws_handler(state: BridgeState, websocket: websockets.ServerConnection)
             break
     try:
         await websocket.send(json.dumps(msg_queue_update(state.queues), ensure_ascii=False))
+    except websockets.ConnectionClosed:
+        pass
+
+    # Send existing artifacts from completed stages
+    try:
+        for msg in _scan_existing_artifacts(state):
+            await websocket.send(json.dumps(msg, ensure_ascii=False))
     except websockets.ConnectionClosed:
         pass
 
