@@ -119,10 +119,10 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [discussionMode, setDiscussionMode] = useState(true);
   const [locale, setLocale] = useState<Locale>(() =>
-    (localStorage.getItem('claw-locale') as Locale) || 'zh'
+    (localStorage.getItem('claw-locale') as Locale) || 'en'
   );
   const [theme, setTheme] = useState<'dark' | 'light'>(() =>
-    (localStorage.getItem('claw-theme') as 'dark' | 'light') || 'dark'
+    (localStorage.getItem('claw-theme') as 'dark' | 'light') || 'light'
   );
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
