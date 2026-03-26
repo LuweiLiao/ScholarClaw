@@ -3,11 +3,20 @@
 # Usage: ./start.sh [start|stop|restart|status]
 
 BASE="$(cd "$(dirname "$0")" && pwd)"
-PY="${PYTHON_PATH:-/home/user/miniforge3/bin/python3}"
 FE="$BASE/frontend"
 LOG="$BASE/logs"
 PIDF="$BASE/.pids"
 RUNTIME_PORTS="$BASE/.runtime_ports"
+
+# Resolve python path: env PYTHON_PATH > config sandbox.python_path > system python3
+_cfg_py=""
+for _cfg in "$BASE/examples/config_template.yaml" "$BASE"/backend/runs/project_configs/*.yaml; do
+    [ -f "$_cfg" ] || continue
+    _cfg_py=$(grep 'python_path:' "$_cfg" 2>/dev/null | head -1 | sed 's/.*python_path:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | tr -d '[:space:]')
+    [ -n "$_cfg_py" ] && [ -x "$_cfg_py" ] && break
+    _cfg_py=""
+done
+PY="${PYTHON_PATH:-${_cfg_py:-python3}}"
 
 # 命令行传入的端口优先于 .runtime_ports（避免旧文件覆盖本次显式指定）
 _saved_rm="${RESOURCE_MONITOR_PORT-}"
@@ -30,8 +39,13 @@ AGENT_BRIDGE_PORT="${AGENT_BRIDGE_PORT:-8906}"
 FRONTEND_PORT="${FRONTEND_PORT:-5903}"
 export RESOURCE_MONITOR_PORT AGENT_BRIDGE_PORT
 
-export PATH="/home/TanZS/.local/share/fnm:$PATH"
-eval "$(/home/TanZS/.local/share/fnm/fnm env 2>/dev/null)" 2>/dev/null
+# API key is read from config yaml (llm.api_key) by agent_bridge at runtime.
+# Set RESEARCHCLAW_API_KEY env var only if you want to override the config value.
+export RESEARCHCLAW_API_KEY="${RESEARCHCLAW_API_KEY:-}"
+
+FNM_DIR="${FNM_DIR:-$HOME/.local/share/fnm}"
+export PATH="$FNM_DIR:$PATH"
+eval "$($FNM_DIR/fnm env 2>/dev/null)" 2>/dev/null
 
 mkdir -p "$LOG" "$PIDF"
 
