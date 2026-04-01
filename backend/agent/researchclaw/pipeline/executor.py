@@ -3580,6 +3580,66 @@ def _execute_code_generation(
     llm: LLMClient | None = None,
     prompts: PromptManager | None = None,
 ) -> StageResult:
+    """S11 CODE_GENERATION — delegates to the refactored codegen package.
+
+    The full implementation lives in ``researchclaw.pipeline.codegen``,
+    structured around claw-code's harness engineering patterns:
+    StrategyRegistry, CodegenRouter, CodegenRuntime, and PromptBuilder.
+    """
+    from researchclaw.pipeline.codegen import execute_code_generation
+    return execute_code_generation(
+        stage_dir=stage_dir,
+        run_dir=run_dir,
+        config=config,
+        adapters=adapters,
+        llm=llm,
+        prompts=prompts,
+    )
+
+
+# ── BEGIN: Original _execute_code_generation (preserved for reference) ──
+# The monolithic implementation below has been refactored into the
+# researchclaw.pipeline.codegen package. It is kept commented out
+# for git diff clarity and rollback safety.
+#
+# To restore: delete the wrapper above and uncomment this block.
+# ─────────────────────────────────────────────────────────────────────
+
+
+def _execute_code_generation_ORIGINAL(
+    stage_dir: Path,
+    run_dir: Path,
+    config: RCConfig,
+    adapters: AdapterBundle,
+    *,
+    llm: LLMClient | None = None,
+    prompts: PromptManager | None = None,
+) -> StageResult:
+    coding_model = getattr(config.llm, "coding_model", None) or ""
+    if coding_model and llm is not None:
+        import dataclasses as _dc_cm
+        _orig_model = llm.config.primary_model
+        # Build a deduplicated fallback chain: primary + all existing fallbacks (excluding coding_model duplicates)
+        _seen = {coding_model}
+        _full_fallbacks = []
+        for _m in [_orig_model] + list(llm.config.fallback_models):
+            if _m not in _seen:
+                _seen.add(_m)
+                _full_fallbacks.append(_m)
+        _coding_llm_cfg = _dc_cm.replace(
+            llm.config,
+            primary_model=coding_model,
+            fallback_models=_full_fallbacks,
+        )
+        from researchclaw.llm.client import LLMClient as _LLMClient
+        llm = _LLMClient(_coding_llm_cfg)
+        _fb_str = ", ".join(_full_fallbacks)
+        print(f"[CODE_GENERATION] Using coding model: {coding_model} (fallbacks: {_fb_str})", flush=True)
+        logger.info("S11 CODE_GENERATION: using coding model '%s'", coding_model)
+
+    # Read codebase_candidates.json from S10 if available
+    _codebase_info = _read_prior_artifact(run_dir, "codebase_candidates.json") or "[]"
+
     exp_plan = _read_prior_artifact(run_dir, "exp_plan.yaml") or ""
     metric = config.experiment.metric_key
     max_repair = 5  # BUG-14: Increased from 3 to give more chances for critical bugs
