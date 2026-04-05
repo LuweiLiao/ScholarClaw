@@ -8,7 +8,13 @@ research:
     - "deep-learning"
   daily_paper_count: 5
   quality_threshold: 3.0
-  reference_papers: __REFERENCE_PAPERS__
+  reference_papers:
+    - ""   # 填 arXiv ID，如 "2301.12345"，或论文完整标题
+
+runtime:
+  timezone: "Asia/Shanghai"
+  max_parallel_tasks: 1
+  approval_timeout_hours: 12
 
 notifications:
   channel: "console"
@@ -26,15 +32,13 @@ openclaw_bridge:
 
 llm:
   provider: "openai-compatible"
-  base_url: "http://www.longcatcloud.com/v1"
-  api_key: "__API_KEY__"
+  base_url: "https://api.minimaxi.com/v1"
+  api_key: "sk-cp-NCCo8SCs9ynqekJW7zpJyCS-Q1EW3f9lRREY_Gn8oRTJV1PweeCRCXi7gVih_DIpXF_qeULKWLU5aXxW1tGFpXRNACZYn7jQ3HAAcAAciGywH1Ikz6kyww8"
   api_key_env: "RESEARCHCLAW_API_KEY"
-  primary_model: "gpt-5.4"
-  coding_model: "gpt-5.4"
-  image_model: "gemini-3-pro-image-preview"
-  fallback_models:
-    - "qwen3.5-plus"
-    - "qwen-plus"
+  primary_model: "MiniMax-M2.7"
+  coding_model: "MiniMax-M2.7"
+  image_model: "MiniMax-M2.7"
+  fallback_models: []
 
 security:
   hitl_required_stages: []
@@ -47,12 +51,21 @@ experiment:
   metric_direction: "minimize"
   datasets_dir: ""
   checkpoints_dir: ""
-  codebases_dir: ""
+  codebases_dir: "C:/你的论文所在目录"   # 把这里改成你的 .tex 文件夹路径
   shared_results_dir: "runs/shared_results"
   paper_length: "long"
   sandbox:
-    python_path: "__PYTHON_PATH__"
+    python_path: "D:/GitRepo/Claw-AI-Lab/claw-ai-env/Scripts/python.exe"
+    # 如果本机安装了 MATLAB，取消下面注释，让 Agent 可以调用 matlab.engine
+    # allowed_imports:
+    #   - "math"
+    #   - "random"
+    #   - "json"
+    #   - "numpy"
+    #   - "scipy"
+    #   - "matplotlib"
+    #   - "matlab.engine"   # 需要先: pip install matlabengine
   sanity_check_max_iterations: 100
 
 prompts:
-  custom_file: ""
+  custom_file: "D:/GitRepo/Claw-AI-Lab/examples/my_prompts.yaml"

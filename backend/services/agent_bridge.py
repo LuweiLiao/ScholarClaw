@@ -1144,6 +1144,7 @@ def _assign_task_to_agent(agent: LobsterAgent, task: Task) -> None:
     agent.run_dir = task.run_dir
     agent.run_id = task.project_id
     agent.config_path = task.config_path
+    agent._base_config_path = task.config_path  # type: ignore[attr-defined]
     agent.assigned_task_id = task.id
     agent._topic = task.topic
     agent.status = "working"
@@ -1213,7 +1214,56 @@ def launch_agent_for_task(state: BridgeState, agent: LobsterAgent, task: Task) -
     # Discussion mode: L1 runs S1-S7 only (S8 runs after discussion)
     # Reproduce mode skips discussion → runs full S1-S8
     _task_meta = _read_project_meta(task.run_dir) if task.run_dir else None
+    # Lab mode: run_dir is a sub-dir; layer_models lives in the parent project meta
+    if not _task_meta and task.run_dir:
+        _parent_dir = str(Path(task.run_dir).parent)
+        _task_meta = _read_project_meta(_parent_dir)
     _is_reproduce = _task_meta.get("mode") == "reproduce" if _task_meta else False
+
+    # Per-layer model override with connectivity test and fallback
+    _layer_models = (_task_meta or {}).get("layer_models", {})
+    _layer_cfg = _layer_models.get(agent.layer) if isinstance(_layer_models, dict) else None
+    if _layer_cfg:
+        _lm_model, _lm_url, _lm_key = _extract_layer_model_fields(_layer_cfg)
+        if _lm_model or _lm_url or _lm_key:
+            _reachable = _test_model_config_sync(_lm_url, _lm_key, _lm_model)
+            if _reachable:
+                try:
+                    task.config_path = _create_model_config(
+                        task.config_path, _lm_model, task.run_dir,
+                        base_url=_lm_url, api_key=_lm_key,
+                    )
+                    _desc = _lm_model or _lm_url or "custom"
+                    messages.append(msg_log(agent, f"层级模型覆盖: {agent.layer} → {_desc}", "info"))
+                except Exception as _e:
+                    messages.append(msg_log(agent, f"层级模型覆盖失败: {_e}，使用默认模型", "warning"))
+            else:
+                _desc = _lm_model or _lm_url or "custom"
+                messages.append(msg_log(agent, f"层级模型不可用 ({_desc})，尝试从其他层回退...", "warning"))
+                _fallback_applied = False
+                for _fb_layer in _LAYER_ORDER:
+                    if _fb_layer == agent.layer:
+                        continue
+                    _fb_cfg = _layer_models.get(_fb_layer)
+                    if not _fb_cfg:
+                        continue
+                    _fb_model, _fb_url, _fb_key = _extract_layer_model_fields(_fb_cfg)
+                    if not (_fb_model or _fb_url or _fb_key):
+                        continue
+                    if _test_model_config_sync(_fb_url, _fb_key, _fb_model):
+                        try:
+                            task.config_path = _create_model_config(
+                                task.config_path, _fb_model, task.run_dir,
+                                base_url=_fb_url, api_key=_fb_key,
+                            )
+                            _fb_desc = _fb_model or _fb_url or "custom"
+                            messages.append(msg_log(agent, f"回退成功: 使用 {_fb_layer} 层模型 ({_fb_desc})", "info"))
+                            _fallback_applied = True
+                            break
+                        except Exception:
+                            continue
+                if not _fallback_applied:
+                    messages.append(msg_log(agent, f"所有层级模型均不可用，使用默认模型", "warning"))
     if state.discussion_mode and agent.layer == "idea" and not _is_reproduce:
         layer_range = LAYER_RANGE_PHASE1["idea"]
     else:
@@ -1308,15 +1358,18 @@ def stop_agent(agent: LobsterAgent) -> list[dict]:
 
 # ── Task queue operations ───────────────────────────────────────────────────
 
-def _save_project_meta(run_dir: str, project_id: str, config_path: str, topic: str, mode: str = "lab") -> None:
+def _save_project_meta(run_dir: str, project_id: str, config_path: str, topic: str,
+                       mode: str = "lab", layer_models: dict[str, str] | None = None) -> None:
     """Persist project metadata so it can be recovered on restart."""
-    meta = {
+    meta: dict = {
         "project_id": project_id,
         "config_path": config_path,
         "topic": topic,
         "mode": mode,
         "created_at": _now_ms(),
     }
+    if layer_models:
+        meta["layer_models"] = layer_models
     meta_path = Path(run_dir) / "project_meta.json"
     if not meta_path.exists():
         _write_json(meta_path, meta)
@@ -1507,7 +1560,7 @@ def on_agent_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
                 group = DiscussionGroup(
                     project_id=pid,
                     topic=getattr(agent, '_topic', '') or agent.current_task,
-                    config_path=agent.config_path,
+                    config_path=getattr(agent, '_base_config_path', agent.config_path),
                     agent_ids=[a.id for a in waiting_same_proj],
                     run_dirs={a.id: a.run_dir for a in waiting_same_proj},
                 )
@@ -1596,11 +1649,12 @@ def on_agent_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
 
         if output_queue_name and output_queue_name in state.queues:
             _, target_layer = QUEUE_NAMES[output_queue_name]
+            _base_cfg = getattr(agent, '_base_config_path', agent.config_path)
             follow_task = Task(
                 id=f"task-{_uid()}",
                 project_id=agent.project_id,
                 run_dir=agent.run_dir,
-                config_path=agent.config_path,
+                config_path=_base_cfg,
                 topic=getattr(agent, '_topic', ''),
                 source_layer=agent.layer,
                 target_layer=target_layer,
@@ -1618,6 +1672,28 @@ def on_agent_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
         released = state.gpu_allocator.release(agent.project_id)
         if released:
             messages.append(msg_log(agent, f"GPU {released} 已释放", "info"))
+
+    # ── Sync outputs to workspace when writing layer finishes ──
+    if agent.layer == "writing" and agent.project_id:
+        try:
+            proj_dir = state.projects_dir() / agent.project_id
+            meta = _read_project_meta(str(proj_dir)) or {}
+            ws_dir = meta.get("workspace_dir", "")
+            if not ws_dir:
+                # Also check sub-project parent
+                parent = proj_dir.parent
+                parent_meta = _read_project_meta(str(parent)) if parent != state.projects_dir() else None
+                ws_dir = (parent_meta or {}).get("workspace_dir", "") if parent_meta else ""
+            if ws_dir:
+                copied = _sync_outputs_to_workspace(proj_dir, ws_dir)
+                if copied:
+                    messages.append(msg_log(
+                        agent,
+                        f"产出已同步到工作区: {ws_dir}/claw_output/ ({', '.join(copied)})",
+                        "success",
+                    ))
+        except Exception as _ws_err:
+            messages.append(msg_log(agent, f"工作区同步警告: {_ws_err}", "warning"))
 
     # Reset agent for next task
     _reset_agent_idle(agent)
@@ -1883,12 +1959,20 @@ def _generate_config_from_template(
                                   "  reference_papers: []")
 
     import re as _re
+
+    def _to_yaml_path(p: str) -> str:
+        """Normalize path for YAML: forward slashes only (safe on Windows too)."""
+        return p.replace("\\", "/")
+
     if codebases_dir:
-        content = _re.sub(r'(codebases_dir:\s*)"[^"]*"', f'\\1"{codebases_dir}"', content)
+        _v = _to_yaml_path(codebases_dir)
+        content = _re.sub(r'(codebases_dir:\s*)"[^"]*"', lambda m: f'{m.group(1)}"{_v}"', content)
     if datasets_dir:
-        content = _re.sub(r'(datasets_dir:\s*)"[^"]*"', f'\\1"{datasets_dir}"', content)
+        _v = _to_yaml_path(datasets_dir)
+        content = _re.sub(r'(datasets_dir:\s*)"[^"]*"', lambda m: f'{m.group(1)}"{_v}"', content)
     if checkpoints_dir:
-        content = _re.sub(r'(checkpoints_dir:\s*)"[^"]*"', f'\\1"{checkpoints_dir}"', content)
+        _v = _to_yaml_path(checkpoints_dir)
+        content = _re.sub(r'(checkpoints_dir:\s*)"[^"]*"', lambda m: f'{m.group(1)}"{_v}"', content)
 
     configs_dir = Path(state.runs_base_dir) / "project_configs"
     configs_dir.mkdir(parents=True, exist_ok=True)
@@ -1903,6 +1987,255 @@ def _safe_reference_upload_name(filename: str) -> str:
     if not cleaned.lower().endswith(".pdf"):
         cleaned = f"{cleaned or 'reference'}.pdf"
     return cleaned
+
+
+_WORKSPACE_LATEX_EXT  = {".tex", ".bib", ".sty", ".cls", ".bst"}
+_WORKSPACE_CODE_EXT   = {".py", ".m", ".ipynb", ".r", ".jl", ".sh", ".cpp", ".c", ".h"}
+_WORKSPACE_DATA_EXT   = {".mat", ".csv", ".tsv", ".json", ".npz", ".npy", ".hdf5", ".h5", ".xlsx"}
+_WORKSPACE_PDF_EXT    = {".pdf"}
+_WORKSPACE_SKIP_DIRS  = {".git", "__pycache__", "node_modules", ".venv", "claw_output", "latex_input"}
+
+
+def _scan_workspace_dir(workspace_dir: str, main_tex_file: str = "") -> dict:
+    """Recursively scan a user workspace folder and classify all relevant files.
+
+    Returns a dict with keys:
+      tex_files   : list[Path]  — .tex/.bib/.sty/.cls/.bst
+      pdf_files   : list[Path]  — .pdf
+      code_files  : list[Path]  — .py/.m/.ipynb etc.
+      data_files  : list[Path]  — .mat/.csv etc.
+      main_tex    : Path | None — the identified main .tex file
+      has_latex   : bool
+      has_pdf     : bool
+      has_code    : bool
+      has_data    : bool
+    """
+    root = Path(workspace_dir)
+    result: dict = {
+        "tex_files": [], "pdf_files": [], "code_files": [],
+        "data_files": [], "main_tex": None,
+        "has_latex": False, "has_pdf": False, "has_code": False, "has_data": False,
+    }
+    if not root.exists() or not root.is_dir():
+        return result
+
+    for item in root.rglob("*"):
+        if not item.is_file():
+            continue
+        # Skip hidden dirs and known irrelevant dirs
+        parts_set = set(item.relative_to(root).parts[:-1])
+        if parts_set & _WORKSPACE_SKIP_DIRS:
+            continue
+        if any(p.startswith(".") for p in item.relative_to(root).parts[:-1]):
+            continue
+
+        ext = item.suffix.lower()
+        if ext in _WORKSPACE_LATEX_EXT:
+            result["tex_files"].append(item)
+        elif ext in _WORKSPACE_PDF_EXT:
+            result["pdf_files"].append(item)
+        elif ext in _WORKSPACE_CODE_EXT:
+            result["code_files"].append(item)
+        elif ext in _WORKSPACE_DATA_EXT:
+            result["data_files"].append(item)
+
+    result["has_latex"] = bool(result["tex_files"])
+    result["has_pdf"]   = bool(result["pdf_files"])
+    result["has_code"]  = bool(result["code_files"])
+    result["has_data"]  = bool(result["data_files"])
+
+    # Identify main .tex file
+    tex_files: list[Path] = result["tex_files"]
+    if tex_files:
+        if main_tex_file:
+            for tf in tex_files:
+                if tf.name == main_tex_file or str(tf).endswith(main_tex_file):
+                    result["main_tex"] = tf
+                    break
+        if result["main_tex"] is None:
+            # Auto-detect: prefer main.tex, then longest file (usually the master doc)
+            candidates = [tf for tf in tex_files if tf.suffix == ".tex"]
+            named_main = next((tf for tf in candidates if tf.stem == "main"), None)
+            if named_main:
+                result["main_tex"] = named_main
+            elif candidates:
+                result["main_tex"] = max(candidates, key=lambda f: f.stat().st_size)
+
+    return result
+
+
+def _setup_workspace(
+    project_dir: Path,
+    workspace_dir: str,
+    main_tex_file: str = "",
+) -> dict:
+    """Scan workspace, copy LaTeX files into latex_input/, write workspace.json.
+
+    Returns a dict with resolved path overrides and scan summary for logging.
+    """
+    scan = _scan_workspace_dir(workspace_dir, main_tex_file)
+    overrides: dict[str, str] = {}
+    summary: list[str] = []
+
+    # ── LaTeX files → copy into project's latex_input/ ──
+    if scan["has_latex"]:
+        latex_dir = project_dir / "latex_input"
+        latex_dir.mkdir(parents=True, exist_ok=True)
+        for tf in scan["tex_files"]:
+            dest = latex_dir / tf.name
+            if not dest.exists():
+                dest.write_bytes(tf.read_bytes())
+        # README for agents
+        main_tex_name = scan["main_tex"].name if scan["main_tex"] else "(auto)"
+        readme = latex_dir / "_EXISTING_DRAFT_README.md"
+        readme.write_text(
+            "# Existing LaTeX Draft (from workspace)\n\n"
+            f"**Workspace:** `{workspace_dir}`\n"
+            f"**Main file:** `{main_tex_name}`\n\n"
+            "**IMPORTANT INSTRUCTIONS FOR AGENTS:**\n"
+            "- Read all `.tex` files in this directory before writing the paper.\n"
+            "- PRESERVE all existing content. Only ADD, EXPAND, and COMPLETE unfinished sections.\n"
+            "- Maintain consistent notation, terminology, and writing style with the existing draft.\n"
+            "- If a `.bib` file is present, use its citations and add new ones as needed.\n\n"
+            f"**LaTeX files copied:** {', '.join(tf.name for tf in scan['tex_files'])}\n",
+            encoding="utf-8",
+        )
+        overrides["codebases_dir"] = str(latex_dir.resolve())
+        summary.append(f"LaTeX: {len(scan['tex_files'])} 个文件 (主文件: {main_tex_name})")
+
+    # ── Code/sim files (.py/.m) → point codebases_dir to workspace root ──
+    if scan["has_code"] and not overrides.get("codebases_dir"):
+        overrides["codebases_dir"] = workspace_dir
+        summary.append(f"代码: {len(scan['code_files'])} 个文件 (.py/.m 等)")
+    elif scan["has_code"]:
+        summary.append(f"代码: {len(scan['code_files'])} 个文件 (.py/.m 等, 工作区可访问)")
+
+    # ── Data files → datasets_dir ──
+    if scan["has_data"]:
+        overrides["datasets_dir"] = workspace_dir
+        summary.append(f"数据: {len(scan['data_files'])} 个文件 (.mat/.csv 等)")
+
+    # ── PDF files → treat as reference uploads (read bytes) ──
+    ref_uploads: list[dict[str, str]] = []
+    for pdf in scan["pdf_files"][:10]:  # cap at 10 PDFs to avoid huge payloads
+        try:
+            raw = pdf.read_bytes()
+            ref_uploads.append({
+                "name": pdf.name,
+                "contentBase64": base64.b64encode(raw).decode("ascii"),
+            })
+        except Exception:
+            pass
+    if ref_uploads:
+        summary.append(f"PDF 参考: {len(ref_uploads)} 个文件")
+
+    # ── Save workspace metadata into project ──
+    ws_meta = {
+        "workspace_dir": workspace_dir,
+        "main_tex_file": scan["main_tex"].name if scan["main_tex"] else "",
+        "scan_summary": summary,
+        "tex_files": [str(f) for f in scan["tex_files"]],
+        "pdf_count": len(scan["pdf_files"]),
+        "code_count": len(scan["code_files"]),
+        "data_count": len(scan["data_files"]),
+    }
+    (project_dir / "workspace.json").write_text(
+        json.dumps(ws_meta, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+    return {
+        "overrides": overrides,
+        "ref_uploads": ref_uploads,
+        "summary": summary,
+    }
+
+
+def _sync_outputs_to_workspace(project_dir: Path, workspace_dir: str) -> list[str]:
+    """Copy final output artifacts to workspace/claw_output/.
+
+    Returns list of copied file names.
+    """
+    root = Path(workspace_dir)
+    if not root.exists():
+        return []
+    out_dir = root / "claw_output"
+    out_dir.mkdir(exist_ok=True)
+
+    OUTPUT_GLOBS = ["**/*.zip", "**/paper_revised.md", "**/paper_draft.md",
+                    "**/outline.md", "**/latex_package.zip"]
+    copied: list[str] = []
+    for pattern in OUTPUT_GLOBS:
+        for src in project_dir.glob(pattern):
+            if "latex_input" in src.parts:
+                continue
+            dest = out_dir / src.name
+            try:
+                import shutil as _shutil
+                _shutil.copy2(src, dest)
+                copied.append(src.name)
+            except Exception:
+                pass
+    return list(dict.fromkeys(copied))  # deduplicate
+
+
+def _persist_latex_uploads(
+    project_dir: Path,
+    latex_uploads: list[dict[str, str]] | None,
+) -> str | None:
+    """Save uploaded LaTeX source files to project_dir/latex_input/.
+
+    Returns the absolute path to the latex_input directory, or None if nothing was saved.
+    """
+    if not latex_uploads:
+        return None
+
+    latex_dir = project_dir / "latex_input"
+    latex_dir.mkdir(parents=True, exist_ok=True)
+
+    tex_ext = {".tex", ".bib", ".sty", ".cls", ".bst"}
+    saved: list[str] = []
+
+    for item in latex_uploads:
+        if not isinstance(item, dict):
+            continue
+        name = Path(str(item.get("name", "main.tex"))).name
+        suffix = Path(name).suffix.lower()
+        if suffix not in tex_ext:
+            continue
+        content_b64 = str(item.get("contentBase64", "")).strip()
+        if not content_b64:
+            continue
+        try:
+            raw = base64.b64decode(content_b64, validate=True)
+        except Exception:
+            continue
+        target = latex_dir / name
+        # Avoid overwriting — add suffix if needed
+        if target.exists():
+            stem = Path(name).stem
+            target = latex_dir / f"{stem}-{uuid.uuid4().hex[:4]}{suffix}"
+        target.write_bytes(raw)
+        saved.append(name)
+
+    if not saved:
+        return None
+
+    # Write an instruction file so agents know this is an existing draft
+    readme = latex_dir / "_EXISTING_DRAFT_README.md"
+    readme.write_text(
+        "# Existing LaTeX Draft\n\n"
+        "This directory contains an existing paper draft uploaded by the user.\n"
+        "**IMPORTANT INSTRUCTIONS FOR AGENTS:**\n"
+        "- Read all `.tex` files in this directory before writing the paper.\n"
+        "- The paper outline and draft must PRESERVE all existing content.\n"
+        "- Only ADD, EXPAND, and COMPLETE unfinished sections — never remove or shorten existing content.\n"
+        "- Maintain consistent notation, terminology, and writing style with the existing draft.\n"
+        "- If a `.bib` file is present, use its citations and add new ones as needed.\n\n"
+        f"**Uploaded files:** {', '.join(saved)}\n",
+        encoding="utf-8",
+    )
+
+    return str(latex_dir.resolve())
 
 
 def _persist_reference_uploads(
@@ -1994,6 +2327,10 @@ def quick_submit_project(
     reference_papers: list[str] | None = None,
     reference_uploads: list[dict[str, str]] | None = None,
     path_overrides: dict[str, str] | None = None,
+    latex_uploads: list[dict[str, str]] | None = None,
+    workspace_dir: str = "",
+    main_tex_file: str = "",
+    layer_models: dict[str, str] | None = None,
 ) -> list[dict]:
     """Create a project from a topic string.
 
@@ -2019,9 +2356,28 @@ def quick_submit_project(
                 base_id = f"{base_id}-{_uid()[:4]}"
         project_dir = state.projects_dir() / base_id
         project_dir.mkdir(parents=True, exist_ok=True)
-        saved_reference_paths = _persist_reference_uploads(project_dir, reference_uploads)
+        _po = dict(path_overrides or {})
+
+        # ── Workspace folder scan (takes priority over manual path fields) ──
+        ws_ref_uploads: list[dict[str, str]] = []
+        if workspace_dir:
+            ws = _setup_workspace(project_dir, workspace_dir, main_tex_file)
+            for k, v in ws["overrides"].items():
+                if v and not _po.get(k):
+                    _po[k] = v
+            ws_ref_uploads = ws["ref_uploads"]
+            for line in ws["summary"]:
+                messages.append(msg_log(sys_agent, f"[工作区] {line}", "info"))
+
+        saved_reference_paths = _persist_reference_uploads(
+            project_dir, list(reference_uploads or []) + ws_ref_uploads
+        )
         all_reference_papers = [*(reference_papers or []), *saved_reference_paths]
-        _po = path_overrides or {}
+
+        latex_dir = _persist_latex_uploads(project_dir, latex_uploads)
+        if latex_dir and not _po.get("codebases_dir"):
+            _po["codebases_dir"] = latex_dir
+
         try:
             config_path = _generate_config_from_template(
                 state, base_id, topic.strip(),
@@ -2033,8 +2389,27 @@ def quick_submit_project(
         except Exception as e:
             messages.append(msg_log(sys_agent, f"配置生成失败: {e}", "error"))
             return messages
+
+        # Store workspace dir and layer_models in meta for output sync
+        meta_path = project_dir / "project_meta.json"
+        if not meta_path.exists():
+            _meta: dict = {
+                "project_id": base_id, "config_path": config_path,
+                "topic": topic.strip(), "mode": "reproduce",
+                "created_at": _now_ms(),
+            }
+            if workspace_dir:
+                _meta["workspace_dir"] = workspace_dir
+            if layer_models:
+                _meta["layer_models"] = layer_models
+            _write_json(meta_path, _meta)
+
         if saved_reference_paths:
             messages.append(msg_log(sys_agent, f"已接收 {len(saved_reference_paths)} 个本地 PDF 参考文件", "info"))
+        if latex_dir:
+            messages.append(msg_log(sys_agent, f"已接收 LaTeX 草稿，Agent 将基于现有内容继续写作", "info"))
+        if workspace_dir:
+            messages.append(msg_log(sys_agent, f"工作区: {workspace_dir} — 完成后产出将写入 claw_output/", "info"))
         messages.append(msg_log(sys_agent, f"复现模式: 项目 [{base_id}] 单 Agent 全流程启动", "success"))
         messages.extend(submit_new_project(state, base_id, config_path, topic.strip(), mode="reproduce"))
         return messages
@@ -2056,10 +2431,28 @@ def quick_submit_project(
 
     project_dir = state.projects_dir() / base_id
     project_dir.mkdir(parents=True, exist_ok=True)
-    saved_reference_paths = _persist_reference_uploads(project_dir, reference_uploads)
+    _po = dict(path_overrides or {})
+
+    # ── Workspace folder scan ──
+    ws_ref_uploads: list[dict[str, str]] = []
+    if workspace_dir:
+        ws = _setup_workspace(project_dir, workspace_dir, main_tex_file)
+        for k, v in ws["overrides"].items():
+            if v and not _po.get(k):
+                _po[k] = v
+        ws_ref_uploads = ws["ref_uploads"]
+        for line in ws["summary"]:
+            messages.append(msg_log(sys_agent, f"[工作区] {line}", "info"))
+
+    saved_reference_paths = _persist_reference_uploads(
+        project_dir, list(reference_uploads or []) + ws_ref_uploads
+    )
     all_reference_papers = [*(reference_papers or []), *saved_reference_paths]
 
-    _po = path_overrides or {}
+    latex_dir = _persist_latex_uploads(project_dir, latex_uploads)
+    if latex_dir and not _po.get("codebases_dir"):
+        _po["codebases_dir"] = latex_dir
+
     try:
         project_config_path = _generate_config_from_template(
             state, base_id, topic.strip(),
@@ -2072,7 +2465,18 @@ def quick_submit_project(
         messages.append(msg_log(sys_agent, f"配置生成失败: {e}", "error"))
         return messages
 
-    _save_project_meta(str(project_dir), base_id, project_config_path, topic.strip(), mode="lab")
+    _save_project_meta(str(project_dir), base_id, project_config_path, topic.strip(),
+                       mode="lab", layer_models=layer_models)
+
+    # Patch workspace_dir into meta if provided
+    if workspace_dir:
+        meta_path = project_dir / "project_meta.json"
+        try:
+            meta = _read_json(meta_path) or {}
+            meta["workspace_dir"] = workspace_dir
+            _write_json(meta_path, meta)
+        except Exception:
+            pass
 
     messages.append(msg_log(
         sys_agent,
@@ -2081,6 +2485,10 @@ def quick_submit_project(
     ))
     if saved_reference_paths:
         messages.append(msg_log(sys_agent, f"已接收 {len(saved_reference_paths)} 个本地 PDF 参考文件", "info"))
+    if latex_dir:
+        messages.append(msg_log(sys_agent, f"已接收 LaTeX 草稿，Agent 将基于现有内容继续写作", "info"))
+    if workspace_dir:
+        messages.append(msg_log(sys_agent, f"工作区: {workspace_dir} — 完成后产出将写入 claw_output/", "info"))
 
     task_count = 0
     for i, angle in enumerate(angles):
@@ -2138,16 +2546,36 @@ def quick_submit_project(
     return messages
 
 
-def _create_model_config(base_config_path: str, model_name: str, output_dir: str) -> str:
-    """Create a per-agent config file with a different primary_model."""
-    import yaml
+def _create_model_config(base_config_path: str, model_name: str, output_dir: str,
+                         base_url: str = "", api_key: str = "") -> str:
+    """Create a per-agent config file with overridden LLM settings.
+
+    Uses regex replacement on the raw YAML text to preserve file structure,
+    comments, and fields that yaml.dump would reorder or drop.
+    """
+    import re as _re
+
     with open(base_config_path, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
-    if "llm" in cfg:
-        cfg["llm"]["primary_model"] = model_name
-    agent_config_path = str(Path(output_dir) / f"config_{model_name.replace('/', '_')}.yaml")
+        content = f.read()
+
+    def _yaml_replace(text: str, key: str, value: str) -> str:
+        """Replace a YAML value in-place: `key: "old"` → `key: "new"`."""
+        # Match key followed by colon, optional spaces, then a quoted or unquoted value
+        pattern = rf'({key}:\s*)("(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'|[^\n#]*)'
+        escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+        return _re.sub(pattern, rf'\1"{escaped}"', text, count=1)
+
+    if model_name:
+        content = _yaml_replace(content, "primary_model", model_name)
+    if base_url:
+        content = _yaml_replace(content, "base_url", base_url)
+    if api_key:
+        content = _yaml_replace(content, "api_key", api_key)
+
+    safe_name = (model_name or "custom").replace("/", "_").replace(":", "_")
+    agent_config_path = str(Path(output_dir) / f"config_{safe_name}.yaml")
     with open(agent_config_path, "w", encoding="utf-8") as f:
-        yaml.dump(cfg, f, default_flow_style=False, allow_unicode=True)
+        f.write(content)
     return agent_config_path
 
 
@@ -2430,7 +2858,7 @@ def _trigger_cross_project_discussion(
     group = DiscussionGroup(
         project_id=disc_name,
         topic=f"{p1_id} | {p2_id}",
-        config_path=agent1.config_path,
+        config_path=getattr(agent1, '_base_config_path', agent1.config_path),
     )
     group.agent_ids = [agent1.id, agent2.id]
     group.run_dirs = {agent1.id: agent1.run_dir, agent2.id: agent2.run_dir}
@@ -2762,7 +3190,7 @@ def _on_discussion_s8_done(state: BridgeState, agent: LobsterAgent) -> list[dict
         best_config = group.config_path
         if not best_config:
             best_agent = state.agents.get(best_id)
-            best_config = (best_agent.config_path if best_agent else "") or agent.config_path
+            best_config = (getattr(best_agent, '_base_config_path', best_agent.config_path) if best_agent else "") or getattr(agent, '_base_config_path', agent.config_path)
         other_ids = [a for a in group.agent_ids if a != best_id]
         messages.append(msg_log(
             sys_agent,
@@ -2912,12 +3340,26 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
         reference_files = data.get("referenceFiles")
         if not isinstance(reference_files, list):
             reference_files = None
+        latex_files = data.get("latexFiles")
+        if not isinstance(latex_files, list):
+            latex_files = None
+        workspace_dir = str(data.get("workspaceDir", "") or "").strip()
+        main_tex_file = str(data.get("mainTexFile", "") or "").strip()
         path_overrides = {
             "codebases_dir": data.get("codebasesDir", ""),
             "datasets_dir": data.get("datasetsDir", ""),
             "checkpoints_dir": data.get("checkpointsDir", ""),
         }
-        messages.extend(quick_submit_project(state, topic, project_id, mode, angles, ref_papers, reference_files, path_overrides))
+        raw_layer_models = data.get("layerModels")
+        layer_models = (
+            {k: v for k, v in raw_layer_models.items() if v}
+            if isinstance(raw_layer_models, dict) else None
+        )
+        messages.extend(quick_submit_project(
+            state, topic, project_id, mode, angles, ref_papers,
+            reference_files, path_overrides, latex_files,
+            workspace_dir, main_tex_file, layer_models,
+        ))
         messages.extend(schedule_idle_agents(state))
         messages.append(msg_project_list(list_all_projects(state)))
 
@@ -3034,7 +3476,147 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
                 },
             })
 
+    elif cmd == "browse_path":
+        req_path = str(data.get("path", "") or "").strip()
+        messages.append(_browse_path(req_path))
+
+    elif cmd == "test_model_config":
+        test_cfg = data.get("config", {})
+        request_id = data.get("requestId", "")
+        result = await _test_model_config(
+            test_cfg.get("base_url", ""),
+            test_cfg.get("api_key", ""),
+            test_cfg.get("model", ""),
+        )
+        messages.append({
+            "type": "test_model_result",
+            "payload": {"requestId": request_id, **result},
+        })
+
     return messages
+
+
+def _test_model_config_sync(base_url: str, api_key: str, model: str) -> bool:
+    """Synchronous connectivity test — returns True if the endpoint responds with 2xx."""
+    import urllib.request
+    import urllib.error
+
+    if not base_url or not model:
+        return False
+    url = base_url.rstrip("/") + "/chat/completions"
+    body = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": "hi"}],
+        "max_tokens": 1,
+    }).encode("utf-8")
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    try:
+        req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return 200 <= resp.status < 300
+    except Exception:
+        return False
+
+
+_LAYER_ORDER = ["idea", "experiment", "coding", "execution", "writing"]
+
+
+def _extract_layer_model_fields(cfg) -> tuple[str, str, str]:
+    """Extract (model, base_url, api_key) from a layer_models entry (str or dict)."""
+    if isinstance(cfg, str):
+        return cfg, "", ""
+    return cfg.get("model", ""), cfg.get("base_url", ""), cfg.get("api_key", "")
+
+
+async def _test_model_config(base_url: str, api_key: str, model: str) -> dict:
+    """Send a minimal chat completion request to verify the model endpoint is reachable."""
+    import urllib.request
+    import urllib.error
+
+    if not base_url or not model:
+        return {"ok": False, "error": "需要填写 API 地址和模型名称"}
+
+    url = base_url.rstrip("/") + "/chat/completions"
+    body = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": "hi"}],
+        "max_tokens": 1,
+    }).encode("utf-8")
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    try:
+        loop = asyncio.get_event_loop()
+        def _do_request():
+            req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                return resp.status, resp.read().decode("utf-8", errors="replace")
+        status, resp_text = await loop.run_in_executor(None, _do_request)
+        if 200 <= status < 300:
+            return {"ok": True, "error": ""}
+        return {"ok": False, "error": f"HTTP {status}: {resp_text[:200]}"}
+    except urllib.error.HTTPError as e:
+        body_text = ""
+        try:
+            body_text = e.read().decode("utf-8", errors="replace")[:200]
+        except Exception:
+            pass
+        return {"ok": False, "error": f"HTTP {e.code}: {body_text or e.reason}"}
+    except Exception as e:
+        return {"ok": False, "error": str(e)[:200]}
+
+
+def _browse_path(req_path: str) -> dict:
+    """Return directory listing for the folder picker UI."""
+    import os as _os
+
+    # Resolve: empty → drive roots on Windows, or "/" on Unix
+    if not req_path:
+        # Return drive list on Windows, root dirs on Unix
+        roots: list[dict] = []
+        if os.name == "nt":
+            import string
+            for letter in string.ascii_uppercase:
+                drive = f"{letter}:\\"
+                if os.path.isdir(drive):
+                    roots.append({"name": drive, "path": drive, "type": "dir"})
+        else:
+            roots.append({"name": "/", "path": "/", "type": "dir"})
+        return {"type": "browse_result", "payload": {
+            "path": "", "parent": None, "entries": roots, "error": None
+        }}
+
+    target = Path(req_path)
+    if not target.exists():
+        return {"type": "browse_result", "payload": {
+            "path": req_path, "parent": None, "entries": [], "error": "路径不存在"
+        }}
+    if not target.is_dir():
+        target = target.parent
+
+    parent = str(target.parent) if target.parent != target else None
+    entries: list[dict] = []
+    try:
+        items = sorted(target.iterdir(), key=lambda p: (not p.is_dir(), p.name.lower()))
+        for item in items:
+            if item.name.startswith("."):
+                continue
+            entries.append({
+                "name": item.name,
+                "path": str(item),
+                "type": "dir" if item.is_dir() else "file",
+            })
+    except PermissionError:
+        return {"type": "browse_result", "payload": {
+            "path": str(target), "parent": parent, "entries": [], "error": "无权限访问"
+        }}
+
+    return {"type": "browse_result", "payload": {
+        "path": str(target), "parent": parent, "entries": entries, "error": None
+    }}
 
 
 def _scan_existing_artifacts(state: BridgeState) -> list[dict]:

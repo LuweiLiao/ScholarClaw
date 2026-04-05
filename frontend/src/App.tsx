@@ -354,6 +354,7 @@ export default function App() {
       <div className="main-layout">
         <div className="side-panel repo-panel">
           <ProjectPanel
+            ws={agentWsRef.current}
             projects={state.projects}
             connected={state.connected}
             selectedProjectId={state.selectedProjectId}
@@ -388,7 +389,7 @@ export default function App() {
                 }
               }
             }}
-            onQuickSubmit={(topic, mode, researchAngles, referencePapers, referenceFiles, paths) => {
+            onQuickSubmit={(topic, mode, researchAngles, referencePapers, referenceFiles, paths, latexFiles, workspaceDir, mainTexFile, layerModels) => {
               const ws = agentWsRef.current;
               if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
@@ -398,9 +399,13 @@ export default function App() {
                   researchAngles: researchAngles.length > 0 ? researchAngles : undefined,
                   referencePapers: referencePapers || undefined,
                   referenceFiles: referenceFiles.length > 0 ? (referenceFiles as ReferencePdfUpload[]) : undefined,
+                  latexFiles: latexFiles && latexFiles.length > 0 ? latexFiles : undefined,
+                  workspaceDir: workspaceDir || undefined,
+                  mainTexFile: mainTexFile || undefined,
                   codebasesDir: paths?.codebases || undefined,
                   datasetsDir: paths?.datasets || undefined,
                   checkpointsDir: paths?.checkpoints || undefined,
+                  layerModels: Object.keys(layerModels).length > 0 ? layerModels : undefined,
                 }));
               }
             }}

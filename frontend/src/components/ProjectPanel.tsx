@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ProjectInfo, Artifact } from '../types';
 import { useLocale } from '../i18n';
+import FolderPicker from './FolderPicker';
 
 const STATUS_ICONS: Record<string, { color: string; icon: string }> = {
   running:     { color: '#22c55e', icon: '▶' },
@@ -12,6 +13,9 @@ const STATUS_ICONS: Record<string, { color: string; icon: string }> = {
 
 type SubmitMode = 'lab' | 'reproduce';
 type ReferencePdfUpload = { name: string; contentBase64: string };
+type LatexFileUpload = { name: string; contentBase64: string };
+
+const LATEX_EXTS = ['.tex', '.bib', '.sty', '.cls', '.bst'];
 
 function stageName(n: number, t: (k: string) => string): string {
   const key = `stage.${n}`;
@@ -20,6 +24,7 @@ function stageName(n: number, t: (k: string) => string): string {
 }
 
 interface Props {
+  ws: WebSocket | null;
   projects: ProjectInfo[];
   connected: boolean;
   selectedProjectId: string | null;
@@ -37,11 +42,15 @@ interface Props {
     researchAngles: string[],
     referencePapers: string,
     referenceFiles: ReferencePdfUpload[],
-    paths: { codebases?: string; datasets?: string; checkpoints?: string }
+    paths: { codebases?: string; datasets?: string; checkpoints?: string },
+    latexFiles: LatexFileUpload[],
+    workspaceDir: string,
+    mainTexFile: string,
+    layerModels: Record<string, { base_url: string; api_key: string; model: string }>,
   ) => void;
 }
 
-export default function ProjectPanel({ projects, connected, selectedProjectId, artifactsByProject, discussionMode, onToggleDiscussion, onSelect, onResume, onPause, onRestart, onDelete, onQuickSubmit }: Props) {
+export default function ProjectPanel({ ws, projects, connected, selectedProjectId, artifactsByProject, discussionMode, onToggleDiscussion, onSelect, onResume, onPause, onRestart, onDelete, onQuickSubmit }: Props) {
   const [panelOpen, setPanelOpen] = useState(true);
   const [mode, setMode] = useState<SubmitMode>('lab');
   const [topicInput, setTopicInput] = useState('');
@@ -49,12 +58,82 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [refPapersInput, setRefPapersInput] = useState('');
   const [referenceFiles, setReferenceFiles] = useState<Array<ReferencePdfUpload & { key: string }>>([]);
-  
+  const [latexFiles, setLatexFiles] = useState<Array<LatexFileUpload & { key: string }>>([]);
+
   const [showPaths, setShowPaths] = useState(false);
+  const [workspaceDir, setWorkspaceDir] = useState('');
+  const [mainTexFile, setMainTexFile] = useState('');
   const [codebasesPath, setCodebasesPath] = useState('');
   const [datasetsPath, setDatasetsPath] = useState('');
   const [checkpointsPath, setCheckpointsPath] = useState('');
+
+  // Layer model overrides (each layer: base_url, api_key, model)
+  type LayerModelCfg = { base_url: string; api_key: string; model: string };
+  const emptyLM = (): LayerModelCfg => ({ base_url: '', api_key: '', model: '' });
+  const [showLayerModels, setShowLayerModels] = useState(false);
+  const [ideaLM, setIdeaLM] = useState<LayerModelCfg>(emptyLM());
+  const [experimentLM, setExperimentLM] = useState<LayerModelCfg>(emptyLM());
+  const [codingLM, setCodingLM] = useState<LayerModelCfg>(emptyLM());
+  const [executionLM, setExecutionLM] = useState<LayerModelCfg>(emptyLM());
+  const [writingLM, setWritingLM] = useState<LayerModelCfg>(emptyLM());
+  const lmHasValue = (c: LayerModelCfg) => !!(c.base_url || c.api_key || c.model);
+
+  // Model test state: 'idle' | 'testing' | 'ok' | 'fail'
+  type TestStatus = 'idle' | 'testing' | 'ok' | 'fail';
+  const [testStatus, setTestStatus] = useState<Record<string, { status: TestStatus; error?: string }>>({});
+  const pendingTests = useRef<Map<string, string>>(new Map());
+
+  const testModel = useCallback((layerKey: string, cfg: LayerModelCfg) => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    if (!cfg.base_url && !cfg.model) return;
+    const requestId = `${layerKey}-${Date.now()}`;
+    pendingTests.current.set(requestId, layerKey);
+    setTestStatus(prev => ({ ...prev, [layerKey]: { status: 'testing' } }));
+    ws.send(JSON.stringify({
+      command: 'test_model_config',
+      requestId,
+      config: { base_url: cfg.base_url, api_key: cfg.api_key, model: cfg.model },
+    }));
+  }, [ws]);
+
+  useEffect(() => {
+    if (!ws) return;
+    const handler = (ev: MessageEvent) => {
+      try {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === 'test_model_result' && msg.payload?.requestId) {
+          const layerKey = pendingTests.current.get(msg.payload.requestId);
+          pendingTests.current.delete(msg.payload.requestId);
+          if (layerKey) {
+            setTestStatus(prev => ({
+              ...prev,
+              [layerKey]: {
+                status: msg.payload.ok ? 'ok' : 'fail',
+                error: msg.payload.error || '',
+              },
+            }));
+          }
+        }
+      } catch { /* ignore non-json */ }
+    };
+    ws.addEventListener('message', handler);
+    return () => ws.removeEventListener('message', handler);
+  }, [ws]);
+
+  // Folder picker state: which field is being picked
+  type PickerTarget = 'workspace' | 'codebases' | 'datasets' | 'checkpoints' | 'mainTex' | null;
+  const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
+  const openPicker = (target: PickerTarget) => setPickerTarget(target);
+  const onPickerSelect = (path: string) => {
+    if (pickerTarget === 'workspace') setWorkspaceDir(path);
+    else if (pickerTarget === 'codebases') setCodebasesPath(path);
+    else if (pickerTarget === 'datasets') setDatasetsPath(path);
+    else if (pickerTarget === 'checkpoints') setCheckpointsPath(path);
+    else if (pickerTarget === 'mainTex') setMainTexFile(path);
+    setPickerTarget(null);
+  };
   const referenceFileInputRef = useRef<HTMLInputElement | null>(null);
+  const latexFileInputRef = useRef<HTMLInputElement | null>(null);
   const { t, locale } = useLocale();
 
   const modeInfo: Record<SubmitMode, { label: string; icon: string; placeholder: string; desc: string }> = {
@@ -108,6 +187,27 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
     setReferenceFiles((prev) => prev.filter((item) => item.key !== key));
   };
 
+  const pickLatexFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).filter((file) =>
+      LATEX_EXTS.some(ext => file.name.toLowerCase().endsWith(ext))
+    );
+    if (files.length === 0) return;
+    const uploads = await Promise.all(files.map(async (file) => ({
+      key: `${file.name}:${file.size}:${file.lastModified}`,
+      name: file.name,
+      contentBase64: arrayBufferToBase64(await file.arrayBuffer()),
+    })));
+    setLatexFiles((prev) => {
+      const existing = new Set(prev.map((item) => item.key));
+      return [...prev, ...uploads.filter((item) => !existing.has(item.key))];
+    });
+    e.target.value = '';
+  };
+
+  const removeLatexFile = (key: string) => {
+    setLatexFiles((prev) => prev.filter((item) => item.key !== key));
+  };
+
   const submit = () => {
     const text = topicInput.trim();
     if (!text) return;
@@ -118,6 +218,10 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
     if (codebasesPath.trim()) paths.codebases = codebasesPath.trim();
     if (datasetsPath.trim()) paths.datasets = datasetsPath.trim();
     if (checkpointsPath.trim()) paths.checkpoints = checkpointsPath.trim();
+    const lm: Record<string, { base_url: string; api_key: string; model: string }> = {};
+    for (const [key, cfg] of [['idea', ideaLM], ['experiment', experimentLM], ['coding', codingLM], ['execution', executionLM], ['writing', writingLM]] as const) {
+      if (lmHasValue(cfg)) lm[key] = { base_url: cfg.base_url.trim(), api_key: cfg.api_key.trim(), model: cfg.model.trim() };
+    }
     onQuickSubmit(
       text,
       mode,
@@ -125,11 +229,16 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
       refPapersInput.trim(),
       referenceFiles.map(({ name, contentBase64 }) => ({ name, contentBase64 })),
       paths,
+      latexFiles.map(({ name, contentBase64 }) => ({ name, contentBase64 })),
+      workspaceDir.trim(),
+      mainTexFile.trim(),
+      lm,
     );
     setTopicInput('');
     setAnglesInput('');
     setRefPapersInput('');
     setReferenceFiles([]);
+    setLatexFiles([]);
   };
 
   const onKey = (e: React.KeyboardEvent) => {
@@ -152,6 +261,24 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
   };
 
   return (
+    <>
+    {pickerTarget && (
+      <FolderPicker
+        ws={ws}
+        title={
+          pickerTarget === 'workspace'   ? '选择工作区文件夹' :
+          pickerTarget === 'codebases'   ? '选择代码库文件夹' :
+          pickerTarget === 'datasets'    ? '选择数据集文件夹' :
+          pickerTarget === 'checkpoints' ? '选择模型权重文件夹' :
+          '选择主 .tex 文件'
+        }
+        mode={pickerTarget === 'mainTex' ? 'file' : 'folder'}
+        filterExts={pickerTarget === 'mainTex' ? ['.tex'] : undefined}
+        initialPath={pickerTarget === 'mainTex' ? workspaceDir : undefined}
+        onSelect={onPickerSelect}
+        onClose={() => setPickerTarget(null)}
+      />
+    )}
     <div className="project-panel">
       <div className="project-panel-header" onClick={() => setPanelOpen(!panelOpen)}>
         <h3>
@@ -228,10 +355,12 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
                   onClick={() => setShowPaths(!showPaths)}
                 >
                   {showPaths ? '▾' : '▸'} {t('paths.toggle')}
-                  {(refPapersInput.trim() || referenceFiles.length > 0 || codebasesPath.trim() || datasetsPath.trim() || checkpointsPath.trim()) && (
+                  {(workspaceDir.trim() || refPapersInput.trim() || referenceFiles.length > 0 || latexFiles.length > 0 || codebasesPath.trim() || datasetsPath.trim() || checkpointsPath.trim()) && (
                     <span className="ref-badge">
                       {[
+                        workspaceDir.trim() ? 'ws' : '',
                         refPapersInput.trim() || referenceFiles.length > 0 ? 'refs' : '',
+                        latexFiles.length > 0 ? 'tex' : '',
                         codebasesPath,
                         datasetsPath,
                         checkpointsPath,
@@ -242,6 +371,53 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
               </div>
               {showPaths && (
                 <div className="paths-grid">
+                  {/* ── Workspace folder ── */}
+                  <label className="path-field workspace-field">
+                    <span className="path-label workspace-label">
+                      📁 {t('project.workspace_label')}
+                    </span>
+                    <div className="workspace-hint">{t('project.workspace_hint')}</div>
+                    <div className="path-input-with-action">
+                      <span className={`path-selected-value ${!workspaceDir ? 'placeholder' : ''}`}>
+                        {workspaceDir || t('project.workspace_placeholder')}
+                      </span>
+                      <button
+                        className="path-action-btn"
+                        type="button"
+                        onClick={() => openPicker('workspace')}
+                        disabled={!connected}
+                        title="浏览文件夹"
+                      >+</button>
+                      {workspaceDir && (
+                        <button
+                          className="path-clear-btn"
+                          type="button"
+                          onClick={() => { setWorkspaceDir(''); setMainTexFile(''); }}
+                        >×</button>
+                      )}
+                    </div>
+                    {workspaceDir.trim() && (
+                      <div className="path-input-with-action main-tex-row">
+                        <span className={`path-selected-value ${!mainTexFile ? 'placeholder' : ''}`}>
+                          {mainTexFile || t('project.workspace_main_tex_placeholder')}
+                        </span>
+                        <button
+                          className="path-action-btn"
+                          type="button"
+                          onClick={() => openPicker('mainTex')}
+                          disabled={!connected}
+                          title="浏览 .tex 文件"
+                        >+</button>
+                        {mainTexFile && (
+                          <button
+                            className="path-clear-btn"
+                            type="button"
+                            onClick={() => setMainTexFile('')}
+                          >×</button>
+                        )}
+                      </div>
+                    )}
+                  </label>
                   <label className="path-field">
                     <span className="path-label">{t('project.ref_papers_label')}</span>
                     <div className="path-input-with-action">
@@ -290,35 +466,147 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
                     )}
                   </label>
                   <label className="path-field">
-                    <span className="path-label">{t('paths.codebases')}</span>
-                    <input
-                      className="path-input"
-                      placeholder={t('paths.codebases_placeholder')}
-                      value={codebasesPath}
-                      onChange={e => setCodebasesPath(e.target.value)}
-                      disabled={!connected}
-                    />
+                    <span className="path-label">{t('project.latex_label')}</span>
+                    <div className="path-input-with-action">
+                      <span className="path-hint">{t('project.latex_hint')}</span>
+                      <button
+                        className="path-action-btn latex-upload-btn"
+                        type="button"
+                        title={t('project.latex_pick')}
+                        onClick={() => latexFileInputRef.current?.click()}
+                        disabled={!connected}
+                      >
+                        TeX
+                      </button>
+                      <input
+                        ref={latexFileInputRef}
+                        className="hidden-file-input"
+                        type="file"
+                        accept=".tex,.bib,.sty,.cls,.bst"
+                        multiple
+                        onChange={(e) => { void pickLatexFiles(e); }}
+                        disabled={!connected}
+                      />
+                    </div>
+                    {latexFiles.length > 0 && (
+                      <div className="selected-file-list">
+                        {latexFiles.map((file) => (
+                          <span key={file.key} className="selected-file-chip latex-chip">
+                            <span className="latex-chip-icon">TeX</span>
+                            <span className="selected-file-name">{file.name}</span>
+                            <button
+                              className="selected-file-remove"
+                              type="button"
+                              title={t('project.latex_remove')}
+                              onClick={() => removeLatexFile(file.key)}
+                            >×</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </label>
-                  <label className="path-field">
-                    <span className="path-label">{t('paths.datasets')}</span>
-                    <input
-                      className="path-input"
-                      placeholder={t('paths.datasets_placeholder')}
-                      value={datasetsPath}
-                      onChange={e => setDatasetsPath(e.target.value)}
-                      disabled={!connected}
-                    />
-                  </label>
-                  <label className="path-field">
-                    <span className="path-label">{t('paths.checkpoints')}</span>
-                    <input
-                      className="path-input"
-                      placeholder={t('paths.checkpoints_placeholder')}
-                      value={checkpointsPath}
-                      onChange={e => setCheckpointsPath(e.target.value)}
-                      disabled={!connected}
-                    />
-                  </label>
+                  {[
+                    { key: 'codebases', label: t('paths.codebases'), val: codebasesPath, set: setCodebasesPath, placeholder: t('paths.codebases_placeholder') },
+                    { key: 'datasets',  label: t('paths.datasets'),  val: datasetsPath,  set: setDatasetsPath,  placeholder: t('paths.datasets_placeholder') },
+                    { key: 'checkpoints', label: t('paths.checkpoints'), val: checkpointsPath, set: setCheckpointsPath, placeholder: t('paths.checkpoints_placeholder') },
+                  ].map(({ key, label, val, set, placeholder }) => (
+                    <label key={key} className="path-field">
+                      <span className="path-label">{label}</span>
+                      <div className="path-input-with-action">
+                        <span className={`path-selected-value ${!val ? 'placeholder' : ''}`}>
+                          {val || placeholder}
+                        </span>
+                        <button
+                          className="path-action-btn"
+                          type="button"
+                          onClick={() => openPicker(key as 'codebases' | 'datasets' | 'checkpoints')}
+                          disabled={!connected}
+                          title="浏览文件夹"
+                        >+</button>
+                        {val && (
+                          <button
+                            className="path-clear-btn"
+                            type="button"
+                            onClick={() => set('')}
+                          >×</button>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
+              <div className="layer-models-toggle">
+                <button
+                  className="ref-papers-toggle-btn"
+                  type="button"
+                  onClick={() => setShowLayerModels(!showLayerModels)}
+                >
+                  {showLayerModels ? '▾' : '▸'} {t('layer_models.toggle')}
+                  {[ideaLM, experimentLM, codingLM, executionLM, writingLM].some(lmHasValue) && (
+                    <span className="ref-badge">
+                      {[ideaLM, experimentLM, codingLM, executionLM, writingLM].filter(lmHasValue).length}
+                    </span>
+                  )}
+                </button>
+              </div>
+              {showLayerModels && (
+                <div className="layer-models-grid">
+                  {([
+                    { key: 'idea',       cfg: ideaLM,       set: setIdeaLM },
+                    { key: 'experiment', cfg: experimentLM, set: setExperimentLM },
+                    { key: 'coding',     cfg: codingLM,     set: setCodingLM },
+                    { key: 'execution',  cfg: executionLM,  set: setExecutionLM },
+                    { key: 'writing',    cfg: writingLM,    set: setWritingLM },
+                  ] as const).map(({ key, cfg, set }) => {
+                    const ts = testStatus[key] || { status: 'idle' as TestStatus };
+                    return (
+                    <div key={key} className="layer-model-group">
+                      <div className="layer-model-header">
+                        <span className="layer-model-label">{t(`layer_models.${key}`)}</span>
+                        <div className="layer-model-test-area">
+                          {ts.status === 'ok' && <span className="lm-test-badge lm-test-ok" title="">{t('layer_models.test_ok')}</span>}
+                          {ts.status === 'fail' && <span className="lm-test-badge lm-test-fail" title={ts.error || ''}>{t('layer_models.test_fail')}</span>}
+                          {ts.status === 'testing' && <span className="lm-test-badge lm-test-ing">{t('layer_models.testing')}</span>}
+                          <button
+                            className="lm-test-btn"
+                            type="button"
+                            onClick={() => testModel(key, cfg)}
+                            disabled={!connected || !lmHasValue(cfg) || ts.status === 'testing'}
+                          >
+                            {t('layer_models.test')}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="layer-model-fields">
+                        <input
+                          className="layer-model-input lm-url"
+                          placeholder={t('layer_models.base_url_placeholder')}
+                          value={cfg.base_url}
+                          onChange={e => set({ ...cfg, base_url: e.target.value })}
+                          disabled={!connected}
+                          title={t('layer_models.base_url')}
+                        />
+                        <input
+                          className="layer-model-input lm-key"
+                          type="password"
+                          placeholder={t('layer_models.api_key_placeholder')}
+                          value={cfg.api_key}
+                          onChange={e => set({ ...cfg, api_key: e.target.value })}
+                          disabled={!connected}
+                          title={t('layer_models.api_key')}
+                        />
+                        <input
+                          className="layer-model-input lm-model"
+                          placeholder={t('layer_models.model_placeholder')}
+                          value={cfg.model}
+                          onChange={e => set({ ...cfg, model: e.target.value })}
+                          disabled={!connected}
+                          title={t('layer_models.model')}
+                        />
+                      </div>
+                    </div>
+                    );
+                  })}
                 </div>
               )}
               <button
@@ -452,5 +740,6 @@ export default function ProjectPanel({ projects, connected, selectedProjectId, a
         </div>
       )}
     </div>
+    </>
   );
 }
