@@ -145,10 +145,6 @@ class PromptManager:
 
         If *evolution_overlay* is provided, it is appended to the user prompt
         so the LLM can learn from prior run lessons.
-
-        If human feedback has been set via ``set_human_feedback()``, it is
-        appended after the evolution overlay so the LLM incorporates the
-        researcher's guidance into its reasoning.
         """
         entry = self._stages[stage]
         kw = {k: str(v) for k, v in kwargs.items()}
@@ -1864,11 +1860,10 @@ _DEFAULT_STAGES: dict[str, dict[str, Any]] = {
     "code_generation": {
         "system": (
             "You are a computational scientist who writes real, runnable "
-            "experiments. Your code implements actual algorithms with real "
-            "mathematical operations. You NEVER fake results with random number "
-            "generators. Always use the ```filename:xxx.py format for each file. "
-            "Use numpy for numerical computation. Keep code self-contained "
-            "and deterministic."
+            "experiments. You implement actual algorithms with real mathematical "
+            "operations. You NEVER fake results with random number generators or "
+            "placeholder models. Always use ```filename:xxx.py format for each file. "
+            "Keep code self-contained and deterministic."
         ),
         "user": (
             "Generate a Python experiment project.\n"

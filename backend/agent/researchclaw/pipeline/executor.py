@@ -3116,13 +3116,42 @@ def _execute_hypothesis_gen(
     prompts: PromptManager | None = None,
 ) -> StageResult:
     synthesis = _read_prior_artifact(run_dir, "synthesis.md") or ""
+
+    # --- Inject prior knowledge from shared knowledge base ---
+    _shared_dir = getattr(config.experiment, "shared_results_dir", "") or ""
+    _prior_knowledge = ""
+    if _shared_dir:
+        _kb_index = Path(_shared_dir) / "knowledge_base" / "knowledge_index.jsonl"
+        if _kb_index.exists():
+            try:
+                _kb_lines = _kb_index.read_text(encoding="utf-8").strip().split("\n")
+                _kb_entries = []
+                for _line in _kb_lines[-20:]:
+                    _e = json.loads(_line)
+                    _kb_entries.append(
+                        f"- **{_e.get('topic', '?')}**: "
+                        f"Conclusions: {'; '.join(_e.get('conclusions', [])[:3])}. "
+                        f"Insights: {'; '.join(_e.get('insights', [])[:2])}. "
+                        f"Directions: {'; '.join(_e.get('suggested_directions', [])[:2])}"
+                    )
+                if _kb_entries:
+                    _prior_knowledge = (
+                        "\n\n## PRIOR RESEARCH KNOWLEDGE (from completed projects)\n"
+                        "Consider these findings when generating hypotheses. "
+                        "Build upon successful approaches and avoid repeating failed ones.\n\n"
+                        + "\n".join(_kb_entries) + "\n"
+                    )
+                    logger.info("S8: Injected %d prior knowledge entries", len(_kb_entries))
+            except Exception:
+                pass
+
     if llm is not None:
         _pm = prompts or PromptManager()
         from researchclaw.prompts import DEBATE_ROLES_HYPOTHESIS  # noqa: PLC0415
 
         # --- Multi-perspective debate ---
         perspectives_dir = stage_dir / "perspectives"
-        variables = {"topic": config.research.topic, "synthesis": synthesis}
+        variables = {"topic": config.research.topic, "synthesis": synthesis + _prior_knowledge}
         perspectives = _multi_perspective_generate(
             llm, DEBATE_ROLES_HYPOTHESIS, variables, perspectives_dir
         )
@@ -4758,6 +4787,37 @@ Generated: {_utcnow_iso()}
         except Exception as _chart_exc:
             logger.warning("Stage 14: Early chart generation failed: %s", _chart_exc)
 
+    # --- Register baseline results to shared registry ---
+    _shared_dir = getattr(config.experiment, "shared_results_dir", "") or ""
+    if _shared_dir:
+        try:
+            import sys as _sys_rr
+            _services_dir = str(Path(__file__).resolve().parent.parent.parent.parent / "services")
+            if _services_dir not in _sys_rr.path:
+                _sys_rr.path.insert(0, _services_dir)
+            from result_registry import ResultRegistry
+            _registry = ResultRegistry(_shared_dir)
+            _summary_path = stage_dir / "experiment_summary.json"
+            if _summary_path.exists():
+                _summary = json.loads(_summary_path.read_text(encoding="utf-8"))
+                _best = _summary.get("best_run", {})
+                _metrics = _best.get("metrics", {})
+                if _metrics:
+                    _registry.register(
+                        project_id=getattr(config.project, "name", "unknown"),
+                        description=f"{config.research.topic[:100]} - baseline results",
+                        model="",
+                        dataset="",
+                        task=config.research.topic[:50],
+                        metrics={k: float(v) for k, v in _metrics.items() if isinstance(v, (int, float))},
+                        tags=[d.lower() for d in config.research.domains] + ["baseline"],
+                        source_stage=int(Stage.RESULT_ANALYSIS),
+                    )
+                    logger.info("Registered %d metrics to shared results registry", len(_metrics))
+                    print(f"[SHARED RESULTS] Registered baseline metrics: {list(_metrics.keys())}", flush=True)
+        except Exception as _rr_exc:
+            logger.debug("Shared results registration failed: %s", _rr_exc)
+
     return StageResult(
         stage=Stage.RESULT_ANALYSIS,
         status=StageStatus.DONE,
@@ -4911,6 +4971,123 @@ Generated: {_utcnow_iso()}
         artifacts=("decision.md", "decision_structured.json"),
         evidence_refs=("stage-15/decision.md",),
         decision=decision,
+    )
+
+
+def _execute_knowledge_summary(
+    stage_dir: Path,
+    run_dir: Path,
+    config: RCConfig,
+    adapters: AdapterBundle,
+    *,
+    llm: LLMClient | None = None,
+    prompts: PromptManager | None = None,
+    **kwargs: object,
+) -> StageResult:
+    """Summarize experiment findings into the shared knowledge base.
+
+    Reads analysis, decision, and experiment plan, then produces a structured
+    knowledge entry (JSON) and appends it to the shared knowledge base.
+    L1 lobsters read this knowledge base when generating new hypotheses.
+    """
+    from researchclaw.llm import create_llm_client
+
+    if llm is None:
+        llm = create_llm_client(config)
+
+    analysis = _read_prior_artifact(run_dir, "analysis.md") or ""
+    decision = _read_prior_artifact(run_dir, "decision.md") or ""
+    exp_plan = _read_prior_artifact(run_dir, "exp_plan.yaml") or ""
+    hypotheses = _read_prior_artifact(run_dir, "hypotheses.md") or ""
+
+    summary_prompt = (
+        "Based on the following research experiment, create a structured knowledge entry.\n\n"
+        "## Hypotheses\n" + hypotheses[:2000] + "\n\n"
+        "## Experiment Plan\n" + exp_plan[:2000] + "\n\n"
+        "## Analysis\n" + analysis[:3000] + "\n\n"
+        "## Decision\n" + decision[:1000] + "\n\n"
+        "Create a JSON object with these fields:\n"
+        '- "topic": one-line research topic\n'
+        '- "hypotheses": list of hypotheses tested\n'
+        '- "method": experimental methodology summary (2-3 sentences)\n'
+        '- "settings": key experimental settings (model, dataset, hyperparams, hardware)\n'
+        '- "results": dict of metric_name -> value for main results\n'
+        '- "conclusions": list of key conclusions (what worked, what didn\'t)\n'
+        '- "insights": list of surprising or useful insights for future research\n'
+        '- "limitations": list of limitations\n'
+        '- "suggested_directions": list of promising follow-up directions\n'
+        "Return valid JSON only."
+    )
+
+    try:
+        resp = llm.chat(
+            [{"role": "user", "content": summary_prompt}],
+            system="You are a research scientist. Summarize experiment findings into a structured knowledge entry. Return valid JSON only.",
+            json_mode=True,
+        )
+        content = resp.content if hasattr(resp, 'content') else str(resp)
+
+        import json as _json_ks
+        try:
+            entry = _json_ks.loads(content)
+        except _json_ks.JSONDecodeError:
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0]
+            elif "```" in content:
+                content = content.split("```")[1].split("```")[0]
+            entry = _json_ks.loads(content)
+
+        if not isinstance(entry, dict):
+            entry = {"raw": str(entry)}
+
+        entry["project_id"] = getattr(config.project, "name", "unknown")
+        entry["research_topic"] = config.research.topic
+        entry["domains"] = list(config.research.domains)
+        entry["timestamp"] = _utcnow_iso()
+
+        (stage_dir / "knowledge_entry.json").write_text(
+            _json_ks.dumps(entry, indent=2, ensure_ascii=False), encoding="utf-8",
+        )
+
+        # Write to shared knowledge base
+        _shared_dir = getattr(config.experiment, "shared_results_dir", "") or ""
+        if _shared_dir:
+            import os as _os_ks
+            kb_dir = Path(_shared_dir) / "knowledge_base"
+            kb_dir.mkdir(parents=True, exist_ok=True)
+            kb_file = kb_dir / f"{entry['project_id']}_{_utcnow_iso().replace(':', '-')}.json"
+            kb_file.write_text(
+                _json_ks.dumps(entry, indent=2, ensure_ascii=False), encoding="utf-8",
+            )
+
+            # Append summary to knowledge_index.jsonl for quick L1 lookup
+            index_file = kb_dir / "knowledge_index.jsonl"
+            compact = {
+                "project": entry.get("project_id", ""),
+                "topic": entry.get("topic", entry.get("research_topic", "")),
+                "conclusions": entry.get("conclusions", []),
+                "insights": entry.get("insights", []),
+                "suggested_directions": entry.get("suggested_directions", []),
+                "results": entry.get("results", {}),
+            }
+            with open(index_file, "a", encoding="utf-8") as f:
+                f.write(_json_ks.dumps(compact, ensure_ascii=False) + "\n")
+
+            logger.info("Knowledge entry written to shared KB: %s", kb_file.name)
+            print(f"[KNOWLEDGE] Written to shared KB: {len(entry.get('conclusions', []))} conclusions, {len(entry.get('insights', []))} insights", flush=True)
+
+    except Exception as e:
+        logger.warning("Knowledge summary generation failed: %s", e)
+        (stage_dir / "knowledge_entry.json").write_text(
+            json.dumps({"error": str(e), "topic": config.research.topic}, indent=2),
+            encoding="utf-8",
+        )
+
+    return StageResult(
+        stage=Stage.KNOWLEDGE_SUMMARY,
+        status=StageStatus.DONE,
+        artifacts=("knowledge_entry.json",),
+        evidence_refs=("analysis.md", "decision.md"),
     )
 
 
@@ -7140,7 +7317,7 @@ def _execute_paper_draft(
         ref_match = ref_pattern.search(draft)
         if ref_match:
             draft = draft[:ref_match.start()].rstrip()
-            logger.info("Stage 17: Stripped LLM-generated References section (R7 fix)")
+            logger.info("Stage 20: Stripped LLM-generated References section (R7 fix)")
     else:
         # Build template with real data if available
         results_section = "Template results summary."
@@ -9421,12 +9598,15 @@ _STAGE_EXECUTORS: dict[Stage, Callable[..., StageResult]] = {
     Stage.SYNTHESIS: _execute_synthesis,
     Stage.HYPOTHESIS_GEN: _execute_hypothesis_gen,
     Stage.EXPERIMENT_DESIGN: _execute_experiment_design,
+    Stage.CODEBASE_SEARCH: _execute_codebase_search,
     Stage.CODE_GENERATION: _execute_code_generation,
+    Stage.SANITY_CHECK: _execute_sanity_check,
     Stage.RESOURCE_PLANNING: _execute_resource_planning,
     Stage.EXPERIMENT_RUN: _execute_experiment_run,
     Stage.ITERATIVE_REFINE: _execute_iterative_refine,
     Stage.RESULT_ANALYSIS: _execute_result_analysis,
     Stage.RESEARCH_DECISION: _execute_research_decision,
+    Stage.KNOWLEDGE_SUMMARY: _execute_knowledge_summary,
     Stage.PAPER_OUTLINE: _execute_paper_outline,
     Stage.PAPER_DRAFT: _execute_paper_draft,
     Stage.PEER_REVIEW: _execute_peer_review,

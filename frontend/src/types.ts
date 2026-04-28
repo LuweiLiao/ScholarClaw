@@ -8,6 +8,7 @@ export const RCStage = {
   LITERATURE_SCREEN: 5,
   KNOWLEDGE_EXTRACT: 6,
   SYNTHESIS: 7,
+  DISCUSSION: 100,
   HYPOTHESIS_GEN: 8,
   EXPERIMENT_DESIGN: 9,
   CODEBASE_SEARCH: 10,
@@ -33,6 +34,7 @@ export type RCStage = (typeof RCStage)[keyof typeof RCStage];
 
 export interface StageMeta {
   id: RCStage;
+  displayNumber: number;
   name: string;
   key: string;
   outputs: string[];
@@ -75,6 +77,7 @@ export const AgentLayer = {
   EXPERIMENT: 'experiment',
   CODING: 'coding',
   EXECUTION: 'execution',
+  WRITING: 'writing',
 } as const;
 
 export type AgentLayer = (typeof AgentLayer)[keyof typeof AgentLayer];
@@ -91,7 +94,7 @@ export const LAYER_META: Record<AgentLayer, LayerMeta> = {
     name: '第一层 · 调研与创意',
     color: '#f59e0b',
     desc: 'Phase A→C: 课题定义 → 文献调研 → 知识综合 → 假设生成',
-    stages: [1, 2, 3, 4, 5, 6, 7, 8],
+    stages: [1, 2, 3, 4, 5, 6, 7, 100, 8],
   },
   [AgentLayer.EXPERIMENT]: {
     name: '第二层 · 实验设计',
@@ -102,8 +105,8 @@ export const LAYER_META: Record<AgentLayer, LayerMeta> = {
   [AgentLayer.CODING]: {
     name: '第三层 · 代码与资源',
     color: '#10b981',
-    desc: 'Phase D: 代码生成 + 资源规划',
-    stages: [10, 11],
+    desc: 'Phase D: 代码库检索 + 代码生成 + 资源规划',
+    stages: [10, 11, 12, 13],
   },
   [AgentLayer.EXECUTION]: {
     name: '第四层 · 执行与修正',
@@ -124,6 +127,7 @@ export const ALL_LAYERS: readonly AgentLayer[] = [
   AgentLayer.EXPERIMENT,
   AgentLayer.CODING,
   AgentLayer.EXECUTION,
+  AgentLayer.WRITING,
 ];
 
 // ===================== Shared Data Repositories =====================
@@ -133,6 +137,8 @@ export const RepoId = {
   EXP_DESIGN: 'exp_design',
   CODEBASE: 'codebase',
   RESULTS: 'results',
+  INSIGHTS: 'insights',
+  PAPERS: 'papers',
 } as const;
 
 export type RepoId = (typeof RepoId)[keyof typeof RepoId];
@@ -178,6 +184,22 @@ export const REPO_META: Record<RepoId, RepoMeta> = {
     fromLayer: AgentLayer.EXECUTION,
     toLayer: null,
     artifacts: ['runs/', 'analysis.md', 'experiment_summary.json', 'charts/', 'decision.md'],
+  },
+  [RepoId.INSIGHTS]: {
+    name: '知识库',
+    icon: '🧠',
+    desc: '跨项目研究结论、洞察、后续方向',
+    fromLayer: AgentLayer.EXECUTION,
+    toLayer: AgentLayer.IDEA,
+    artifacts: ['knowledge_entry.json'],
+  },
+  [RepoId.PAPERS]: {
+    name: '论文仓库',
+    icon: '📝',
+    desc: '论文大纲、初稿、评审、修订稿',
+    fromLayer: AgentLayer.WRITING,
+    toLayer: null,
+    artifacts: ['outline.md', 'paper_draft.md', 'reviews.md', 'paper_revised.md'],
   },
 };
 
@@ -348,18 +370,14 @@ export interface QueueSummary {
 
 export type QueueMap = Record<string, QueueSummary>;
 
-// ===================== Human Feedback / Chat =====================
-
-export type ChatSender = 'human' | 'system';
+// ===================== Human Feedback =====================
 
 export interface ChatMessage {
   id: string;
-  sender: ChatSender;
+  role: 'user' | 'system';
   content: string;
+  targetLayer?: string;
   timestamp: number;
-  targetLayer?: AgentLayer | 'all';
-  relatedStage?: RCStage;
-  planUpdate?: string;
 }
 
 // ===================== Project Management =====================

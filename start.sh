@@ -1,6 +1,10 @@
 #!/bin/bash
 # 🦞 龙虾 Agent 军团 — 一键启动/停止
-# Usage: ./start.sh [start|stop|restart|status]
+# Usage: ./start.sh [start|stop|restart|status|reset-state|fresh]
+#
+# reset-state — 清空流水线持久化数据（项目、队列、Idea 工厂产出、共享知识库索引）
+#               须先 stop；否则 agent_bridge 仍可能写回文件。
+# fresh       — stop → reset-state → start（全新从头跑）
 
 BASE="$(cd "$(dirname "$0")" && pwd)"
 FE="$BASE/frontend"
@@ -94,11 +98,6 @@ do_start() {
     if is_port_listening "$AGENT_BRIDGE_PORT"; then
         echo -e "  ${Y}⏭ agent_bridge 已在运行 (port ${AGENT_BRIDGE_PORT})${N}"
     else
-        LLM_CFG=""
-        for _cfg in "$BASE/backend/agent/config_gpu_project.yaml" \
-                     "$BASE/backend/agent/config.researchclaw.yaml"; do
-            [ -f "$_cfg" ] && LLM_CFG="--llm-config $_cfg" && break
-        done
         nohup $PY -u "$BASE/backend/services/agent_bridge.py" \
             --port "$AGENT_BRIDGE_PORT" --python "$PY" \
             --agent-dir "$BASE/backend/agent" \
@@ -147,21 +146,10 @@ do_stop() {
         f="$PIDF/$svc.pid"
         if [ -f "$f" ]; then
             pid=$(cat "$f")
-            # Verify the PID actually belongs to our service before killing
-            if kill -0 "$pid" 2>/dev/null; then
-                proc_cmd=$(ps -p "$pid" -o args= 2>/dev/null || true)
-                case "$proc_cmd" in
-                    *resource_monitor*|*agent_bridge*|*vite*|*npm*)
-                        kill "$pid" 2>/dev/null && sleep 0.5
-                        kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
-                        echo -e "  ${G}⏹ $svc (PID=$pid)${N}"
-                        ;;
-                    *)
-                        echo -e "  ${Y}⏭ $svc PID=$pid belongs to another process, skipping${N}"
-                        ;;
-                esac
-            fi
+            kill "$pid" 2>/dev/null && sleep 0.5
+            kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
             rm -f "$f"
+            echo -e "  ${G}⏹ $svc (PID=$pid)${N}"
         fi
     done
     # Also kill by port in case PID file was stale
@@ -184,10 +172,34 @@ do_status() {
     echo ""
 }
 
+# 清空 agent_bridge 从磁盘恢复的队列与项目（否则重启后会从中间层继续跑）
+do_reset_state() {
+    RUNS="$BASE/backend/runs"
+    SHARED="$BASE/backend/shared_results"
+    echo "🧹 清空流水线状态..."
+    rm -rf "$RUNS/projects"/* 2>/dev/null
+    rm -f "$RUNS/queues"/*.json 2>/dev/null
+    mkdir -p "$RUNS/projects" "$RUNS/queues"
+    rm -rf "$SHARED/idea_runs"/* 2>/dev/null
+    mkdir -p "$SHARED/idea_runs"
+    rm -f "$SHARED/idea_pool"/* 2>/dev/null
+    mkdir -p "$SHARED/idea_pool"
+    rm -rf "$SHARED/knowledge_base"/* 2>/dev/null
+    mkdir -p "$SHARED/knowledge_base"
+    rm -rf "$SHARED/entries"/* 2>/dev/null
+    mkdir -p "$SHARED/entries"
+    rm -f "$SHARED/index.json" 2>/dev/null
+    echo -e "  ${G}✅ 已清空: runs/projects, runs/queues, shared_results/idea_runs, idea_pool, knowledge_base, entries${N}"
+    echo "   （未删除 datasets / checkpoints / codebases，避免重复下载大文件）"
+    echo ""
+}
+
 case "${1:-start}" in
-    start)   do_start ;;
-    stop)    do_stop ;;
-    restart) do_stop; sleep 1; do_start ;;
-    status)  do_status ;;
-    *)       echo "Usage: $0 {start|stop|restart|status}" ;;
+    start)        do_start ;;
+    stop)         do_stop ;;
+    restart)      do_stop; sleep 1; do_start ;;
+    status)       do_status ;;
+    reset-state)  do_reset_state ;;
+    fresh)        do_stop; sleep 1; do_reset_state; do_start ;;
+    *)            echo "Usage: $0 {start|stop|restart|status|reset-state|fresh}" ;;
 esac

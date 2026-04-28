@@ -38,28 +38,31 @@ class Stage(IntEnum):
 
     # Phase D: Experiment Design
     EXPERIMENT_DESIGN = 9  # GATE
-    CODE_GENERATION = 10  # NEW
-    RESOURCE_PLANNING = 11
+    CODEBASE_SEARCH = 10
+    CODE_GENERATION = 11
+    SANITY_CHECK = 12      # Quick smoke test before resource planning
+    RESOURCE_PLANNING = 13
 
     # Phase E: Experiment Execution
-    EXPERIMENT_RUN = 12
-    ITERATIVE_REFINE = 13  # NEW
+    EXPERIMENT_RUN = 14
+    ITERATIVE_REFINE = 15
 
     # Phase F: Analysis & Decision
-    RESULT_ANALYSIS = 14
-    RESEARCH_DECISION = 15
+    RESULT_ANALYSIS = 16
+    RESEARCH_DECISION = 17
+    KNOWLEDGE_SUMMARY = 18   # Summarize findings into shared knowledge base
 
     # Phase G: Paper Writing
-    PAPER_OUTLINE = 16
-    PAPER_DRAFT = 17
-    PEER_REVIEW = 18
-    PAPER_REVISION = 19  # NEW
+    PAPER_OUTLINE = 19
+    PAPER_DRAFT = 20
+    PEER_REVIEW = 21
+    PAPER_REVISION = 22
 
     # Phase H: Finalization
-    QUALITY_GATE = 20  # GATE
-    KNOWLEDGE_ARCHIVE = 21
-    EXPORT_PUBLISH = 22
-    CITATION_VERIFY = 23
+    QUALITY_GATE = 23  # GATE
+    KNOWLEDGE_ARCHIVE = 24
+    EXPORT_PUBLISH = 25
+    CITATION_VERIFY = 26
 
 
 class StageStatus(str, Enum):
@@ -130,7 +133,7 @@ DECISION_ROLLBACK: dict[str, Stage] = {
     "refine": Stage.ITERATIVE_REFINE,    # Keep hypotheses, re-run experiments
 }
 
-MAX_DECISION_PIVOTS: int = 2  # Prevent infinite loops
+MAX_DECISION_PIVOTS: int = 0  # Disable pivot/refine loops
 
 # ---------------------------------------------------------------------------
 # Noncritical stages — can be skipped on failure without aborting pipeline
@@ -159,11 +162,13 @@ PHASE_MAP: dict[str, tuple[Stage, ...]] = {
     "C: Knowledge Synthesis": (Stage.SYNTHESIS, Stage.HYPOTHESIS_GEN),
     "D: Experiment Design": (
         Stage.EXPERIMENT_DESIGN,
+        Stage.CODEBASE_SEARCH,
         Stage.CODE_GENERATION,
+        Stage.SANITY_CHECK,
         Stage.RESOURCE_PLANNING,
     ),
     "E: Experiment Execution": (Stage.EXPERIMENT_RUN, Stage.ITERATIVE_REFINE),
-    "F: Analysis & Decision": (Stage.RESULT_ANALYSIS, Stage.RESEARCH_DECISION),
+    "F: Analysis & Decision": (Stage.RESULT_ANALYSIS, Stage.RESEARCH_DECISION, Stage.KNOWLEDGE_SUMMARY),
     "G: Paper Writing": (
         Stage.PAPER_OUTLINE,
         Stage.PAPER_DRAFT,

@@ -6,6 +6,12 @@ const zh: Record<string, string> = {
   'header.agent_label': 'Agent:',
   'header.resource_label': '资源:',
   'header.shared_repo': '📚 共享数据仓库',
+  'header.stat_agents': '🦞 Agent',
+  'header.stat_active': '🔬 工作中',
+  'header.stat_error': '⚠️ 异常',
+  'header.stat_artifacts': '📦 产物 {n}',
+  'header.theme_light': '切换到浅色主题',
+  'header.theme_dark': '切换到深色主题',
   'header.active': '活跃',
 
   // ProjectPanel

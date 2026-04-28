@@ -6,6 +6,12 @@ const en: Record<string, string> = {
   'header.agent_label': 'Agent:',
   'header.resource_label': 'Resource:',
   'header.shared_repo': '📚 Shared Data Repositories',
+  'header.stat_agents': '🦞 Agents',
+  'header.stat_active': '🔬 Active',
+  'header.stat_error': '⚠️ Error',
+  'header.stat_artifacts': '📦 Artifacts {n}',
+  'header.theme_light': 'Switch to Light Theme',
+  'header.theme_dark': 'Switch to Dark Theme',
   'header.active': 'Active',
 
   // ProjectPanel

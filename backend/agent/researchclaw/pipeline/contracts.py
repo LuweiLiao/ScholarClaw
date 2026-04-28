@@ -97,12 +97,28 @@ CONTRACTS: dict[Stage, StageContract] = {
         error_code="E09_GATE_REJECT",
         max_retries=0,
     ),
+    Stage.CODEBASE_SEARCH: StageContract(
+        stage=Stage.CODEBASE_SEARCH,
+        input_files=("exp_plan.yaml",),
+        output_files=("codebase_candidates.json",),
+        dod="List of reusable codebases with download paths or empty list",
+        error_code="E10_CODEBASE_SEARCH_FAIL",
+        max_retries=1,
+    ),
     Stage.CODE_GENERATION: StageContract(
         stage=Stage.CODE_GENERATION,
-        input_files=("exp_plan.yaml",),
+        input_files=("exp_plan.yaml", "codebase_candidates.json"),
         output_files=("experiment/", "experiment_spec.md"),
         dod="Multi-file experiment project + spec document",
-        error_code="E10_CODEGEN_FAIL",
+        error_code="E11_CODEGEN_FAIL",
+        max_retries=2,
+    ),
+    Stage.SANITY_CHECK: StageContract(
+        stage=Stage.SANITY_CHECK,
+        input_files=("experiment/",),
+        output_files=("sanity_report.json",),
+        dod="Code passes import check and minimal smoke test without crash",
+        error_code="E12_SANITY_FAIL",
         max_retries=2,
     ),
     Stage.RESOURCE_PLANNING: StageContract(
@@ -142,7 +158,15 @@ CONTRACTS: dict[Stage, StageContract] = {
         input_files=("analysis.md",),
         output_files=("decision.md",),
         dod="PROCEED/PIVOT decision with evidence-based justification",
-        error_code="E15_DECISION_FAIL",
+        error_code="E17_DECISION_FAIL",
+    ),
+    Stage.KNOWLEDGE_SUMMARY: StageContract(
+        stage=Stage.KNOWLEDGE_SUMMARY,
+        input_files=("analysis.md", "decision.md", "exp_plan.yaml"),
+        output_files=("knowledge_entry.json",),
+        dod="Structured summary of findings written to shared knowledge base",
+        error_code="E18_KNOWLEDGE_SUMMARY_FAIL",
+        max_retries=1,
     ),
     # Phase G: Paper Writing
     Stage.PAPER_OUTLINE: StageContract(

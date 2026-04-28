@@ -80,6 +80,8 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, resources: action.payload, resConnected: true };
     case 'log':
       return { ...state, logs: [...state.logs, action.payload] };
+    case 'chat_message':
+      return { ...state, chatMessages: [...state.chatMessages, action.payload] };
     case 'set_connected':
       return { ...state, connected: action.payload };
     case 'set_res_connected':
@@ -349,23 +351,27 @@ export default function App() {
   const expAgents = useMemo(() => state.agents.filter((a) => a.layer === AgentLayer.EXPERIMENT), [state.agents]);
   const codeAgents = useMemo(() => state.agents.filter((a) => a.layer === AgentLayer.CODING), [state.agents]);
   const execAgents = useMemo(() => state.agents.filter((a) => a.layer === AgentLayer.EXECUTION), [state.agents]);
+  const writeAgents = useMemo(() => state.agents.filter((a) => a.layer === AgentLayer.WRITING), [state.agents]);
   const agentMap = useMemo(() => ({
     [AgentLayer.IDEA]: ideaAgents,
     [AgentLayer.EXPERIMENT]: expAgents,
     [AgentLayer.CODING]: codeAgents,
     [AgentLayer.EXECUTION]: execAgents,
-  }), [ideaAgents, expAgents, codeAgents, execAgents]);
+    [AgentLayer.WRITING]: writeAgents,
+  }), [ideaAgents, expAgents, codeAgents, execAgents, writeAgents]);
 
   const ideaLogs = useMemo(() => state.logs.filter((l) => l.layer === AgentLayer.IDEA), [state.logs]);
   const expLogs = useMemo(() => state.logs.filter((l) => l.layer === AgentLayer.EXPERIMENT), [state.logs]);
   const codeLogs = useMemo(() => state.logs.filter((l) => l.layer === AgentLayer.CODING), [state.logs]);
   const execLogs = useMemo(() => state.logs.filter((l) => l.layer === AgentLayer.EXECUTION), [state.logs]);
+  const writeLogs = useMemo(() => state.logs.filter((l) => l.layer === AgentLayer.WRITING), [state.logs]);
   const logMap = useMemo(() => ({
     [AgentLayer.IDEA]: ideaLogs,
     [AgentLayer.EXPERIMENT]: expLogs,
     [AgentLayer.CODING]: codeLogs,
     [AgentLayer.EXECUTION]: execLogs,
-  }), [ideaLogs, expLogs, codeLogs, execLogs]);
+    [AgentLayer.WRITING]: writeLogs,
+  }), [ideaLogs, expLogs, codeLogs, execLogs, writeLogs]);
 
   const artifactsByProject = useMemo(() => {
     const map: Record<string, Artifact[]> = {};
@@ -389,39 +395,6 @@ export default function App() {
   const workingCount = useMemo(() => state.agents.filter((a) => ['working', 'waiting_discussion', 'discussing'].includes(a.status)).length, [state.agents]);
   const errorCount = useMemo(() => state.agents.filter((a) => a.status === 'error').length, [state.agents]);
 
-  const sendFeedback = useCallback((content: string, targetLayer?: string) => {
-    const msg: ChatMessage = {
-      id: `chat-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      sender: 'human',
-      content,
-      timestamp: Date.now(),
-      targetLayer: (targetLayer as ChatMessage['targetLayer']) || 'all',
-    };
-    dispatch({ type: 'add_chat_message', payload: msg });
-
-    const ws = agentWsRef.current;
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({
-        command: 'human_feedback',
-        content,
-        targetLayer: msg.targetLayer,
-        messageId: msg.id,
-      }));
-    }
-
-    if (mockModeRef.current) {
-      setTimeout(() => {
-        const ack = createMockFeedbackAck(targetLayer || 'all');
-        dispatch({ type: 'add_chat_message', payload: ack });
-      }, 300 + Math.random() * 500);
-
-      setTimeout(() => {
-        const analysis = createMockLLMAnalysis(content, targetLayer || 'all');
-        dispatch({ type: 'add_chat_message', payload: analysis });
-      }, 2500 + Math.random() * 3000);
-    }
-  }, []);
-
   return (
     <LocaleContext.Provider value={localeCtx}>
     <div className="app">
@@ -431,10 +404,10 @@ export default function App() {
           <span className="header-subtitle">1.0.0</span>
         </div>
         <div className="header-stats">
-          <span className="stat">Agent <b>{state.agents.length}</b></span>
-          <span className="stat">{t('header.active')} <b>{workingCount}</b></span>
-          <span className="stat">❌ <b>{errorCount}</b></span>
-          <span className="stat">📦 <b>{state.artifacts.length}</b></span>
+          <span className="stat">{t('header.stat_agents')} <b>{state.agents.length}</b></span>
+          <span className="stat">{t('header.stat_active')} <b>{workingCount}</b></span>
+          <span className="stat">{t('header.stat_error')} <b>{errorCount}</b></span>
+          <span className="stat" dangerouslySetInnerHTML={{ __html: t('header.stat_artifacts', { n: `<b>${state.artifacts.length}</b>` }) }} />
         </div>
         <div className="header-right">
           <button
