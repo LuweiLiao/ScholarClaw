@@ -1,0 +1,16 @@
+model_name,organization,params_billion,architecture,release_date,open_source,context_length
+GPT-4,OpenAI,1760,Decoder-MoE,2023-03,No,128000
+GPT-3.5-turbo,OpenAI,175,Decoder,2022-11,No,16385
+Claude-3-Opus,Anthropic,137,Decoder,2024-03,No,200000
+Claude-3-Sonnet,Anthropic,70,Decoder,2024-03,No,200000
+LLaMA-2-70B,Meta,70,Decoder,2023-07,Yes,4096
+LLaMA-2-13B,Meta,13,Decoder,2023-07,Yes,4096
+LLaMA-3-70B,Meta,70,Decoder,2024-04,Yes,8192
+Mistral-7B,Mistral AI,7.3,Decoder,2023-09,Yes,32768
+Mixtral-8x7B,Mistral AI,46.7,Decoder-MoE,2023-12,Yes,32768
+Gemini-Pro,Google,340,Decoder-MoE,2023-12,No,32768
+Gemini-Ultra,Google,1560,Decoder-MoE,2024-02,No,32768
+Qwen-72B,Alibaba,72,Decoder,2023-11,Yes,32768
+DeepSeek-V2,DeepSeek,236,Decoder-MoE,2024-05,Yes,128000
+Yi-34B,01.AI,34,Decoder,2023-11,Yes,200000
+Phi-3-medium,Microsoft,14,Decoder,2024-04,Yes,128000
