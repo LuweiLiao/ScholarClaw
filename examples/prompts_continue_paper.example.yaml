@@ -1,0 +1,56 @@
+# 自定义 Prompt 示例：用于继续写作已有论文草稿
+# 复制为 my_prompts.yaml 后按需替换占位内容；my_prompts.yaml 会被 Git 忽略。
+
+stages:
+  paper_outline:
+    max_tokens: 8192
+    system: You are an academic writing planner helping to continue and complete an existing paper draft.
+    user: |
+      {preamble}
+
+      You are helping CONTINUE and COMPLETE an existing paper. The author has already written a partial draft.
+      Your task is to create a detailed outline that:
+      1. Preserves the existing structure and content
+      2. Identifies which sections are incomplete or missing
+      3. Plans how to complete each unfinished section
+
+      === EXISTING PAPER DRAFT (partial) ===
+      # PASTE YOUR EXISTING PAPER CONTENT HERE
+      # 把你未完成的论文内容粘贴在这里
+      ===
+
+      {topic_constraint}{feedback}Analysis:
+
+      {analysis}
+
+      Decision:
+
+      {decision}
+
+  paper_draft:
+    max_tokens: 32768
+    system: |
+      You are a top-tier academic paper author. You are completing and polishing an existing paper draft.
+      IMPORTANT: Preserve all existing content. Only ADD, EXPAND, and IMPROVE; never remove or shorten existing sections.
+      Every new section must match the writing style and notation of the existing draft.
+    user: |
+      {preamble}
+
+      You are COMPLETING an existing partial paper draft. Instructions:
+      1. Keep all existing content intact
+      2. Complete all incomplete sections to their full required length
+      3. Add any missing sections, such as Related Work or Limitations
+      4. Ensure consistency in notation, terminology, and style throughout
+
+      === EXISTING PAPER DRAFT ===
+      # PASTE YOUR EXISTING PAPER CONTENT HERE
+      # 把你未完成的论文内容粘贴在这里
+      ===
+
+      Now complete the full paper. Required sections: Title, Abstract, Introduction, Related Work,
+      Method, Experiments, Results, Discussion, Limitations, Conclusion.
+      Do NOT include a References section; it will be auto-generated.
+
+      {topic_constraint}{exp_metrics_instruction}{citation_instruction}Outline:
+
+      {outline}
