@@ -25,15 +25,16 @@ knowledge_base:
   backend: "markdown"
   root: "docs/kb"
 
-openclaw_bridge:
+scholar_bridge:
   use_message: false
   use_memory: false
   use_web_fetch: false
 
 llm:
   provider: "openai-compatible"
-  base_url: "https://api.minimaxi.com/v1"
-  api_key: "sk-cp-NCCo8SCs9ynqekJW7zpJyCS-Q1EW3f9lRREY_Gn8oRTJV1PweeCRCXi7gVih_DIpXF_qeULKWLU5aXxW1tGFpXRNACZYn7jQ3HAAcAAciGywH1Ikz6kyww8"
+  # 示例/模板请勿填写真实密钥。优先使用环境变量，或在本地副本中设置 api_key。
+  base_url: "https://api.openai.com/v1"
+  api_key: ""   # 若留空，运行时从下方 api_key_env 对应的环境变量读取
   api_key_env: "RESEARCHCLAW_API_KEY"
   primary_model: "MiniMax-M2.7"
   coding_model: "MiniMax-M2.7"

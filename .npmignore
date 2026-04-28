@@ -1,0 +1,4 @@
+# Python bytecode — should not be published
+__pycache__
+*.pyc
+*.pyo

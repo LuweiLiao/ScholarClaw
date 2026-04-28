@@ -1,26 +1,26 @@
 <p align="center">
-  <img src="assets/logo_v1.png" width="200" alt="Claw AI Lab">
+  <img src="assets/logo_v1.png" width="200" alt="ScholarLab">
 </p>
 
-<h2 align="center"><b>Claw AI Lab: An Autonomous Multi-Agent Research Team</b></h2>
+<h2 align="center"><b>ScholarLab: An Autonomous Multi-Agent Research Team</b></h2>
 
 <!-- <p align="center">
   <b><i>One Command. A Complete Team.</i></b>
 </p> -->
 
 <p align="center">
-  <a href="https://clawailab.ai"><img src="https://img.shields.io/badge/Homepage-clawailab.ai-E63946?logo=google-chrome&logoColor=white" alt="Homepage"></a>
+  <a href="https://scholarlab.ai"><img src="https://img.shields.io/badge/Homepage-scholarlab.ai-E63946?logo=google-chrome&logoColor=white" alt="Homepage"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License"></a>
   <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white" alt="Python 3.11+"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white" alt="Node.js 18+"></a>
-  <a href="https://github.com/Claw-AI-Lab/Claw-AI-Lab"><img src="https://img.shields.io/badge/GitHub-Claw--AI--Lab-6f42c1?logo=github&logoColor=white" alt="GitHub"></a>
+  <a href="https://github.com/ScholarLab/ScholarLab"><img src="https://img.shields.io/badge/GitHub-ScholarLab-6f42c1?logo=github&logoColor=white" alt="GitHub"></a>
 </p>
 
 ---
 
 ## 🔥 Updates
 
-- __[2026.04.02]__: Preview v1.1.0 — powered by **Claw-Code Harness**.
+- __[2026.04.02]__: Preview v1.1.0 — powered by **Scholar-Code Harness**.
 - __[2026.03.25]__: Preview v1.0.0 - initial release.
 
 ---
@@ -31,16 +31,16 @@
 
 ## 🤔 What Is This?
 
-**Claw AI Lab** is a lab-native multi-agent research platform for interactive and scalable AI-driven science. It enables users to create a full AI research lab from a single prompt, with customizable roles, research directions, and collaborative workflows, rather than relying on a single-agent or fixed serial pipeline. Claw orchestrates multiple agents and projects in parallel through a FIFO-based scheduling framework, maximizing compute utilization while supporting cross-project knowledge sharing and mutual improvement. Crucially, the system keeps humans in the loop: users can intervene whenever needed, provide feedback under ambiguity, inject new ideas, and iteratively refine the research process through rollback and continuation. Combined with a simple UI that reduces everything to prompts and clicks, Claw transforms automated research into a more intuitive, steerable, and laboratory-like experience.
+**ScholarLab** is a lab-native multi-agent research platform for interactive and scalable AI-driven science. It enables users to create a full AI research lab from a single prompt, with customizable roles, research directions, and collaborative workflows, rather than relying on a single-agent or fixed serial pipeline. ScholarLab orchestrates multiple agents and projects in parallel through a FIFO-based scheduling framework, maximizing compute utilization while supporting cross-project knowledge sharing and mutual improvement. Crucially, the system keeps humans in the loop: users can intervene whenever needed, provide feedback under ambiguity, inject new ideas, and iteratively refine the research process through rollback and continuation. Combined with a simple UI that reduces everything to prompts and clicks, ScholarLab transforms automated research into a more intuitive, steerable, and laboratory-like experience.
 
 <p align="center"><b>We welcome contributions from the community to make this project better together!</b><br><b>You are warmly invited to scroll to the bottom of the page to join our group for beta testing and discussion.</b></p>
 
 ---
 
-## 🖥️ Claw AI Lab Dashboard
+## 🖥️ ScholarLab Dashboard
 
 <p align="center">
-  <img src="assets/ui.png" width="860" alt="Claw AI Lab UI"/>
+  <img src="assets/ui.png" width="860" alt="ScholarLab UI"/>
   <br/>
   <b>Launch projects, monitor agents, and inspect every artifact — all from a single interface.</b><br>
   <sub>Real-time event stream · Multi-project overview · One-click rollback & resume · Artifact inspector</sub>
@@ -52,7 +52,7 @@
 
 <table>
 <tr><td>🖥️</td><td><b>Interactive UI</b></td><td>Real-time web dashboard with event stream, data shelf, and multi-project monitoring</td></tr>
-<tr><td>🧬</td><td><b>Claw Code Harness</b></td><td>Reads your local codebases, datasets &amp; checkpoints — writes runnable code back to disk</td></tr>
+<tr><td>🧬</td><td><b>Scholar Code Harness</b></td><td>Reads your local codebases, datasets &amp; checkpoints — writes runnable code back to disk</td></tr>
 <tr><td>⚡</td><td><b>GPU &amp; NPU Ready</b></td><td>Dynamic scheduling across CUDA and Ascend NPU hardware</td></tr>
 <tr><td>🔬</td><td><b>End-to-End Pipeline</b></td><td>One prompt → paper + code + figures + experiment logs, fully autonomous</td></tr>
 <tr><td>🤝</td><td><b>Three Research Modes</b></td><td><b>Explore</b> · <b>Discussion</b> (multi-agent debate) · <b>Reproduce</b></td></tr>
@@ -128,15 +128,31 @@ Multi-agent discussion on: **"What is the most deployable direction for Video Ac
 
 ## 🚀 Quick Start
 
-### 1. Install
+### Option A: Install via npm (Recommended)
 
 ```bash
-git clone https://github.com/Claw-AI-Lab/Claw-AI-Lab.git
-cd Claw-AI-Lab
+npm install -g scholarlab
+scholarlab start
+```
+
+This automatically sets up the Python environment, starts all services, and opens the browser.
+
+```bash
+scholarlab stop      # Stop all services
+scholarlab restart   # Restart
+scholarlab status    # Check service health
+scholarlab setup     # Reinstall Python dependencies
+```
+
+### Option B: Install from source
+
+```bash
+git clone https://github.com/ScholarLab/ScholarLab.git
+cd ScholarLab
 
 # Create python environment
-conda create -n clawailab python=3.11
-conda activate clawailab
+conda create -n scholarlab python=3.11
+conda activate scholarlab
 
 # Backend
 cd backend/agent
@@ -230,8 +246,8 @@ knowledge_base:
   backend: "markdown"             # Storage format: "markdown" | "obsidian"
   root: "docs/kb"                 # Root directory for knowledge base files
 
-# === OpenClaw Bridge ===
-openclaw_bridge:
+# === Scholar Bridge ===
+scholar_bridge:
   use_message: false              # Enable progress notifications via messaging platforms
   use_memory: false               # Enable cross-session knowledge persistence
   use_web_fetch: false            # Enable live web search during literature review
@@ -293,7 +309,7 @@ prompts:
 
 ## 🙏 Acknowledgement
 
-We learned and reused code from the following projects: [AutoResearchClaw](https://github.com/aiming-lab/AutoResearchClaw), [AutoResearch](https://github.com/karpathy/autoresearch), [claw-code](https://github.com/ultraworkers/claw-code).
+We learned and reused code from the following projects: [AutoResearch](https://github.com/karpathy/autoresearch) and other open-source research tools.
 
 We thank the authors for their contributions to the community!
 
@@ -303,16 +319,16 @@ MIT — see [LICENSE](LICENSE) for details.
 
 ## 📌 Citation
 
-If you find Claw AI Lab useful, please cite:
+If you find ScholarLab useful, please cite:
 
 ```bibtex
-@misc{wu2026clawailab,
+@misc{wu2026scholarlab,
   author       = {Wu, Fan and Chen, Cheng and Tan, Zhenshan and Zhang, Taiyu and
                   Gao, Dingcheng and Zhu, Lanyun and Zhu, Qi and Tan, Yi and Ji, Deyi and 
                   Lin, Guosheng and Chen, Tianrun and Ye, Deheng and Liu, Fayao},
-  title        = {Claw AI Lab: An Autonomous Multi-Agent Research Team},
+  title        = {ScholarLab: An Autonomous Multi-Agent Research Team},
   year         = {2026},
-  url          = {https://github.com/Claw-AI-Lab/Claw-AI-Lab},
+  url          = {https://github.com/ScholarLab/ScholarLab},
   note         = {GitHub repository}
 }
 ```

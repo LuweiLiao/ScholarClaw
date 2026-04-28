@@ -1,0 +1,52 @@
+{
+  "name": "scholarlab",
+  "version": "1.1.4",
+  "description": "ScholarLab — An Autonomous Multi-Agent Academic Research Platform",
+  "keywords": [
+    "academic",
+    "research",
+    "multi-agent",
+    "AI",
+    "paper-writing",
+    "literature-review",
+    "experiment-automation"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ScholarLab/ScholarLab.git"
+  },
+  "homepage": "https://scholarlab.ai",
+  "author": "ScholarLab Team",
+  "bin": {
+    "scholarlab": "./bin/scholarlab.js"
+  },
+  "files": [
+    "bin/",
+    "backend/services/",
+    "backend/agent/researchclaw/",
+    "backend/agent/setup.py",
+    "backend/agent/setup.cfg",
+    "backend/agent/pyproject.toml",
+    "backend/agent/prompts.default.yaml",
+    "dist/",
+    "examples/config_template.yaml",
+    "server/",
+    "requirements.txt"
+  ],
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "prepack": "npm run build && node -e \"require('fs').cpSync('frontend/dist','dist',{recursive:true})\"",
+    "postpack": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "postinstall": "node bin/postinstall-hint.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "http-proxy-middleware": "^3.0.5",
+    "open": "^10.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
