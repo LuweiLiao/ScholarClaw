@@ -11,7 +11,7 @@ from researchclaw.adapters import AdapterBundle
 from researchclaw.config import RCConfig
 from researchclaw.pipeline import runner as rc_runner
 from researchclaw.pipeline.executor import StageResult
-from researchclaw.pipeline.stages import STAGE_SEQUENCE, Stage, StageStatus
+from researchclaw.pipeline.stages import MAX_DECISION_PIVOTS, STAGE_SEQUENCE, Stage, StageStatus
 
 
 @pytest.fixture()
@@ -83,7 +83,7 @@ def test_execute_pipeline_runs_stages_in_sequence(
         adapters=adapters,
     )
     assert seen == list(STAGE_SEQUENCE)
-    assert len(results) == 23
+    assert len(results) == len(STAGE_SEQUENCE)
     assert all(r.status == StageStatus.DONE for r in results)
 
 
@@ -162,7 +162,7 @@ def test_execute_pipeline_continues_after_gate_when_stop_on_gate_disabled(
         adapters=adapters,
         stop_on_gate=False,
     )
-    assert len(results) == 23
+    assert len(results) == len(STAGE_SEQUENCE)
     assert any(item.status == StageStatus.BLOCKED_APPROVAL for item in results)
 
 
@@ -291,8 +291,8 @@ def test_execute_pipeline_writes_kb_entries_when_kb_root_provided(
         adapters=adapters,
         kb_root=kb_root,
     )
-    assert len(results) == 23
-    assert len(calls) == 23
+    assert len(results) == len(STAGE_SEQUENCE)
+    assert len(calls) == len(STAGE_SEQUENCE)
     assert calls[0] == (1, "topic_init", "run-kb")
 
 
@@ -487,15 +487,19 @@ def test_pivot_decision_triggers_rollback_to_hypothesis_gen(
         config=rc_config,
         adapters=adapters,
     )
-    # Should have seen HYPOTHESIS_GEN at least twice (original + rollback)
     hyp_gen_count = sum(1 for s in seen if s == Stage.HYPOTHESIS_GEN)
-    assert hyp_gen_count >= 2
-    # Decision history should be recorded
     history_path = run_dir / "decision_history.json"
-    assert history_path.exists()
-    history = json.loads(history_path.read_text())
-    assert len(history) == 1
-    assert history[0]["decision"] == "pivot"
+    if MAX_DECISION_PIVOTS == 0:
+        assert hyp_gen_count == 1
+        assert not history_path.exists()
+    else:
+        # Should have seen HYPOTHESIS_GEN at least twice (original + rollback)
+        assert hyp_gen_count >= 2
+        # Decision history should be recorded
+        assert history_path.exists()
+        history = json.loads(history_path.read_text())
+        assert len(history) == 1
+        assert history[0]["decision"] == "pivot"
 
 
 def test_refine_decision_triggers_rollback_to_iterative_refine(
@@ -523,9 +527,12 @@ def test_refine_decision_triggers_rollback_to_iterative_refine(
         config=rc_config,
         adapters=adapters,
     )
-    # Should have seen ITERATIVE_REFINE at least twice
     refine_stage_count = sum(1 for s in seen if s == Stage.ITERATIVE_REFINE)
-    assert refine_stage_count >= 2
+    if MAX_DECISION_PIVOTS == 0:
+        assert refine_stage_count == 1
+    else:
+        # Should have seen ITERATIVE_REFINE at least twice
+        assert refine_stage_count >= 2
 
 
 def test_max_pivot_count_prevents_infinite_loop(
@@ -552,7 +559,6 @@ def test_max_pivot_count_prevents_infinite_loop(
         adapters=adapters,
     )
     # RESEARCH_DECISION should appear at most MAX_DECISION_PIVOTS + 1 times
-    from researchclaw.pipeline.stages import MAX_DECISION_PIVOTS
     decision_count = sum(1 for s in seen if s == Stage.RESEARCH_DECISION)
     assert decision_count <= MAX_DECISION_PIVOTS + 1
 
@@ -577,8 +583,8 @@ def test_proceed_decision_does_not_trigger_rollback(
         config=rc_config,
         adapters=adapters,
     )
-    # Should be exactly 23 stages, no rollback
-    assert len(seen) == 23
+    # Should execute exactly the configured sequence, with no rollback
+    assert len(seen) == len(STAGE_SEQUENCE)
     assert not (run_dir / "decision_history.json").exists()
 
 
@@ -794,8 +800,8 @@ def test_degraded_quality_gate_continues_pipeline(
         config=rc_config,
         adapters=adapters,
     )
-    # All 23 stages should execute (not stopped at quality gate)
-    assert len(results) == 23
+    # All configured stages should execute (not stopped at quality gate)
+    assert len(results) == len(STAGE_SEQUENCE)
     assert seen == list(STAGE_SEQUENCE)
     # Quality gate result should have decision="degraded"
     qg_result = [r for r in results if r.stage == Stage.QUALITY_GATE][0]

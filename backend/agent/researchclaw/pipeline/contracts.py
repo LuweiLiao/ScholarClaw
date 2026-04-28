@@ -1,4 +1,4 @@
-"""Stage I/O contracts for the 23-stage ResearchClaw pipeline.
+"""Stage I/O contracts for the 26-stage ResearchClaw pipeline.
 
 Each StageContract declares:
   - input_files: artifacts this stage reads (produced by prior stages)

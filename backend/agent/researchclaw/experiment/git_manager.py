@@ -111,12 +111,16 @@ class ExperimentGitManager:
     def _run_git(self, args: list[str]) -> subprocess.CompletedProcess[str] | None:
         try:
             logger.debug("Running git command: git %s", " ".join(args))
-            return subprocess.run(
+            _raw = subprocess.run(
                 ["git", *args],
                 cwd=self.repo_dir,
                 capture_output=True,
-                text=True,
                 check=False,
+            )
+            return subprocess.CompletedProcess(
+                _raw.args, _raw.returncode,
+                stdout=_raw.stdout.decode("utf-8", errors="replace") if _raw.stdout else "",
+                stderr=_raw.stderr.decode("utf-8", errors="replace") if _raw.stderr else "",
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning("Git operation failed (%s): %s", " ".join(args), exc)

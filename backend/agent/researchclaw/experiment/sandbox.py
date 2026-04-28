@@ -276,14 +276,18 @@ class ExperimentSandbox:
         result: SandboxResult
         try:
             env = {**os.environ, "PYTHONUNBUFFERED": "1"}
-            completed = subprocess.run(
+            completed_raw = subprocess.run(
                 command,
                 capture_output=True,
-                text=True,
                 timeout=timeout_sec,
                 cwd=self.workdir,
                 env=env,
                 check=False,
+            )
+            completed = subprocess.CompletedProcess(
+                completed_raw.args, completed_raw.returncode,
+                stdout=completed_raw.stdout.decode("utf-8", errors="replace") if completed_raw.stdout else "",
+                stderr=completed_raw.stderr.decode("utf-8", errors="replace") if completed_raw.stderr else "",
             )
             result = self._result_from_completed(
                 completed, elapsed_sec=time.monotonic() - start
@@ -366,14 +370,18 @@ class ExperimentSandbox:
         result: SandboxResult
         try:
             env = {**os.environ, "PYTHONUNBUFFERED": "1"}
-            completed = subprocess.run(
+            completed_raw = subprocess.run(
                 command,
                 capture_output=True,
-                text=True,
                 timeout=timeout_sec,
                 cwd=sandbox_project,
                 env=env,
                 check=False,
+            )
+            completed = subprocess.CompletedProcess(
+                completed_raw.args, completed_raw.returncode,
+                stdout=completed_raw.stdout.decode("utf-8", errors="replace") if completed_raw.stdout else "",
+                stderr=completed_raw.stderr.decode("utf-8", errors="replace") if completed_raw.stderr else "",
             )
             result = self._result_from_completed(
                 completed, elapsed_sec=time.monotonic() - start

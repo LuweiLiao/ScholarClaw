@@ -232,6 +232,9 @@ class ClawTurnLoop:
 
         for iteration in range(self._max_iterations):
             iter_num = iteration + 1
+
+            self._inject_user_messages()
+
             self._trace.iteration_start(iter_num, self._max_iterations)
             self._session.log(
                 CodegenPhase.GENERATE,
@@ -477,6 +480,64 @@ class ClawTurnLoop:
 
         self._save_conversation_log()
         return result
+
+    # ------------------------------------------------------------------
+    # User message injection
+    # ------------------------------------------------------------------
+
+    def _inject_user_messages(self) -> None:
+        """Read pending user messages from user_messages.jsonl (written by
+        agent_chat WebSocket command) and inject them into conversation."""
+        candidates: list[Path] = []
+        p = self._workspace
+        for _ in range(6):
+            candidates.append(p / "user_messages.jsonl")
+            if (p / "project_meta.json").exists():
+                break
+            if p.parent == p:
+                break
+            p = p.parent
+        msg_file = None
+        for c in candidates:
+            if c.exists():
+                msg_file = c
+                break
+        if msg_file is None:
+            return
+
+        consumed_marker = msg_file.with_suffix(".consumed")
+        last_consumed = 0
+        if consumed_marker.exists():
+            try:
+                last_consumed = int(consumed_marker.read_text(encoding="utf-8").strip())
+            except (ValueError, OSError):
+                pass
+        try:
+            lines = msg_file.read_text(encoding="utf-8").strip().splitlines()
+        except OSError:
+            return
+        new_messages = lines[last_consumed:]
+        if not new_messages:
+            return
+        for line in new_messages:
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            content = entry.get("content", "").strip()
+            if not content:
+                continue
+            injection = (
+                "[USER INTERVENTION] The user has sent a message during your execution. "
+                f"Please acknowledge it and adjust your approach accordingly:\n\n"
+                f"{content}"
+            )
+            self._messages.append({"role": "user", "content": injection})
+            self._session.log(CodegenPhase.GENERATE, f"User message injected: {content[:100]}")
+        try:
+            consumed_marker.write_text(str(len(lines)), encoding="utf-8")
+        except OSError:
+            pass
 
     # ------------------------------------------------------------------
     # LLM API call with tool support

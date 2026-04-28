@@ -28,6 +28,9 @@ _NEW_PARAM_MODELS = frozenset(
         "o3",
         "o3-mini",
         "o4-mini",
+        "gpt-5",
+        "gpt-5.1",
+        "gpt-5.2",
         "gpt-5.4",
     }
 )
@@ -184,10 +187,26 @@ class LLMClient:
         temp = temperature if temperature is not None else self.config.temperature
 
         last_error: Exception | None = None
+        _t0 = time.monotonic()
 
         for idx, m in enumerate(models):
             try:
                 resp = self._call_with_retry(m, messages, max_tok, temp, json_mode)
+                _elapsed_ms = int((time.monotonic() - _t0) * 1000)
+                # Activity logging for timeline
+                _act_dir = getattr(self, '_activity_run_dir', None)
+                if _act_dir:
+                    try:
+                        from researchclaw.pipeline.activity_writer import write_event
+                        write_event(
+                            _act_dir, "llm_call",
+                            f"🤖 {resp.model or m}: {resp.total_tokens} tokens ({_elapsed_ms}ms)",
+                            detail=f"prompt={resp.prompt_tokens}, completion={resp.completion_tokens}, "
+                                   f"content_len={len(resp.content)}",
+                            tokens=resp.total_tokens, elapsed_ms=_elapsed_ms,
+                        )
+                    except Exception:
+                        pass
                 if strip_thinking:
                     from researchclaw.utils.thinking_tags import strip_thinking_tags
                     resp = LLMResponse(
@@ -394,6 +413,25 @@ class LLMClient:
             # retries and model-fallback — each attempt must start from the
             # original, un-modified messages).
             msgs = [dict(m) for m in messages]
+
+            # Some providers (MiniMax, etc.) don't support the "system" role.
+            # Convert system messages to user messages with a clear prefix.
+            _no_system_role = (
+                "minimax" in self.config.base_url.lower()
+                or "minimaxi" in self.config.base_url.lower()
+                or model.lower().startswith("minimax")
+                or model.lower().startswith("abab")
+            )
+            if _no_system_role:
+                converted = []
+                for m in msgs:
+                    if m.get("role") == "system":
+                        converted.append({"role": "user", "content": f"[System Instructions]\n{m['content']}"})
+                        converted.append({"role": "assistant", "content": "Understood. I will follow these instructions."})
+                    else:
+                        converted.append(m)
+                msgs = converted
+
             body: dict[str, Any] = {
                 "model": model,
                 "messages": msgs,
@@ -432,7 +470,7 @@ class LLMClient:
                 else:
                     body["response_format"] = {"type": "json_object"}
 
-            body["stream"] = True
+            body["stream"] = False
             payload = json.dumps(body).encode("utf-8")
             url = f"{self.config.base_url.rstrip('/')}/chat/completions"
 
@@ -446,7 +484,8 @@ class LLMClient:
             req = urllib.request.Request(url, data=payload, headers=headers)
 
             try:
-                data = self._stream_read(req, self.config.timeout_sec)
+                with urllib.request.urlopen(req, timeout=self.config.timeout_sec) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
             except (urllib.error.URLError, OSError) as exc:
                 if self.config.fallback_url:
                     logger.warning(
@@ -464,12 +503,13 @@ class LLMClient:
                         "User-Agent": self.config.user_agent,
                     }
                     fb_body = dict(body)
-                    fb_body["stream"] = True
+                    fb_body["stream"] = False
                     fb_payload = json.dumps(fb_body).encode("utf-8")
                     fallback_req = urllib.request.Request(
                         fallback_url, data=fb_payload, headers=fallback_headers
                     )
-                    data = self._stream_read(fallback_req, self.config.timeout_sec)
+                    with urllib.request.urlopen(fallback_req, timeout=self.config.timeout_sec) as resp:
+                        data = json.loads(resp.read().decode("utf-8"))
                 else:
                     raise
 
@@ -494,12 +534,20 @@ class LLMClient:
         message = choice.get("message", {})
         content = message.get("content") or ""
 
+        prompt_tok = usage.get("prompt_tokens", 0)
+        completion_tok = usage.get("completion_tokens", 0)
+        total_tok = usage.get("total_tokens", 0)
+        if total_tok == 0 and (prompt_tok or completion_tok):
+            total_tok = prompt_tok + completion_tok
+        if total_tok == 0 and content:
+            total_tok = len(content) // 4 + prompt_tok
+
         return LLMResponse(
             content=content,
             model=data.get("model", model),
-            prompt_tokens=usage.get("prompt_tokens", 0),
-            completion_tokens=usage.get("completion_tokens", 0),
-            total_tokens=usage.get("total_tokens", 0),
+            prompt_tokens=prompt_tok,
+            completion_tokens=completion_tok,
+            total_tokens=total_tok,
             finish_reason=choice.get("finish_reason", ""),
             truncated=(choice.get("finish_reason", "") == "length"),
             raw=data,

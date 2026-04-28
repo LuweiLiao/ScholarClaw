@@ -13,6 +13,7 @@ from researchclaw.adapters import AdapterBundle
 from researchclaw.config import RCConfig
 from researchclaw.evolution import EvolutionStore, extract_lessons
 from researchclaw.knowledge.base import write_stage_to_kb
+from researchclaw.pipeline.activity_writer import ActivityLogger
 from researchclaw.pipeline.executor import StageResult, execute_stage
 from researchclaw.pipeline.stages import (
     DECISION_ROLLBACK,
@@ -209,6 +210,7 @@ def execute_pipeline(
     results: list[StageResult] = []
     started = False
     total_stages = len(STAGE_SEQUENCE)
+    _activity = ActivityLogger(run_dir)
 
     for stage in STAGE_SEQUENCE:
         if to_stage is not None and int(stage) > int(to_stage):
@@ -230,6 +232,7 @@ def execute_pipeline(
                 pass
 
         print(f"{prefix} {stage.name} — running...")
+        _activity.stage_start(stage_num, stage.name)
         t0 = _time.monotonic()
 
         result = execute_stage(
@@ -243,6 +246,7 @@ def execute_pipeline(
         elapsed = _time.monotonic() - t0
         if result.status == StageStatus.DONE:
             arts = ", ".join(result.artifacts) if result.artifacts else "none"
+            _activity.stage_done(stage_num, stage.name, elapsed, arts)
             if result.decision == "degraded":
                 print(
                     f"{prefix} {stage.name} — DEGRADED ({elapsed:.1f}s) "
@@ -252,6 +256,7 @@ def execute_pipeline(
                 print(f"{prefix} {stage.name} — done ({elapsed:.1f}s) → {arts}")
         elif result.status == StageStatus.FAILED:
             err = result.error or "unknown error"
+            _activity.stage_failed(stage_num, stage.name, err)
             print(f"{prefix} {stage.name} — FAILED ({elapsed:.1f}s) — {err}")
         elif result.status == StageStatus.BLOCKED_APPROVAL:
             print(f"{prefix} {stage.name} — blocked (awaiting approval)")

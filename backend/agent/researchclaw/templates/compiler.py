@@ -71,7 +71,7 @@ def compile_latex(
     for attempt in range(1, max_attempts + 1):
         result.attempts = attempt
         try:
-            proc = subprocess.run(
+            _raw = subprocess.run(
                 [
                     "pdflatex",
                     "-interaction=nonstopmode",
@@ -80,8 +80,12 @@ def compile_latex(
                 ],
                 cwd=work_dir,
                 capture_output=True,
-                text=True,
                 timeout=timeout,
+            )
+            proc = subprocess.CompletedProcess(
+                _raw.args, _raw.returncode,
+                stdout=_raw.stdout.decode("utf-8", errors="replace") if _raw.stdout else "",
+                stderr=_raw.stderr.decode("utf-8", errors="replace") if _raw.stderr else "",
             )
         except subprocess.TimeoutExpired:
             result.errors.append(f"pdflatex timed out after {timeout}s")
@@ -106,7 +110,6 @@ def compile_latex(
                     ["pdflatex", "-interaction=nonstopmode", tex_name],
                     cwd=work_dir,
                     capture_output=True,
-                    text=True,
                     timeout=timeout,
                 )
             logger.info("IMP-18: LaTeX compiled successfully on attempt %d", attempt)
@@ -351,7 +354,6 @@ def _run_bibtex(work_dir: Path, stem: str, timeout: int = 60) -> bool:
             ["bibtex", stem],
             cwd=work_dir,
             capture_output=True,
-            text=True,
             timeout=timeout,
         )
         return proc.returncode == 0

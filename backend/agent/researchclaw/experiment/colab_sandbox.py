@@ -83,8 +83,9 @@ while True:
 
         if entry:
             try:
+                _py = "python" if os.name == "nt" else "python3"
                 cp = subprocess.run(
-                    ["python3", "-u", str(entry)],
+                    [_py, "-u", str(entry)],
                     cwd=str(run_dir),
                     capture_output=True, text=True,
                     timeout=1800,  # 30 min max per experiment

@@ -18,6 +18,11 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from researchclaw.pipeline.claw_engine.tools.permissions import (
+    resolve_allowed_read_path,
+    resolve_workspace_write_path,
+)
+
 logger = logging.getLogger(__name__)
 
 MAX_RESULT_CHARS = 16000
@@ -98,20 +103,28 @@ class ToolExecutor:
         # ensure bash runs in the correct conda/venv environment.
         if self.python_path and os.path.isfile(self.python_path):
             python_bin_dir = os.path.dirname(os.path.realpath(self.python_path))
-            env["PATH"] = python_bin_dir + ":" + env.get("PATH", "")
+            sep = ";" if os.name == "nt" else ":"
+            env["PATH"] = python_bin_dir + sep + env.get("PATH", "")
             env_prefix = os.path.dirname(python_bin_dir)
             env["CONDA_PREFIX"] = env_prefix
             env["VIRTUAL_ENV"] = env_prefix
 
         try:
-            # Use bash -c (not -lc) to avoid login shell resetting PATH
+            if os.name == "nt":
+                shell_cmd = ["cmd.exe", "/c", command]
+            else:
+                shell_cmd = ["bash", "-c", command]
             result = subprocess.run(
-                ["bash", "-c", command],
+                shell_cmd,
                 cwd=str(self.workspace),
                 env=env,
                 capture_output=True,
-                text=True,
                 timeout=timeout,
+            )
+            result = subprocess.CompletedProcess(
+                result.args, result.returncode,
+                stdout=result.stdout.decode("utf-8", errors="replace") if result.stdout else "",
+                stderr=result.stderr.decode("utf-8", errors="replace") if result.stderr else "",
             )
             output_parts = []
             if result.stdout:
@@ -347,21 +360,12 @@ class ToolExecutor:
     # ------------------------------------------------------------------
 
     def _resolve_write_path(self, raw: str) -> Path:
-        """Resolve a path for writing.
-
-        Absolute paths are accepted as-is (no workspace restriction).
-        Relative paths are resolved against the workspace.
-        """
-        if os.path.isabs(raw):
-            return Path(raw).resolve()
-        return (self.workspace / raw).resolve()
+        """Resolve a path for writing (must stay under the workspace)."""
+        return resolve_workspace_write_path(raw, self.workspace)
 
     def _resolve_read_path(self, raw: str) -> Path:
-        """Resolve a path for reading. No directory restriction."""
-        p = Path(raw).resolve() if os.path.isabs(raw) else (self.workspace / raw).resolve()
-        if not p.exists():
-            raise FileNotFoundError(f"{raw} not found")
-        return p
+        """Resolve a path for reading (workspace + allowed_read_dirs)."""
+        return resolve_allowed_read_path(raw, self.workspace, self.allowed_read_dirs)
 
     def _save_snapshot(self, raw_path: str) -> None:
         """Save a versioned snapshot of .py files after each write/edit.

@@ -261,14 +261,16 @@ class RendererAgent(BaseAgent):
     ) -> dict[str, str]:
         """Execute script in a local subprocess (no sandbox)."""
         try:
-            proc = subprocess.run(
+            _raw = subprocess.run(
                 [self._python, str(script_path.resolve())],
                 capture_output=True,
-                text=True,
                 timeout=self._timeout,
-                # BUG-20: Use output_dir as CWD so relative paths
-                # like fig.savefig("comparison.png") resolve correctly
                 cwd=str(output_dir.resolve()),
+            )
+            proc = subprocess.CompletedProcess(
+                _raw.args, _raw.returncode,
+                stdout=_raw.stdout.decode("utf-8", errors="replace") if _raw.stdout else "",
+                stderr=_raw.stderr.decode("utf-8", errors="replace") if _raw.stderr else "",
             )
         except subprocess.TimeoutExpired:
             return {"error": f"Script timed out after {self._timeout}s"}

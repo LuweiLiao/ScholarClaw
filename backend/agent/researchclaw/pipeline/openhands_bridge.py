@@ -630,14 +630,18 @@ class OpenHandsBridge:
 
         t0 = time.monotonic()
         try:
-            result = subprocess.run(
+            _raw = subprocess.run(
                 cmd,
                 cwd=str(workspace),
                 capture_output=True,
-                text=True,
                 timeout=timeout,
                 env=env,
                 stdin=subprocess.DEVNULL,
+            )
+            result = subprocess.CompletedProcess(
+                _raw.args, _raw.returncode,
+                stdout=_raw.stdout.decode("utf-8", errors="replace") if _raw.stdout else "",
+                stderr=_raw.stderr.decode("utf-8", errors="replace") if _raw.stderr else "",
             )
             elapsed = time.monotonic() - t0
             log = result.stdout + "\n" + result.stderr
@@ -676,8 +680,9 @@ class OpenHandsBridge:
         if not main_py.exists():
             return "main.py does not exist"
         try:
+            _py = "python" if os.name == "nt" else "python3"
             result = subprocess.run(
-                ["python3", "-c", "import main"],
+                [_py, "-c", "import main"],
                 cwd=str(workspace),
                 capture_output=True,
                 text=True,

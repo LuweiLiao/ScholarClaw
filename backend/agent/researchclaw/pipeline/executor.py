@@ -9488,6 +9488,8 @@ def execute_stage(
                 llm = candidate
     except Exception:  # noqa: BLE001
         llm = None
+    if llm is not None:
+        llm._activity_run_dir = str(run_dir)  # type: ignore[attr-defined]
 
     try:
         _ = advance(stage, StageStatus.PENDING, TransitionEvent.START)

@@ -260,7 +260,7 @@ class ExperimentRunRuntime:
             "numpy", "scipy", "pandas", "sklearn", "tqdm", "matplotlib",
         }
         to_check = imports & safe_packages
-        py = python_path or "python3"
+        py = python_path or ("python" if os.name == "nt" else "python3")
 
         for pkg in sorted(to_check):
             try:

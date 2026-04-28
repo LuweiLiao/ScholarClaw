@@ -6,6 +6,11 @@ Ported from claw-code ``ConversationRuntime::run_turn()``. The loop:
 This is the shared engine used by all agentic pipeline stages.
 Stage-specific behaviour (verification gates, custom prompts) is
 injected via the ``verification_hooks`` parameter.
+
+Enhanced with Claude Code-inspired patterns:
+  - Unified ToolRegistry with typed Tool classes
+  - EventBus for real-time streaming to the frontend
+  - ToolResultStore for smart context management
 """
 
 from __future__ import annotations
@@ -16,14 +21,37 @@ import os
 import time
 import urllib.error
 import urllib.request
+import uuid as _uuid_mod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
+
+def uuid_hex() -> str:
+    return _uuid_mod.uuid4().hex
+
 from researchclaw.pipeline.claw_engine.tools.definitions import TOOL_SPECS
 from researchclaw.pipeline.claw_engine.tools.executor import ToolExecutor
 from researchclaw.pipeline.claw_engine.tools.permissions import SandboxPermissionPolicy
+from researchclaw.pipeline.claw_engine.tools.base import (
+    ToolRegistry,
+    ToolContext,
+    PermissionDecision,
+    create_default_registry,
+)
+from researchclaw.pipeline.claw_engine.event_bus import (
+    EventBus,
+    EventEmitter,
+    get_event_bus,
+)
+from researchclaw.pipeline.claw_engine.result_store import ToolResultStore
+from researchclaw.pipeline.claw_engine.permission_manager import (
+    PermissionManager,
+    PermissionLevel,
+    ApprovalMode,
+    ApprovalDecision,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -178,6 +206,9 @@ class AgentTurnLoop:
         tool_specs: list[dict[str, Any]] | None = None,
         verification_hooks: list[VerificationHook] | None = None,
         trace_prefix: str = "generation",
+        agent_id: str = "",
+        project_id: str = "",
+        run_dir: Path | str = "",
     ) -> None:
         self._llm_config = llm_config
         self._workspace = workspace
@@ -187,6 +218,9 @@ class AgentTurnLoop:
         self._messages: list[dict[str, Any]] = []
         self._tool_specs = tool_specs or TOOL_SPECS
         self._verification_hooks = list(verification_hooks or [])
+        self._agent_id = agent_id
+        self._project_id = project_id
+        self._run_dir = Path(run_dir) if run_dir else None
 
         self._executor = ToolExecutor(
             workspace=workspace,
@@ -197,6 +231,21 @@ class AgentTurnLoop:
         self._permissions = SandboxPermissionPolicy(
             workspace=workspace,
             allowed_read_dirs=allowed_read_dirs,
+        )
+
+        # New: ToolRegistry for unified tool framework
+        self._registry = create_default_registry()
+        self._tool_context = ToolContext(
+            workspace=workspace,
+            allowed_read_dirs=[d.resolve() for d in (allowed_read_dirs or []) if d and Path(d).is_dir()],
+            python_path=python_path,
+            bash_timeout=bash_timeout,
+        )
+
+        # New: PermissionManager for interactive approval
+        self._perm_manager = PermissionManager(
+            workspace=workspace,
+            approval_mode=ApprovalMode.AUTO,
         )
 
         self._api_tools = self._build_api_tools()
@@ -215,6 +264,31 @@ class AgentTurnLoop:
         trace_dir = workspace.parent if workspace.parent.is_dir() else workspace
         self._trace = _TraceLog(trace_dir, prefix=trace_prefix)
 
+        # New: EventBus for real-time streaming
+        self._event_bus: EventBus | None = None
+        self._emitter: EventEmitter | None = None
+        if project_id:
+            try:
+                self._event_bus = get_event_bus(project_id)
+                self._emitter = EventEmitter(
+                    self._event_bus,
+                    agent_id=agent_id,
+                    run_dir=trace_dir,
+                )
+            except Exception:
+                logger.debug("EventBus unavailable, falling back to activity logger")
+
+        # New: ToolResultStore for context management
+        self._result_store = ToolResultStore(trace_dir)
+
+        # Legacy activity logger (backward compatibility)
+        self._activity_dir = str(trace_dir)
+        try:
+            from researchclaw.pipeline.activity_writer import ActivityLogger
+            self._activity = ActivityLogger(trace_dir)
+        except Exception:
+            self._activity = None  # type: ignore[assignment]
+
     @property
     def workspace(self) -> Path:
         return self._workspace
@@ -228,6 +302,10 @@ class AgentTurnLoop:
 
         for iteration in range(self._max_iterations):
             iter_num = iteration + 1
+
+            # Check for user messages injected via agent_chat
+            self._inject_user_messages()
+
             self._trace.iteration_start(iter_num, self._max_iterations)
             self._session.log(
                 "EXECUTE", f"Turn {iter_num}/{self._max_iterations}: calling LLM...",
@@ -238,9 +316,22 @@ class AgentTurnLoop:
                 n_tools=len(self._api_tools),
                 model=self._llm_config.primary_model,
             )
+            if self._emitter:
+                self._emitter.llm_call(
+                    self._llm_config.primary_model,
+                    len(self._messages),
+                    turn=iter_num,
+                )
+            elif self._activity:
+                self._activity.llm_call(
+                    self._llm_config.primary_model,
+                    len(self._messages),
+                    f"Turn {iter_num}: 调用 {self._llm_config.primary_model}...",
+                )
 
             response = None
             _max_retries = 5
+            _llm_t0 = time.monotonic()
             for _retry in range(_max_retries):
                 try:
                     response = self._call_llm()
@@ -274,13 +365,40 @@ class AgentTurnLoop:
 
             assistant_text, tool_uses = self._parse_response(response)
             usage = response.get("usage")
+            _llm_elapsed = int((time.monotonic() - _llm_t0) * 1000)
             self._trace.llm_response(assistant_text, tool_uses, usage)
+
+            _comp_tokens = (usage or {}).get("completion_tokens", 0)
+            _total_tokens = (usage or {}).get("total_tokens", 0)
+            if self._emitter:
+                self._emitter.llm_response(
+                    self._llm_config.primary_model,
+                    tokens=_total_tokens,
+                    text_len=len(assistant_text or ""),
+                    elapsed_ms=_llm_elapsed,
+                    n_tool_calls=len(tool_uses),
+                )
+            elif self._activity:
+                self._activity.llm_response(
+                    self._llm_config.primary_model,
+                    tokens=_total_tokens, text_len=len(assistant_text or ""),
+                    elapsed_ms=_llm_elapsed,
+                    summary=f"🤖 回复: {_total_tokens} tokens, {len(tool_uses)} 工具调用 ({_llm_elapsed}ms)",
+                )
 
             if assistant_text:
                 result.final_text = assistant_text
                 self._session.log(
                     "EXECUTE", f"Turn {iter_num}: LLM text ({len(assistant_text)} chars)",
                 )
+                if self._emitter and len(assistant_text) > 20:
+                    self._emitter.thinking(assistant_text)
+                elif self._activity and len(assistant_text) > 20:
+                    _preview = assistant_text[:200].replace('\n', ' ')
+                    self._activity.thinking(
+                        f"💭 {_preview}{'...' if len(assistant_text) > 200 else ''}",
+                        detail=assistant_text[:2000] if len(assistant_text) > 200 else "",
+                    )
 
             if self._use_text_tools:
                 self._messages.append({"role": "assistant", "content": assistant_text})
@@ -310,6 +428,62 @@ class AgentTurnLoop:
                 result.tool_calls += 1
                 self._session.llm_calls += 1
 
+                # Check permission via new PermissionManager first
+                perm_level = self._perm_manager.check_permission(
+                    tool_name, tool_input, agent_id=self._agent_id,
+                )
+                if perm_level == PermissionLevel.DENY:
+                    perm_error = f"Tool '{tool_name}' is denied by permission policy"
+                    self._session.log("EXECUTE", f"  DENIED {tool_name}: {perm_error}")
+                    self._trace.permission_denied(tool_name, perm_error)
+                    if self._use_text_tools:
+                        self._messages.append({
+                            "role": "user",
+                            "content": self._format_text_tool_feedback(
+                                tool_name, tool_input,
+                                f"PERMISSION DENIED: {perm_error}",
+                            ),
+                        })
+                    else:
+                        self._messages.append({
+                            "role": "tool",
+                            "tool_call_id": tool_id,
+                            "content": f"PERMISSION DENIED: {perm_error}",
+                        })
+                    continue
+
+                if perm_level == PermissionLevel.ASK:
+                    if self._emitter:
+                        self._emitter.permission_request(
+                            tool_name, tool_input,
+                            request_id=f"perm_{uuid_hex()[:8]}",
+                        )
+                    decision = self._perm_manager.request_approval(
+                        tool_name, tool_input,
+                        agent_id=self._agent_id,
+                        timeout=300.0,
+                    )
+                    if decision in (ApprovalDecision.DENY, ApprovalDecision.ABORT):
+                        perm_error = f"User denied '{tool_name}'"
+                        self._session.log("EXECUTE", f"  USER DENIED {tool_name}")
+                        self._trace.permission_denied(tool_name, perm_error)
+                        if self._use_text_tools:
+                            self._messages.append({
+                                "role": "user",
+                                "content": self._format_text_tool_feedback(
+                                    tool_name, tool_input,
+                                    f"PERMISSION DENIED: {perm_error}",
+                                ),
+                            })
+                        else:
+                            self._messages.append({
+                                "role": "tool",
+                                "tool_call_id": tool_id,
+                                "content": f"PERMISSION DENIED: {perm_error}",
+                            })
+                        continue
+
+                # Legacy sandbox check as fallback
                 perm_error = self._permissions.check(tool_name, tool_input)
                 if perm_error:
                     self._session.log("EXECUTE", f"  DENIED {tool_name}: {perm_error}")
@@ -331,16 +505,48 @@ class AgentTurnLoop:
                         })
                     continue
 
+                _tool_summary = self._summarize_input(tool_name, tool_input)
                 self._session.log(
                     "EXECUTE",
-                    f"  Executing {tool_name}({self._summarize_input(tool_name, tool_input)})",
+                    f"  Executing {tool_name}({_tool_summary})",
                 )
+                _tool_icons = {"bash": "⚡", "read_file": "📖", "write_file": "📝",
+                               "edit_file": "✏️", "glob_search": "🔍", "grep_search": "🔎",
+                               "latex_compile": "📄", "bib_search": "📚", "data_analysis": "📊",
+                               "web_search": "🌐"}
+                _icon = _tool_icons.get(tool_name, "🔧")
+                if self._emitter:
+                    self._emitter.tool_start(
+                        tool_name,
+                        f"{_icon} {tool_name}: {_tool_summary[:100]}",
+                        args=tool_input,
+                    )
+                elif self._activity:
+                    self._activity.tool_call(
+                        tool_name,
+                        f"{_icon} {tool_name}: {_tool_summary[:100]}",
+                        detail=json.dumps(tool_input, ensure_ascii=False)[:500] if tool_input else "",
+                    )
                 tool_t0 = time.monotonic()
-                tool_result, is_error = self._executor.execute(tool_name, tool_input)
+
+                # Use new ToolRegistry if tool is registered, else legacy executor
+                reg_tool = self._registry.find(tool_name)
+                if reg_tool:
+                    _result = reg_tool.call(tool_input, self._tool_context)
+                    tool_result = _result.data
+                    is_error = _result.is_error
+                else:
+                    tool_result, is_error = self._executor.execute(tool_name, tool_input)
+
                 tool_elapsed_ms = int((time.monotonic() - tool_t0) * 1000)
 
                 self._trace.tool_call(
                     tool_name, tool_input, tool_result, is_error, tool_elapsed_ms,
+                )
+
+                # Process through ToolResultStore for context management
+                processed_result = self._result_store.process_result(
+                    tool_name, tool_id, tool_result, is_error,
                 )
 
                 if is_error:
@@ -348,24 +554,54 @@ class AgentTurnLoop:
                         "EXECUTE",
                         f"  {tool_name} ERROR ({tool_elapsed_ms}ms): {tool_result[:200]}",
                     )
+                    if self._emitter:
+                        self._emitter.tool_result(
+                            tool_name,
+                            f"❌ {tool_name} 失败 ({tool_elapsed_ms}ms)",
+                            detail=tool_result[:500],
+                            is_error=True,
+                            elapsed_ms=tool_elapsed_ms,
+                        )
+                    elif self._activity:
+                        self._activity.tool_result(
+                            tool_name,
+                            f"❌ {tool_name} 失败 ({tool_elapsed_ms}ms)",
+                            detail=tool_result[:500],
+                            is_error=True,
+                        )
                 else:
                     self._session.log(
                         "EXECUTE",
                         f"  {tool_name} OK ({tool_elapsed_ms}ms, {len(tool_result)} chars)",
                     )
+                    if self._emitter:
+                        _res_preview = tool_result[:200].replace('\n', ' ') if tool_result else ""
+                        self._emitter.tool_result(
+                            tool_name,
+                            f"✅ {tool_name} ({tool_elapsed_ms}ms, {len(tool_result)} chars)",
+                            detail=_res_preview,
+                            elapsed_ms=tool_elapsed_ms,
+                        )
+                    elif self._activity:
+                        _res_preview = tool_result[:200].replace('\n', ' ') if tool_result else ""
+                        self._activity.tool_result(
+                            tool_name,
+                            f"✅ {tool_name} ({tool_elapsed_ms}ms, {len(tool_result)} chars)",
+                            detail=_res_preview,
+                        )
 
                 if self._use_text_tools:
                     self._messages.append({
                         "role": "user",
                         "content": self._format_text_tool_feedback(
-                            tool_name, tool_input, tool_result,
+                            tool_name, tool_input, processed_result,
                         ),
                     })
                 else:
                     self._messages.append({
                         "role": "tool",
                         "tool_call_id": tool_id,
-                        "content": tool_result,
+                        "content": processed_result,
                     })
 
             ws_files = self._list_workspace_files()
@@ -401,8 +637,86 @@ class AgentTurnLoop:
             f"{result.tool_calls} tool calls, "
             f"{len(result.files)} files, {result.elapsed_sec:.1f}s",
         )
+        if self._emitter:
+            self._emitter.conversation_turn(
+                turn_number=result.iterations,
+                messages_count=len(self._messages),
+                tool_calls_count=result.tool_calls,
+                elapsed_ms=int(result.elapsed_sec * 1000),
+            )
         self._save_conversation_log()
         return result
+
+    # ------------------------------------------------------------------
+    # User message injection (interactive chat)
+    # ------------------------------------------------------------------
+
+    def _inject_user_messages(self) -> None:
+        """Read pending user messages from user_messages.jsonl and inject them
+        into the conversation context. This allows real-time user guidance
+        during agent execution."""
+        candidates: list[Path] = []
+        if self._run_dir and self._run_dir.is_dir():
+            candidates.append(self._run_dir / "user_messages.jsonl")
+        # Walk up from workspace to find project root (contains project_meta.json)
+        p = self._workspace
+        for _ in range(6):
+            candidates.append(p / "user_messages.jsonl")
+            if (p / "project_meta.json").exists():
+                break
+            if p.parent == p:
+                break
+            p = p.parent
+        msg_file = None
+        for c in candidates:
+            if c.exists():
+                msg_file = c
+                break
+        if msg_file is None:
+            return
+
+        consumed_marker = msg_file.with_suffix(".consumed")
+        last_consumed = 0
+        if consumed_marker.exists():
+            try:
+                last_consumed = int(consumed_marker.read_text(encoding="utf-8").strip())
+            except (ValueError, OSError):
+                pass
+
+        try:
+            lines = msg_file.read_text(encoding="utf-8").strip().splitlines()
+        except OSError:
+            return
+
+        new_messages = lines[last_consumed:]
+        if not new_messages:
+            return
+
+        for line in new_messages:
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            content = entry.get("content", "").strip()
+            if not content:
+                continue
+
+            injection = (
+                f"[USER INTERVENTION] The user has sent a message during your execution. "
+                f"Please acknowledge it and adjust your approach accordingly:\n\n"
+                f"{content}"
+            )
+            self._messages.append({"role": "user", "content": injection})
+            self._session.log("EXECUTE", f"User message injected: {content[:100]}")
+            if self._emitter:
+                self._emitter.thinking(f"📩 User intervention: {content[:200]}")
+
+        # Mark all lines as consumed
+        try:
+            consumed_marker.write_text(str(len(lines)), encoding="utf-8")
+        except OSError:
+            pass
 
     # ------------------------------------------------------------------
     # LLM API call
@@ -431,11 +745,16 @@ class AgentTurnLoop:
         _tok_key = "max_output_tokens" if _is_responses_model else "max_tokens"
         _tok_val = 8192
 
+        # Context compaction via ToolResultStore
+        compacted_messages = self._result_store.compact_messages(
+            self._messages, budget_chars=100_000, keep_recent=6,
+        )
+
         body: dict[str, Any] = {
             "model": model,
             "messages": [
                 {"role": "system", "content": system_prompt},
-                *self._messages,
+                *compacted_messages,
             ],
             _tok_key: _tok_val,
         }
@@ -497,13 +816,19 @@ class AgentTurnLoop:
         stripped = text.strip()
 
         blobs: list[Any] = []
-        try:
-            parsed = json.loads(stripped)
-            blobs = parsed if isinstance(parsed, list) else [parsed]
-        except (json.JSONDecodeError, ValueError):
-            for m in re.finditer(r'\{[^{}]*"tool"\s*:\s*"[^"]+?"[^{}]*\}', stripped):
+        clean = re.sub(r'```(?:json)?\s*', '', stripped)
+        clean = re.sub(r'```', '', clean).strip()
+        for src in (stripped, clean):
+            try:
+                parsed = json.loads(src)
+                blobs = parsed if isinstance(parsed, list) else [parsed]
+                break
+            except (json.JSONDecodeError, ValueError):
+                pass
+        if not blobs:
+            for obj_str in self._extract_json_objects(clean):
                 try:
-                    blobs.append(json.loads(m.group()))
+                    blobs.append(json.loads(obj_str))
                 except (json.JSONDecodeError, ValueError):
                     pass
 
@@ -533,6 +858,39 @@ class AgentTurnLoop:
             })
 
         return candidates
+
+    @staticmethod
+    def _extract_json_objects(text: str) -> list[str]:
+        """Extract top-level JSON object strings by balanced-brace scanning."""
+        results = []
+        i = 0
+        while i < len(text):
+            if text[i] == '{':
+                depth = 0
+                start = i
+                in_str = False
+                escape = False
+                while i < len(text):
+                    ch = text[i]
+                    if escape:
+                        escape = False
+                    elif ch == '\\' and in_str:
+                        escape = True
+                    elif ch == '"' and not escape:
+                        in_str = not in_str
+                    elif not in_str:
+                        if ch == '{':
+                            depth += 1
+                        elif ch == '}':
+                            depth -= 1
+                            if depth == 0:
+                                candidate = text[start:i + 1]
+                                if '"tool"' in candidate:
+                                    results.append(candidate)
+                                break
+                    i += 1
+            i += 1
+        return results
 
     @staticmethod
     def _normalize_tool_params(tool_name: str, params: dict) -> dict:

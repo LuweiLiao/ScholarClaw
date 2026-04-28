@@ -13,6 +13,74 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
+def _is_under_or_equal(path: Path, root: Path) -> bool:
+    """True if ``path`` is ``root`` or a path under ``root`` (after resolve)."""
+    try:
+        p = path.resolve()
+        r = root.resolve()
+    except (OSError, ValueError):
+        return False
+    if p == r:
+        return True
+    try:
+        p.relative_to(r)
+        return True
+    except ValueError:
+        return False
+
+
+def resolve_workspace_write_path(raw: str, workspace: Path) -> Path:
+    """Resolve a write path; only locations under ``workspace`` are allowed."""
+    text = (raw or "").strip()
+    if not text:
+        raise ValueError("path is required")
+    p = Path(text)
+    ws = workspace.resolve()
+    if p.is_absolute():
+        resolved = p.resolve()
+    else:
+        resolved = (ws / text).resolve()
+    if not _is_under_or_equal(resolved, ws):
+        raise PermissionError(f"Write outside workspace denied: {raw}")
+    return resolved
+
+
+def resolve_allowed_read_path(
+    raw: str,
+    workspace: Path,
+    allowed_read_dirs: list[Path],
+) -> Path:
+    """Resolve a read path; must be under workspace or under ``allowed_read_dirs``."""
+    text = (raw or "").strip()
+    if not text:
+        raise ValueError("path is required")
+    p = Path(text)
+    ws = workspace.resolve()
+    if p.is_absolute():
+        resolved = p.resolve()
+    else:
+        resolved = (ws / text).resolve()
+    if _is_under_or_equal(resolved, ws):
+        if not resolved.exists():
+            raise FileNotFoundError(f"{raw} not found")
+        return resolved
+    for d in allowed_read_dirs:
+        if not d:
+            continue
+        try:
+            dr = d.resolve()
+        except (OSError, ValueError):
+            continue
+        if _is_under_or_equal(resolved, dr):
+            if not resolved.exists():
+                raise FileNotFoundError(f"{raw} not found")
+            return resolved
+    raise PermissionError(
+        f"Read outside allowed directories: {raw}"
+    )
+
+
 DANGEROUS_BASH_PATTERNS = (
     "rm -rf /",
     "rm -rf /*",
@@ -61,13 +129,23 @@ class SandboxPermissionPolicy:
         ]
 
     def check(self, tool_name: str, input_data: dict[str, Any]) -> str | None:
-        """Check permission. Returns None if allowed, error string if denied.
-
-        Write and read restrictions are relaxed — only dangerous bash
-        commands are blocked.
-        """
+        """Check permission. Returns None if allowed, error string if denied."""
         if tool_name == "bash":
             return self._check_bash(input_data)
+        if tool_name in ("write_file", "edit_file"):
+            return self._check_write(input_data)
+        if tool_name == "read_file":
+            return self._check_read(input_data)
+        if tool_name == "glob_search":
+            base = input_data.get("path")
+            if not base:
+                return None
+            return self._check_read({"path": str(base)})
+        if tool_name == "grep_search":
+            base = input_data.get("path")
+            if not base:
+                return None
+            return self._check_read({"path": str(base)})
         return None
 
     def _check_bash(self, inp: dict[str, Any]) -> str | None:
@@ -98,22 +176,29 @@ class SandboxPermissionPolicy:
         raw_path = inp.get("path", "")
         if not raw_path:
             return "path is required"
-        resolved = (self.workspace / raw_path).resolve()
-        if not str(resolved).startswith(str(self.workspace)):
+        p = Path(raw_path)
+        if p.is_absolute():
+            resolved = p.resolve()
+        else:
+            resolved = (self.workspace / raw_path).resolve()
+        if not _is_under_or_equal(resolved, self.workspace):
             return f"Write outside workspace denied: {raw_path}"
         return None
 
     def _check_read(self, inp: dict[str, Any]) -> str | None:
         raw_path = inp.get("path", "")
         if not raw_path:
-            return None
-        import os
-        resolved = Path(raw_path).resolve() if os.path.isabs(raw_path) else (self.workspace / raw_path).resolve()
+            return "path is required for read"
+        p = Path(raw_path)
+        try:
+            resolved = p.resolve() if p.is_absolute() else (self.workspace / raw_path).resolve()
+        except (OSError, ValueError) as e:
+            return f"Invalid path: {raw_path} ({e})"
 
-        if str(resolved).startswith(str(self.workspace)):
+        if _is_under_or_equal(resolved, self.workspace):
             return None
         for allowed in self.allowed_read_dirs:
-            if str(resolved).startswith(str(allowed)):
+            if _is_under_or_equal(resolved, allowed):
                 return None
         return (
             f"Read outside allowed directories: {raw_path}\n"

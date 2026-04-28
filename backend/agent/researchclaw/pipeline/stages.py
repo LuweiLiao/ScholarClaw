@@ -1,4 +1,4 @@
-"""23-stage ResearchClaw pipeline state machine.
+"""26-stage ResearchClaw pipeline state machine.
 
 Defines the stage sequence, status transitions, gate logic, and rollback rules.
 Migrated from arc/state_machine.py (19 stages) with the following changes:
@@ -20,7 +20,7 @@ from typing import Iterable
 
 
 class Stage(IntEnum):
-    """23-stage research pipeline."""
+    """26-stage research pipeline."""
 
     # Phase A: Research Scoping
     TOPIC_INIT = 1
