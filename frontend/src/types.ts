@@ -1,4 +1,4 @@
-// ===================== AutoResearchClaw Stage Definitions =====================
+// ===================== ScholarLab Stage Definitions =====================
 
 export const RCStage = {
   TOPIC_INIT: 1,
@@ -10,12 +10,23 @@ export const RCStage = {
   SYNTHESIS: 7,
   HYPOTHESIS_GEN: 8,
   EXPERIMENT_DESIGN: 9,
-  CODE_GENERATION: 10,
-  RESOURCE_PLANNING: 11,
-  EXPERIMENT_RUN: 12,
-  ITERATIVE_REFINE: 13,
-  RESULT_ANALYSIS: 14,
-  RESEARCH_DECISION: 15,
+  CODEBASE_SEARCH: 10,
+  CODE_GENERATION: 11,
+  SANITY_CHECK: 12,
+  RESOURCE_PLANNING: 13,
+  EXPERIMENT_RUN: 14,
+  ITERATIVE_REFINE: 15,
+  RESULT_ANALYSIS: 16,
+  RESEARCH_DECISION: 17,
+  KNOWLEDGE_SUMMARY: 18,
+  PAPER_OUTLINE: 19,
+  PAPER_DRAFT: 20,
+  PEER_REVIEW: 21,
+  PAPER_REVISION: 22,
+  QUALITY_GATE: 23,
+  KNOWLEDGE_ARCHIVE: 24,
+  EXPORT_PUBLISH: 25,
+  CITATION_VERIFY: 26,
 } as const;
 
 export type RCStage = (typeof RCStage)[keyof typeof RCStage];
@@ -51,6 +62,10 @@ export const STAGE_META: Record<RCStage, StageMeta> = {
   20: { id: 20, displayNumber: 20, name: '论文初稿',     key: 'PAPER_DRAFT',         outputs: ['paper_draft.md'] },
   21: { id: 21, displayNumber: 21, name: '同行评审',     key: 'PEER_REVIEW',         outputs: ['reviews.md'] },
   22: { id: 22, displayNumber: 22, name: '论文修订',     key: 'PAPER_REVISION',      outputs: ['paper_revised.md', 'latex_package.zip'] },
+  23: { id: 23, displayNumber: 23, name: '质量门控',     key: 'QUALITY_GATE',        outputs: ['quality_report.json'] },
+  24: { id: 24, displayNumber: 24, name: '知识归档',     key: 'KNOWLEDGE_ARCHIVE',   outputs: ['archive.md', 'bundle_index.json'] },
+  25: { id: 25, displayNumber: 25, name: '导出发布',     key: 'EXPORT_PUBLISH',      outputs: ['paper_final.md', 'code/'] },
+  26: { id: 26, displayNumber: 26, name: '引用校验',     key: 'CITATION_VERIFY',     outputs: ['verification_report.json', 'references_verified.bib'] },
 };
 
 // ===================== Pyramid Layer Definitions =====================
@@ -94,7 +109,13 @@ export const LAYER_META: Record<AgentLayer, LayerMeta> = {
     name: '第四层 · 执行与修正',
     color: '#ef4444',
     desc: 'Phase E→F: 实验执行 → 迭代优化 → 结果分析 → 决策',
-    stages: [12, 13, 14, 15],
+    stages: [14, 15, 16, 17, 18],
+  },
+  [AgentLayer.WRITING]: {
+    name: '第五层 · 论文写作',
+    color: '#a855f7',
+    desc: 'Phase G→H: 论文大纲 → 初稿 → 评审修订 → 质量门控 → 归档发布',
+    stages: [19, 20, 21, 22, 23, 24, 25, 26],
   },
 };
 
@@ -168,8 +189,59 @@ export const ALL_REPOS: readonly RepoId[] = [
 
 // ===================== Agent & Runtime Types =====================
 
-export type AgentStatus = 'idle' | 'working' | 'error' | 'done';
-export type StageStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+export type AgentStatus = 'idle' | 'working' | 'error' | 'done' | 'waiting_discussion' | 'discussing' | 'awaiting_approval';
+export type StageStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped' | 'waiting' | 'discussing';
+
+// ===================== Activity Timeline =====================
+
+export type ActivityType =
+  | 'thinking'
+  | 'tool_call'
+  | 'tool_result'
+  | 'file_read'
+  | 'file_write'
+  | 'llm_call'
+  | 'llm_request'
+  | 'llm_response'
+  | 'stage_transition'
+  | 'conversation_turn'
+  | 'permission_request'
+  | 'user_message'
+  | 'error';
+
+export interface ActivityEvent {
+  id: string;
+  agentId: string;
+  agentName: string;
+  projectId: string;
+  layer: AgentLayer;
+  activityType: ActivityType;
+  summary: string;
+  detail?: string;
+  timestamp: number;
+  toolName?: string;
+  args?: Record<string, unknown>;
+  tokens?: number;
+  elapsedMs?: number;
+}
+
+// ===================== Approval Mechanism =====================
+
+export type ApprovalMode = 'auto' | 'confirm_writes' | 'confirm_all';
+export type ApprovalActionType = 'file_write' | 'run_script' | 'api_call' | 'file_delete';
+
+export interface ApprovalRequest {
+  requestId: string;
+  agentId: string;
+  agentName: string;
+  projectId: string;
+  actionType: ApprovalActionType;
+  description: string;
+  detail?: string;
+  timestamp: number;
+  toolName?: string;
+  args?: Record<string, unknown>;
+}
 
 export interface LobsterAgent {
   id: string;
@@ -294,8 +366,28 @@ export interface ChatMessage {
 
 export type ProjectStatus = 'running' | 'queued' | 'completed' | 'interrupted' | 'new';
 
+export type LayerModelCfg = { base_url: string; api_key: string; model: string };
+export type SubmitMode = 'lab' | 'reproduce';
+
+export type ReferencePdfUpload = { name: string; contentBase64: string };
+export type LatexFileUpload = { name: string; contentBase64: string };
+
+export interface CreateTaskPayload {
+  topic: string;
+  mode: SubmitMode;
+  researchAngles: string[];
+  referencePapers: string;
+  referenceFiles: ReferencePdfUpload[];
+  latexFiles: LatexFileUpload[];
+  workspaceDir: string;
+  mainTexFile: string;
+  paths: { codebases?: string; datasets?: string; checkpoints?: string };
+  layerModels: Record<string, LayerModelCfg>;
+}
+
 export interface ProjectInfo {
   projectId: string;
+  projectName?: string;
   status: ProjectStatus;
   lastCompletedStage: number;
   lastCompletedName: string;
@@ -304,7 +396,165 @@ export interface ProjectInfo {
   timestamp: string;
   topic: string;
   configPath: string;
+  projectDir?: string;
+  workspaceDir?: string;
   intervention?: string;
+  layerModels?: Record<string, LayerModelCfg>;
+}
+
+export interface ProjectArchiveInfo {
+  archiveId: string;
+  projectId: string;
+  projectName?: string;
+  topic?: string;
+  mode?: string;
+  createdAt: number;
+}
+
+// ===================== v2.0: Project Scanner =====================
+
+export interface ScanSection {
+  level: string;
+  title: string;
+  line_number: number;
+  content_lines: number;
+  has_todo: boolean;
+  is_empty: boolean;
+}
+
+export interface ProjectScanResult {
+  projectId?: string;
+  workspaceDir: string;
+  error?: string;
+  existingProjectId?: string;
+  existingConfig?: {
+    project_id?: string;
+    config_path?: string;
+    topic?: string;
+    mode?: string;
+    created_at?: number;
+    layer_models?: Record<string, { base_url: string; api_key: string; model: string }>;
+  };
+  paper: {
+    main_tex: string;
+    tex_files: string[];
+    sections: ScanSection[];
+    total_lines: number;
+    total_content_lines: number;
+    citation_count: number;
+    bib_entry_count: number;
+    completeness_pct: number;
+    empty_sections: string[];
+    todo_sections: string[];
+  } | null;
+  experiment: {
+    code_files: { path: string; lines: number; imports: string[]; has_main: boolean; has_train: boolean; has_test: boolean }[];
+    total_code_lines: number;
+    frameworks: string[];
+    has_training_code: boolean;
+    has_test_code: boolean;
+    has_main_entry: boolean;
+    result_files: string[];
+  };
+  data: {
+    files: { path: string; size_mb: number; extension: string; columns: string[] | null }[];
+    total_size_mb: number;
+    image_count: number;
+    image_files: string[];
+  };
+  literature: {
+    bib_files: string[];
+    bib_entry_count: number;
+    pdf_files: string[];
+    pdf_count: number;
+  };
+  summary_text: string;
+}
+
+// ===================== v2.0: Planner =====================
+
+export interface PlannerChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+export interface TaskSpec {
+  id: string;
+  layer: string;
+  title: string;
+  description: string;
+  stage_from: number;
+  stage_to: number;
+  dependencies: string[];
+}
+
+export interface AcademicProposal {
+  id: string;
+  title: string;
+  summary: string;
+  approach: string;
+  estimated_effort: Record<string, number>;
+  task_breakdown: TaskSpec[];
+}
+
+export interface ProjectPlan {
+  narrative: string;
+  proposals_used: string[];
+  task_specs: TaskSpec[];
+  layer_agent_counts: Record<string, number>;
+}
+
+export interface PlannerStatus {
+  projectId: string;
+  status: 'chatting' | 'proposing' | 'confirmed';
+  chatHistory: PlannerChatMessage[];
+  proposals: AcademicProposal[] | null;
+  plan: ProjectPlan | null;
+  error?: string;
+}
+
+// ===================== v2.0: Task Graph =====================
+
+export interface TaskNodeInfo {
+  id: string;
+  layer: string;
+  title: string;
+  description: string;
+  stage_from: number;
+  stage_to: number;
+  dependencies: string[];
+  assigned_agent: string | null;
+  status: 'pending' | 'ready' | 'running' | 'done' | 'failed' | 'skipped';
+  run_dir: string;
+  config_path: string;
+}
+
+export interface TaskGraphInfo {
+  projectId: string;
+  project_id: string;
+  nodes: Record<string, TaskNodeInfo>;
+}
+
+// ===================== v2.0: Coordination =====================
+
+export interface CoordinationMessage {
+  agentId: string;
+  agentName: string;
+  content: string;
+  phase: 'discussion' | 'review';
+  timestamp: number;
+}
+
+export interface CoordinationSessionInfo {
+  projectId: string;
+  layer: string;
+  agentIds: string[];
+  agentNames: Record<string, string>;
+  taskTitles: Record<string, string>;
+  messages: CoordinationMessage[];
+  coordinationPlan: string;
+  reviewSummary: string;
+  phase: 'pending' | 'discussing' | 'executing' | 'reviewing' | 'done';
 }
 
 // ===================== WebSocket Protocol =====================
@@ -318,9 +568,63 @@ export type WSMessage =
   | { type: 'queue_update'; payload: QueueMap }
   | { type: 'chat_message'; payload: ChatMessage }
   | { type: 'project_list'; payload: ProjectInfo[] }
+  | { type: 'archive_list'; payload: { archives: ProjectArchiveInfo[] } }
+  | { type: 'archive_created'; payload: ProjectArchiveInfo }
+  | { type: 'archive_restored'; payload: { archiveId: string; projectId: string } }
+  | { type: 'project_folder_opened'; payload: { projectId: string; path: string } }
+  | { type: 'project_scan_result'; payload: ProjectScanResult }
+  | { type: 'planner_status'; payload: PlannerStatus }
+  | { type: 'planner_proposals'; payload: { projectId: string; proposals: AcademicProposal[] } }
+  | { type: 'planner_plan'; payload: ProjectPlan & { projectId: string; confirmed?: boolean } }
+  | { type: 'task_graph_update'; payload: TaskGraphInfo }
+  | { type: 'coordination_update'; payload: { projectId: string; sessions: CoordinationSessionInfo[] } }
+  | { type: 'agent_removed'; payload: { id: string } }
+  | { type: 'project_name'; payload: { projectId: string; projectName: string } }
+  | { type: 'stage_detail'; payload: StageDetailInfo }
+  | { type: 'stage_artifacts'; payload: StageArtifactsInfo }
+  | { type: 'artifact_preview'; payload: ArtifactPreviewInfo }
+  | { type: 'agent_activity'; payload: ActivityEvent }
+  | { type: 'approval_request'; payload: ApprovalRequest }
   | { type: 'system'; payload: { message: string } };
 
+// ===================== Stage Detail & Artifact Preview =====================
+
+export interface StageFileInfo {
+  name: string;
+  size: number;
+  modified?: number;
+  dir?: string;
+}
+
+export interface StageDetailInfo {
+  projectId: string;
+  stage: number;
+  stageName: string;
+  status: 'pending' | 'completed' | 'incomplete';
+  expectedOutputs: string[];
+  files: StageFileInfo[];
+}
+
+export interface StageArtifactsInfo {
+  projectId: string;
+  stage: number;
+  stageName: string;
+  files: StageFileInfo[];
+  agentId: string;
+}
+
+export interface ArtifactPreviewInfo {
+  projectId: string;
+  stage: number;
+  filename: string;
+  contentType: 'text' | 'markdown' | 'json' | 'yaml' | 'image';
+  content: string;
+  size: number;
+}
+
 // ===================== App State =====================
+
+export type CenterTab = 'overview' | 'timeline' | 'tasks';
 
 export interface AppState {
   agents: LobsterAgent[];
@@ -334,4 +638,9 @@ export interface AppState {
   resConnected: boolean;
   connected: boolean;
   mockMode: boolean;
+  activities: ActivityEvent[];
+  activeTab: CenterTab;
+  approvalRequests: ApprovalRequest[];
+  taskGraph: TaskGraphInfo | null;
+  approvalMode: ApprovalMode;
 }

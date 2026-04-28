@@ -1,6 +1,6 @@
 import { memo, useState } from 'react';
 import { LAYER_META, STAGE_META } from '../types';
-import type { LobsterAgent, LogEntry, AgentLayer } from '../types';
+import type { LobsterAgent, LogEntry, AgentLayer, ActivityEvent } from '../types';
 import { useLocale } from '../i18n';
 
 interface Props {
@@ -9,11 +9,15 @@ interface Props {
   logs: LogEntry[];
   tierIndex: number;
   selectedProjectId?: string | null;
+  activities?: ActivityEvent[];
+  onAgentClick?: (agentId: string) => void;
+  onStageClick?: (stage: number) => void;
+  onStopAgent?: (agentId: string) => void;
 }
 
 const STATUS_ICON: Record<string, string> = {
   idle: '🦞', working: '🔬', error: '❗', done: '✅',
-  waiting_discussion: '🗣️', discussing: '🗣️',
+  waiting_discussion: '🗣️', discussing: '🗣️', awaiting_approval: '🛡️',
 };
 const STAGE_ST: Record<string, string> = {
   pending: '⬜', running: '🔄', completed: '✅', failed: '❌', skipped: '⏭',
@@ -21,7 +25,7 @@ const STAGE_ST: Record<string, string> = {
 };
 const DISCUSSION_STAGE = 100;
 
-export default memo(function LayerPanel({ layer, agents, logs, selectedProjectId }: Props) {
+export default memo(function LayerPanel({ layer, agents, logs, selectedProjectId, activities = [], onAgentClick, onStageClick, onStopAgent }: Props) {
   const [expanded, setExpanded] = useState(false);
   const { t, locale } = useLocale();
   const meta = LAYER_META[layer];
@@ -61,7 +65,13 @@ export default memo(function LayerPanel({ layer, agents, logs, selectedProjectId
             const sName = t(`stage.${s}`);
             const label = isDisc ? `💬 ${sName}` : `S${dn} ${sName}`;
             return (
-              <span key={s} className={`stage-chip ${cls}${isDisc ? ' stage-discussion' : ''}`} title={sm.key}>
+              <span
+                key={s}
+                className={`stage-chip ${cls}${isDisc ? ' stage-discussion' : ''}`}
+                title={sm.key}
+                onClick={(e) => { e.stopPropagation(); if (!isDisc && onStageClick) onStageClick(s); }}
+                style={isDisc ? undefined : { cursor: 'pointer' }}
+              >
                 {label}
               </span>
             );
@@ -75,7 +85,7 @@ export default memo(function LayerPanel({ layer, agents, logs, selectedProjectId
           const highlighted = selectedProjectId && agent.projectId === selectedProjectId;
           const statusLabel = t(`layer.agent_status.${agent.status}`);
           return (
-          <div key={agent.id} className={`agent-card status-${agent.status}${highlighted ? ' agent-highlighted' : ''}${dimmed ? ' agent-dimmed' : ''}`}>
+          <div key={agent.id} className={`agent-card status-${agent.status}${highlighted ? ' agent-highlighted' : ''}${dimmed ? ' agent-dimmed' : ''}`} onClick={() => onAgentClick?.(agent.id)} style={{ cursor: 'pointer' }}>
             <div className="agent-card-top">
               <span className="agent-icon">{STATUS_ICON[agent.status] || '🦞'}</span>
               <span className="agent-name" title={agent.name}>{agent.name}</span>
@@ -96,6 +106,13 @@ export default memo(function LayerPanel({ layer, agents, logs, selectedProjectId
               )}
             </div>
             {agent.currentTask && <div className="agent-task" title={agent.currentTask}>{agent.currentTask}</div>}
+            {(() => {
+              const lastAct = activities.filter(a => a.agentId === agent.id).slice(-1)[0];
+              if (lastAct) {
+                return <div className="agent-activity-summary" title={lastAct.summary}>{lastAct.summary}</div>;
+              }
+              return null;
+            })()}
             <div className="agent-bottom-row">
               <div className="agent-progress">
                 {LAYER_META[layer].stages.map((s) => {
@@ -116,6 +133,15 @@ export default memo(function LayerPanel({ layer, agents, logs, selectedProjectId
                 })}
               </div>
               {agent.roleTag && <span className="agent-role-tag" title={agent.roleTag}>{agent.roleTag}</span>}
+              {['working', 'waiting_discussion', 'discussing', 'awaiting_approval'].includes(agent.status) && onStopAgent && (
+                <button
+                  className="agent-stop-btn"
+                  onClick={(e) => { e.stopPropagation(); onStopAgent(agent.id); }}
+                  title={t('agent.stop')}
+                >
+                  ⏹
+                </button>
+              )}
             </div>
           </div>
           );

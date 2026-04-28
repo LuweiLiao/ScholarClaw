@@ -1,19 +1,27 @@
 import { useReducer, useEffect, useCallback, useRef, useState, useMemo } from 'react';
 import { AgentLayer, ALL_LAYERS, ALL_REPOS } from './types';
-import type { AppState, WSMessage, ResourceStats, LobsterAgent, Artifact } from './types';
+import type { AppState, WSMessage, ResourceStats, LobsterAgent, Artifact, ProjectScanResult, PlannerStatus, CoordinationSessionInfo, CenterTab, TaskGraphInfo, ProjectArchiveInfo, CreateTaskPayload } from './types';
 import { INITIAL_AGENTS, createMockMessageGenerator } from './mock';
 import LayerPanel from './components/LayerPanel';
 import ResourceMonitor from './components/ResourceMonitor';
 import LogPanel from './components/LogPanel';
-import HumanFeedbackPanel from './components/HumanFeedbackPanel';
 import DataFlowArrow from './components/DataFlowArrow';
 import DataShelf from './components/DataShelf';
 import ProjectPanel from './components/ProjectPanel';
+import CreateTaskWizard from './components/CreateTaskWizard';
+import PlannerChat from './components/PlannerChat';
+import AgentDialog from './components/AgentDialog';
+import DiffViewer from './components/DiffViewer';
+import ResizeHandle from './components/ResizeHandle';
+import StageDetailPanel from './components/StageDetailPanel';
+import ArtifactViewer from './components/ArtifactViewer';
+import ConversationView from './components/ConversationView';
+import CommandConsole from './components/CommandConsole';
+import ApprovalDialog from './components/ApprovalDialog';
+import TaskGraphView from './components/TaskGraphView';
 import { LocaleContext, makeT } from './i18n';
 import type { Locale } from './i18n';
 import './App.css';
-
-type ReferencePdfUpload = { name: string; contentBase64: string };
 
 type Action =
   | WSMessage
@@ -21,7 +29,10 @@ type Action =
   | { type: 'set_mock'; payload: boolean }
   | { type: 'set_res_connected'; payload: boolean }
   | { type: 'clear_agents' }
-  | { type: 'select_project'; payload: string | null };
+  | { type: 'select_project'; payload: string | null }
+  | { type: 'set_active_tab'; payload: CenterTab }
+  | { type: 'set_approval_mode'; payload: 'auto' | 'confirm_writes' | 'confirm_all' }
+  | { type: 'dismiss_approval'; payload: string };
 
 function upsertAgent(agents: LobsterAgent[], payload: LobsterAgent): LobsterAgent[] {
   const idx = agents.findIndex((a) => a.id === payload.id);
@@ -84,13 +95,36 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, selectedProjectId: action.payload };
     case 'set_mock':
       return { ...state, mockMode: action.payload };
+    case 'agent_removed':
+      return { ...state, agents: state.agents.filter((a) => a.id !== action.payload.id) };
+    case 'project_name':
+      return {
+        ...state,
+        projects: state.projects.map((p) =>
+          p.projectId === action.payload.projectId
+            ? { ...p, projectName: action.payload.projectName }
+            : p
+        ),
+      };
     case 'clear_agents':
-      return { ...state, agents: [], artifacts: [], logs: [], queues: {} };
-    case 'add_chat_message':
-      return { ...state, chatMessages: [...state.chatMessages, action.payload] };
-    case 'feedback_ack':
-    case 'plan_update':
-      return { ...state, chatMessages: [...state.chatMessages, action.payload] };
+      return { ...state, agents: [], artifacts: [], logs: [], queues: {}, activities: [] };
+    case 'agent_activity': {
+      const MAX_ACTIVITIES = 500;
+      const acts = state.activities.length >= MAX_ACTIVITIES
+        ? [...state.activities.slice(-MAX_ACTIVITIES + 1), action.payload]
+        : [...state.activities, action.payload];
+      return { ...state, activities: acts };
+    }
+    case 'approval_request':
+      return { ...state, approvalRequests: [...state.approvalRequests, action.payload] };
+    case 'dismiss_approval':
+      return { ...state, approvalRequests: state.approvalRequests.filter(r => r.requestId !== action.payload) };
+    case 'task_graph_update':
+      return { ...state, taskGraph: action.payload as TaskGraphInfo };
+    case 'set_active_tab':
+      return { ...state, activeTab: action.payload };
+    case 'set_approval_mode':
+      return { ...state, approvalMode: action.payload };
     case 'system':
       return state;
     default:
@@ -112,6 +146,11 @@ const INITIAL_STATE: AppState = {
   resConnected: false,
   connected: false,
   mockMode: false,
+  activities: [],
+  activeTab: 'overview',
+  approvalRequests: [],
+  taskGraph: null,
+  approvalMode: 'auto',
 };
 
 export default function App() {
@@ -120,24 +159,39 @@ export default function App() {
   const [resWsUrl] = useState(`${WS_PROTO}//${window.location.host}/ws/resources`);
   const [discussionMode, setDiscussionMode] = useState(true);
   const [locale, setLocale] = useState<Locale>(() =>
-    (localStorage.getItem('claw-locale') as Locale) || 'en'
+    (localStorage.getItem('scholar-locale') as Locale) || 'en'
   );
   const [theme, setTheme] = useState<'dark' | 'light'>(() =>
-    (localStorage.getItem('claw-theme') as 'dark' | 'light') || 'dark'
+    (localStorage.getItem('scholar-theme') as 'dark' | 'light') || 'dark'
   );
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('claw-theme', theme);
+    localStorage.setItem('scholar-theme', theme);
   }, [theme]);
   const t = useMemo(() => makeT(locale), [locale]);
   const localeCtx = useMemo(() => ({
-    locale, setLocale: (l: Locale) => { setLocale(l); localStorage.setItem('claw-locale', l); }, t,
+    locale, setLocale: (l: Locale) => { setLocale(l); localStorage.setItem('scholar-locale', l); }, t,
   }), [locale, t]);
   const agentWsRef = useRef<WebSocket | null>(null);
   const resWsRef = useRef<WebSocket | null>(null);
   const mockCleanup = useRef<(() => void) | null>(null);
   const firstListRef = useRef(false);
   const mockModeRef = useRef(false);
+
+  // v2.0 state
+  const [scanResult, setScanResult] = useState<ProjectScanResult | null>(null);
+  const [plannerStatus, setPlannerStatus] = useState<PlannerStatus | null>(null);
+  const [plannerProjectId, setPlannerProjectId] = useState<string>('');
+  const [showPlanner, setShowPlanner] = useState(false);
+  const [coordSessions, setCoordSessions] = useState<Record<string, CoordinationSessionInfo[]>>({});
+  const [archives, setArchives] = useState<ProjectArchiveInfo[]>([]);
+  const [showCreateWizard, setShowCreateWizard] = useState(false);
+  const [dialogAgentId, setDialogAgentId] = useState<string | null>(null);
+  const [activeDiff, setActiveDiff] = useState<{ file: string; original: string; modified: string; timestamp?: number } | null>(null);
+  const [activeStageDetail, setActiveStageDetail] = useState<{ projectId: string; stage: number } | null>(null);
+  const [activeArtifact, setActiveArtifact] = useState<{ projectId: string; stage: number; filename: string; dir?: string } | null>(null);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(290);
+  const [rightPanelWidth, setRightPanelWidth] = useState(340);
 
   mockModeRef.current = state.mockMode;
 
@@ -181,9 +235,37 @@ export default function App() {
           reconnects = 0;
           firstListRef.current = true;
           ws!.send(JSON.stringify({ command: 'list_agents' }));
+          ws!.send(JSON.stringify({ command: 'list_archives' }));
+          try {
+            const saved = localStorage.getItem('scholar-global-llm');
+            if (saved) {
+              const cfg = JSON.parse(saved);
+              if (cfg.model) ws!.send(JSON.stringify({ command: 'set_global_llm', config: cfg }));
+            }
+          } catch { /* ignore */ }
         };
         ws.onmessage = (e) => {
-          try { dispatchMsg(JSON.parse(e.data)); } catch { /* ignore */ }
+          try {
+            const msg = JSON.parse(e.data);
+            if (msg.type === 'project_scan_result') {
+              setScanResult(msg.payload);
+              if (msg.payload.existingProjectId) {
+                setPlannerProjectId(msg.payload.existingProjectId);
+              }
+            } else if (msg.type === 'planner_status') {
+              setPlannerStatus(msg.payload);
+            } else if (msg.type === 'planner_proposals') {
+              setPlannerStatus(prev => prev ? { ...prev, proposals: msg.payload.proposals, status: 'proposing' } : prev);
+            } else if (msg.type === 'coordination_update') {
+              setCoordSessions(prev => ({ ...prev, [msg.payload.projectId]: msg.payload.sessions }));
+            } else if (msg.type === 'archive_list') {
+              setArchives(msg.payload.archives || []);
+            } else if (msg.type === 'diff_detail' && msg.payload?.data) {
+              setActiveDiff(msg.payload.data);
+            } else {
+              dispatchMsg(msg);
+            }
+          } catch { /* ignore */ }
         };
         ws.onclose = () => {
           dispatch({ type: 'set_connected', payload: false });
@@ -240,6 +322,27 @@ export default function App() {
       ws.send(JSON.stringify({ command: 'set_discussion_mode', enabled: next }));
     }
   };
+
+  const submitCreateTask = useCallback((payload: CreateTaskPayload) => {
+    const ws = agentWsRef.current;
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        command: 'quick_submit',
+        topic: payload.topic,
+        mode: payload.mode,
+        researchAngles: payload.researchAngles.length > 0 ? payload.researchAngles : undefined,
+        referencePapers: payload.referencePapers || undefined,
+        referenceFiles: payload.referenceFiles.length > 0 ? payload.referenceFiles : undefined,
+        latexFiles: payload.latexFiles.length > 0 ? payload.latexFiles : undefined,
+        workspaceDir: payload.workspaceDir || undefined,
+        mainTexFile: payload.mainTexFile || undefined,
+        codebasesDir: payload.paths?.codebases || undefined,
+        datasetsDir: payload.paths?.datasets || undefined,
+        checkpointsDir: payload.paths?.checkpoints || undefined,
+        layerModels: Object.keys(payload.layerModels).length > 0 ? payload.layerModels : undefined,
+      }));
+    }
+  }, []);
 
   // ── Memoized derived state ──
   const ideaAgents = useMemo(() => state.agents.filter((a) => a.layer === AgentLayer.IDEA), [state.agents]);
@@ -335,6 +438,13 @@ export default function App() {
         </div>
         <div className="header-right">
           <button
+            className="btn-sm create-task-btn"
+            onClick={() => setShowCreateWizard(true)}
+            disabled={!state.connected}
+          >
+            新建研究任务
+          </button>
+          <button
             className="btn-sm theme-toggle-btn"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             title={theme === 'dark' ? t('header.theme_light') : t('header.theme_dark')}
@@ -351,16 +461,27 @@ export default function App() {
         </div>
       </header>
 
+      {showCreateWizard && (
+        <CreateTaskWizard
+          ws={agentWsRef.current}
+          connected={state.connected}
+          discussionMode={discussionMode}
+          t={t}
+          onToggleDiscussion={toggleDiscussionMode}
+          onSubmit={submitCreateTask}
+          onClose={() => setShowCreateWizard(false)}
+        />
+      )}
+
       <div className="main-layout">
-        <div className="side-panel repo-panel">
+        <div className="side-panel repo-panel" style={{ width: leftPanelWidth }}>
           <ProjectPanel
             ws={agentWsRef.current}
             projects={state.projects}
+            archives={archives}
             connected={state.connected}
             selectedProjectId={state.selectedProjectId}
             artifactsByProject={artifactsByProject}
-            discussionMode={discussionMode}
-            onToggleDiscussion={toggleDiscussionMode}
             onSelect={(projectId) => dispatch({ type: 'select_project', payload: projectId })}
             onResume={(projectId) => {
               const ws = agentWsRef.current;
@@ -389,61 +510,162 @@ export default function App() {
                 }
               }
             }}
-            onQuickSubmit={(topic, mode, researchAngles, referencePapers, referenceFiles, paths, latexFiles, workspaceDir, mainTexFile, layerModels) => {
+            onOpenFolder={(projectId) => {
+              const ws = agentWsRef.current;
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ command: 'open_project_folder', projectId, target: 'auto' }));
+              }
+            }}
+            onArchive={(projectId) => {
+              const ws = agentWsRef.current;
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ command: 'archive_project', projectId }));
+              }
+            }}
+            onRestoreArchive={(archiveId) => {
+              const ws = agentWsRef.current;
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ command: 'restore_archive', archiveId, overwrite: true }));
+              }
+            }}
+            onRefreshArchives={() => {
+              const ws = agentWsRef.current;
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ command: 'list_archives' }));
+              }
+            }}
+            onUpdateLayerModels={(projectId, layerModels) => {
               const ws = agentWsRef.current;
               if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
-                  command: 'quick_submit',
-                  topic,
-                  mode,
-                  researchAngles: researchAngles.length > 0 ? researchAngles : undefined,
-                  referencePapers: referencePapers || undefined,
-                  referenceFiles: referenceFiles.length > 0 ? (referenceFiles as ReferencePdfUpload[]) : undefined,
-                  latexFiles: latexFiles && latexFiles.length > 0 ? latexFiles : undefined,
-                  workspaceDir: workspaceDir || undefined,
-                  mainTexFile: mainTexFile || undefined,
-                  codebasesDir: paths?.codebases || undefined,
-                  datasetsDir: paths?.datasets || undefined,
-                  checkpointsDir: paths?.checkpoints || undefined,
-                  layerModels: Object.keys(layerModels).length > 0 ? layerModels : undefined,
+                  command: 'update_layer_models',
+                  projectId,
+                  layerModels,
                 }));
+              }
+            }}
+            scanResult={scanResult}
+            coordSessions={coordSessions}
+            onScanProject={(workspaceDir, mainTexFile) => {
+              const ws = agentWsRef.current;
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                const pid = `proj-${Date.now().toString(36)}`;
+                setPlannerProjectId(pid);
+                ws.send(JSON.stringify({
+                  command: 'scan_project',
+                  workspaceDir,
+                  mainTexFile,
+                  projectId: pid,
+                }));
+              }
+            }}
+            onRestoreProject={(projectId) => {
+              setPlannerProjectId(projectId);
+              dispatch({ type: 'select_project', payload: projectId });
+            }}
+            onStartPlanning={(projectId, workspaceDir, mainTexFile, llmConfig) => {
+              const ws = agentWsRef.current;
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                setPlannerProjectId(projectId);
+                ws.send(JSON.stringify({
+                  command: 'planner_start',
+                  projectId,
+                  workspaceDir,
+                  mainTexFile,
+                  llmConfig,
+                }));
+                setShowPlanner(true);
               }
             }}
           />
         </div>
 
+        <ResizeHandle storageKey="left" defaultWidth={290} minWidth={200} maxWidth={500} side="left" onResize={setLeftPanelWidth} />
+
         <div className="pyramid-container">
-          <ResourceMonitor stats={state.resources} connected={state.resConnected} />
-          <div className="pyramid-wrapper">
-            <div className="pyramid">
-              {ALL_LAYERS.map((layer, idx) => {
-                const hasWorking = agentMap[layer].some((a) => ['working', 'waiting_discussion', 'discussing'].includes(a.status));
-                return (
-                  <div key={layer} className="pyramid-tier">
-                    <LayerPanel
-                      layer={layer}
-                      agents={agentMap[layer]}
-                      logs={logMap[layer]}
-                      tierIndex={idx}
-                      selectedProjectId={state.selectedProjectId}
-                    />
-                    {idx < ALL_LAYERS.length - 1 && (
-                      <DataFlowArrow active={hasWorking} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <div className={`feedback-loop ${agentMap[AgentLayer.EXECUTION].some((a) => a.status === 'done') ? 'active' : ''}`}>
-              <div className="fb-line fb-bottom" />
-              <div className="fb-line fb-side"><div className="fb-pulse" /></div>
-              <div className="fb-line fb-top" />
-              <div className="fb-tip" />
-            </div>
+          <div className="center-tabs">
+            {(['overview', 'timeline', 'tasks'] as CenterTab[]).map(tab => (
+              <button
+                key={tab}
+                className={`center-tab ${state.activeTab === tab ? 'center-tab--active' : ''}`}
+                onClick={() => dispatch({ type: 'set_active_tab', payload: tab })}
+              >
+                {tab === 'overview' && '📊 '}
+                {tab === 'timeline' && '⏱️ '}
+                {tab === 'tasks' && '📋 '}
+                {t(`tab.${tab}`)}
+                {tab === 'timeline' && state.activities.length > 0 && (
+                  <span className="center-tab-badge">{state.activities.length}</span>
+                )}
+              </button>
+            ))}
           </div>
+
+          {state.activeTab === 'overview' && (
+            <>
+              <ResourceMonitor stats={state.resources} connected={state.resConnected} />
+              <div className="pyramid-wrapper">
+                <div className="pyramid">
+                  {ALL_LAYERS.map((layer, idx) => {
+                    const hasWorking = agentMap[layer].some((a) => ['working', 'waiting_discussion', 'discussing'].includes(a.status));
+                    return (
+                      <div key={layer} className="pyramid-tier">
+                        <LayerPanel
+                          layer={layer}
+                          agents={agentMap[layer]}
+                          logs={logMap[layer]}
+                          tierIndex={idx}
+                          selectedProjectId={state.selectedProjectId}
+                          activities={state.activities}
+                          onAgentClick={(agentId) => setDialogAgentId(agentId)}
+                          onStageClick={(stage) => {
+                            const pid = state.selectedProjectId || state.projects?.[0]?.projectId;
+                            if (pid) setActiveStageDetail({ projectId: pid, stage });
+                          }}
+                          onStopAgent={(agentId) => {
+                            const ws = agentWsRef.current;
+                            if (ws && ws.readyState === WebSocket.OPEN) {
+                              ws.send(JSON.stringify({ command: 'stop_agent', agentId }));
+                            }
+                          }}
+                        />
+                        {idx < ALL_LAYERS.length - 1 && (
+                          <DataFlowArrow active={hasWorking} />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className={`feedback-loop ${agentMap[AgentLayer.EXECUTION].some((a) => a.status === 'done') ? 'active' : ''}`}>
+                  <div className="fb-line fb-bottom" />
+                  <div className="fb-line fb-side"><div className="fb-pulse" /></div>
+                  <div className="fb-line fb-top" />
+                  <div className="fb-tip" />
+                </div>
+              </div>
+            </>
+          )}
+
+          {state.activeTab === 'timeline' && (
+            <ConversationView
+              activities={state.activities}
+              t={t}
+            />
+          )}
+
+          {state.activeTab === 'tasks' && (
+            <TaskGraphView
+              taskGraph={state.taskGraph}
+              t={t}
+              ws={agentWsRef.current}
+              selectedProjectId={state.selectedProjectId}
+            />
+          )}
         </div>
 
-        <div className="side-panel log-panel">
+        <ResizeHandle storageKey="right" defaultWidth={340} minWidth={250} maxWidth={600} side="right" onResize={setRightPanelWidth} />
+
+        <div className="side-panel log-panel" style={{ width: rightPanelWidth }}>
           <LogPanel logs={state.logs} />
           {/* <QueuePanel queues={state.queues} /> */}
           <div className="shelf-section">
@@ -463,9 +685,102 @@ export default function App() {
         </div>
       </div>
 
-      <HumanFeedbackPanel
+      {showPlanner && (
+        <PlannerChat
+          ws={agentWsRef.current}
+          projectId={plannerProjectId}
+          plannerStatus={plannerStatus}
+          t={t}
+          onClose={() => setShowPlanner(false)}
+          onConfirmed={() => {
+            setShowPlanner(false);
+            setPlannerStatus(null);
+            setScanResult(null);
+          }}
+        />
+      )}
+
+      {activeDiff && (
+        <DiffViewer diff={activeDiff} onClose={() => setActiveDiff(null)} />
+      )}
+
+      {activeStageDetail && (
+        <StageDetailPanel
+          projectId={activeStageDetail.projectId}
+          stage={activeStageDetail.stage}
+          ws={agentWsRef.current}
+          onClose={() => setActiveStageDetail(null)}
+        />
+      )}
+
+      {activeArtifact && (
+        <ArtifactViewer
+          projectId={activeArtifact.projectId}
+          stage={activeArtifact.stage}
+          filename={activeArtifact.filename}
+          dir={activeArtifact.dir}
+          ws={agentWsRef.current}
+          onClose={() => setActiveArtifact(null)}
+        />
+      )}
+
+      {dialogAgentId && (() => {
+        const agent = state.agents.find((a) => a.id === dialogAgentId);
+        if (!agent) return null;
+        return (
+          <AgentDialog
+            agent={agent}
+            logs={state.logs}
+            ws={agentWsRef.current}
+            activities={state.activities.filter(a => a.agentId === dialogAgentId)}
+            t={t}
+            onClose={() => setDialogAgentId(null)}
+            onStopAgent={(agentId) => {
+              const ws = agentWsRef.current;
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ command: 'stop_agent', agentId }));
+              }
+            }}
+          />
+        );
+      })()}
+
+      {state.approvalRequests.length > 0 && (
+        <ApprovalDialog
+          requests={state.approvalRequests}
+          t={t}
+          onApprove={(requestId) => {
+            const ws = agentWsRef.current;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ command: 'approval_response', requestId, approved: true }));
+            }
+            dispatch({ type: 'dismiss_approval', payload: requestId });
+          }}
+          onReject={(requestId, comment) => {
+            const ws = agentWsRef.current;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ command: 'approval_response', requestId, approved: false, comment }));
+            }
+            dispatch({ type: 'dismiss_approval', payload: requestId });
+          }}
+          onApproveAll={(actionType) => {
+            state.approvalRequests
+              .filter(r => r.actionType === actionType)
+              .forEach(r => {
+                const ws = agentWsRef.current;
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                  ws.send(JSON.stringify({ command: 'approval_response', requestId: r.requestId, approved: true }));
+                }
+                dispatch({ type: 'dismiss_approval', payload: r.requestId });
+              });
+          }}
+        />
+      )}
+
+      <CommandConsole
         messages={state.chatMessages}
         connected={state.connected}
+        t={t}
         onSend={(content, targetLayer) => {
           const ws = agentWsRef.current;
           if (ws && ws.readyState === WebSocket.OPEN) {
@@ -473,6 +788,7 @@ export default function App() {
               command: 'chat_input',
               content,
               targetLayer: targetLayer || 'all',
+              projectId: state.selectedProjectId || '',
             }));
             dispatch({
               type: 'chat_message',

@@ -19,5 +19,11 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // The current app predates React Compiler's stricter lint rules. Keep
+      // these off until components are refactored around those constraints.
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])
