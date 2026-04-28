@@ -5,6 +5,7 @@ interface Props {
   activities: ActivityEvent[];
   t: (key: string) => string;
   filterAgentId?: string;
+  onCorrect?: (event: ActivityEvent) => void;
 }
 
 const LAYER_COLORS: Record<string, string> = {
@@ -30,6 +31,8 @@ function classForType(t: ActivityType): string {
     case 'llm_call': return 'flow-llm-call';
     case 'llm_response': return 'flow-llm-response';
     case 'stage_transition': return 'flow-stage';
+    case 'human_feedback': return 'flow-human-feedback';
+    case 'metaprompt_update': return 'flow-metaprompt';
     case 'error': return 'flow-error';
     default: return 'flow-generic';
   }
@@ -45,6 +48,8 @@ function iconForType(t: ActivityType): string {
     case 'llm_call': return '🤖';
     case 'llm_response': return '📥';
     case 'stage_transition': return '🔄';
+    case 'human_feedback': return '🧭';
+    case 'metaprompt_update': return '✍️';
     case 'error': return '❌';
     default: return '•';
   }
@@ -60,13 +65,15 @@ function labelForType(t: ActivityType): string {
     case 'llm_call': return 'LLM Call';
     case 'llm_response': return 'LLM Response';
     case 'stage_transition': return 'Stage';
+    case 'human_feedback': return 'Human Feedback';
+    case 'metaprompt_update': return 'Prompt Update';
     case 'error': return 'Error';
     default: return t;
   }
 }
 
-const FlowEvent = memo<{ event: ActivityEvent; expanded: boolean; onToggle: () => void }>(
-  ({ event, expanded, onToggle }) => {
+const FlowEvent = memo<{ event: ActivityEvent; expanded: boolean; onToggle: () => void; onCorrect?: (event: ActivityEvent) => void; t: (key: string) => string }>(
+  ({ event, expanded, onToggle, onCorrect, t }) => {
     const hasDetail = !!event.detail;
     const cls = classForType(event.activityType);
     const isTerminal = event.activityType === 'tool_call' || event.activityType === 'tool_result';
@@ -85,6 +92,20 @@ const FlowEvent = memo<{ event: ActivityEvent; expanded: boolean; onToggle: () =
             <span className="flow-badge-agent" style={{ color: LAYER_COLORS[event.layer] || '#aaa' }}>
               {event.agentName}
             </span>
+            {event.stage && <span className="flow-badge-stage">S{event.stage}</span>}
+            {event.nodeId && <span className="flow-badge-node">{event.nodeId}</span>}
+            {onCorrect && (
+              <button
+                type="button"
+                className="flow-correct-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCorrect(event);
+                }}
+              >
+                {t('supervisor.correct_step')}
+              </button>
+            )}
           </div>
           {isThinking ? (
             <div className="flow-thinking-bubble">
@@ -142,7 +163,7 @@ const FlowEvent = memo<{ event: ActivityEvent; expanded: boolean; onToggle: () =
   }
 );
 
-const ActivityTimeline: React.FC<Props> = ({ activities, t, filterAgentId }) => {
+const ActivityTimeline: React.FC<Props> = ({ activities, t, filterAgentId, onCorrect }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -206,6 +227,8 @@ const ActivityTimeline: React.FC<Props> = ({ activities, t, filterAgentId }) => 
             event={event}
             expanded={expandedIds.has(event.id)}
             onToggle={() => toggleExpand(event.id)}
+            onCorrect={onCorrect}
+            t={t}
           />
         ))}
       </div>

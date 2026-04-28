@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useCallback, useRef, useState, useMemo } from 'react';
 import { AgentLayer, ALL_LAYERS, ALL_REPOS } from './types';
-import type { AppState, WSMessage, ResourceStats, LobsterAgent, Artifact, ProjectScanResult, PlannerStatus, CoordinationSessionInfo, CenterTab, TaskGraphInfo, ProjectArchiveInfo, CreateTaskPayload } from './types';
+import type { AppState, WSMessage, ResourceStats, LobsterAgent, Artifact, ProjectScanResult, PlannerStatus, CoordinationSessionInfo, CenterTab, TaskGraphInfo, ProjectArchiveInfo, CreateTaskPayload, TaskNodeDetailPayload, TaskNodeInfo } from './types';
 import { INITIAL_AGENTS, createMockMessageGenerator } from './mock';
 import LayerPanel from './components/LayerPanel';
 import ResourceMonitor from './components/ResourceMonitor';
@@ -19,6 +19,8 @@ import ConversationView from './components/ConversationView';
 import CommandConsole from './components/CommandConsole';
 import ApprovalDialog from './components/ApprovalDialog';
 import TaskGraphView from './components/TaskGraphView';
+import NodeDetailPanel from './components/NodeDetailPanel';
+import SupervisorPanel from './components/SupervisorPanel';
 import { LocaleContext, makeT } from './i18n';
 import type { Locale } from './i18n';
 import './App.css';
@@ -194,6 +196,13 @@ export default function App() {
   const [activeArtifact, setActiveArtifact] = useState<{ projectId: string; stage: number; filename: string; dir?: string } | null>(null);
   const [leftPanelWidth, setLeftPanelWidth] = useState(290);
   const [rightPanelWidth, setRightPanelWidth] = useState(340);
+  const [supervisorPanelWidth, setSupervisorPanelWidth] = useState(420);
+  const [nodeDetailPanel, setNodeDetailPanel] = useState<{
+    taskId: string;
+    projectId: string;
+    loading: boolean;
+    payload: TaskNodeDetailPayload;
+  } | null>(null);
 
   mockModeRef.current = state.mockMode;
 
@@ -218,6 +227,49 @@ export default function App() {
     mockCleanup.current = createMockMessageGenerator(dispatchMsg);
     dispatch({ type: 'set_connected', payload: true });
   }, [dispatchMsg, doStopMock]);
+
+  const mergeNodeDetailPayload = useCallback((base: TaskNodeDetailPayload, incoming: TaskNodeDetailPayload): TaskNodeDetailPayload => {
+    const a = base.node as TaskNodeInfo | undefined;
+    const b = incoming.node as Partial<TaskNodeInfo> | undefined;
+    let node: TaskNodeInfo | Partial<TaskNodeInfo> | undefined | null = incoming.node ?? base.node;
+    if (a && b) {
+      node = { ...a, ...b };
+    }
+    return {
+      ...base,
+      ...incoming,
+      node: node ?? undefined,
+    };
+  }, []);
+
+  const openNodeDetail = useCallback(
+    (taskId: string) => {
+      const tg = state.taskGraph;
+      const projectId = state.selectedProjectId || tg?.projectId || tg?.project_id || '';
+      const graphNode = tg?.nodes?.[taskId];
+      setNodeDetailPanel({
+        taskId,
+        projectId,
+        loading: true,
+        payload: {
+          projectId,
+          taskId,
+          node: graphNode,
+        },
+      });
+      const ws = agentWsRef.current;
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ command: 'get_node_detail', taskId, projectId }));
+      } else {
+        setNodeDetailPanel((p) => (p ? { ...p, loading: false } : p));
+      }
+    },
+    [state.taskGraph, state.selectedProjectId],
+  );
+
+  const onNodeDetailRefreshStart = useCallback(() => {
+    setNodeDetailPanel((p) => (p ? { ...p, loading: true } : p));
+  }, []);
 
   // ── Agent Bridge WS ──
   useEffect(() => {
@@ -264,6 +316,38 @@ export default function App() {
               setArchives(msg.payload.archives || []);
             } else if (msg.type === 'diff_detail' && msg.payload?.data) {
               setActiveDiff(msg.payload.data);
+            } else if (msg.type === 'node_detail' && msg.payload) {
+              const incoming = msg.payload as TaskNodeDetailPayload;
+              setNodeDetailPanel((prev) => {
+                if (!prev || prev.taskId !== incoming.taskId) {
+                  return {
+                    taskId: incoming.taskId,
+                    projectId: incoming.projectId,
+                    loading: false,
+                    payload: incoming,
+                  };
+                }
+                return {
+                  ...prev,
+                  loading: false,
+                  payload: mergeNodeDetailPayload(prev.payload, incoming),
+                };
+              });
+            } else if (msg.type === 'metaprompt_resolved' && msg.payload) {
+              setNodeDetailPanel((prev) => {
+                if (!prev) return prev;
+                const promptDraft = [
+                  msg.payload.appendSystemPreview ? `# System Overlay\n${msg.payload.appendSystemPreview}` : '',
+                  msg.payload.appendUserPreview ? `# User Overlay\n${msg.payload.appendUserPreview}` : '',
+                ].filter(Boolean).join('\n\n');
+                return {
+                  ...prev,
+                  payload: {
+                    ...prev.payload,
+                    promptDraft: promptDraft || prev.payload.promptDraft,
+                  },
+                };
+              });
             } else {
               dispatchMsg(msg);
             }
@@ -282,7 +366,7 @@ export default function App() {
     }
     connect();
     return () => { clearTimeout(timer); ws?.close(); ws = null; doStopMock(); };
-  }, [agentWsUrl, dispatchMsg, doStopMock, doStartMock]);
+  }, [agentWsUrl, dispatchMsg, doStopMock, doStartMock, mergeNodeDetailPayload]);
 
   // ── Resource Monitor WS ──
   useEffect(() => {
@@ -575,7 +659,8 @@ export default function App() {
           </div>
 
           {state.activeTab === 'overview' && (
-            <>
+            <div className="overview-workspace">
+              <div className="overview-main-pane">
               <ResourceMonitor stats={state.resources} connected={state.resConnected} />
               <div className="pyramid-wrapper">
                 <div className="pyramid">
@@ -616,7 +701,20 @@ export default function App() {
                   <div className="fb-tip" />
                 </div>
               </div>
-            </>
+              </div>
+              <ResizeHandle storageKey="supervisor" defaultWidth={420} minWidth={320} maxWidth={720} side="right" onResize={setSupervisorPanelWidth} />
+              <div className="supervisor-shell" style={{ width: supervisorPanelWidth }}>
+                <SupervisorPanel
+                  activities={state.activities}
+                  agents={state.agents}
+                  taskGraph={state.taskGraph}
+                  selectedProjectId={state.selectedProjectId}
+                  connected={state.connected}
+                  ws={agentWsRef.current}
+                  t={t}
+                />
+              </div>
+            </div>
           )}
 
           {state.activeTab === 'timeline' && (
@@ -632,6 +730,7 @@ export default function App() {
               t={t}
               ws={agentWsRef.current}
               selectedProjectId={state.selectedProjectId}
+              onRequestNodeDetail={openNodeDetail}
             />
           )}
         </div>
@@ -694,6 +793,18 @@ export default function App() {
           dir={activeArtifact.dir}
           ws={agentWsRef.current}
           onClose={() => setActiveArtifact(null)}
+        />
+      )}
+
+      {nodeDetailPanel && (
+        <NodeDetailPanel
+          payload={nodeDetailPanel.payload}
+          graphNode={state.taskGraph?.nodes?.[nodeDetailPanel.taskId] ?? null}
+          loading={nodeDetailPanel.loading}
+          ws={agentWsRef.current}
+          onClose={() => setNodeDetailPanel(null)}
+          onRefreshStart={onNodeDetailRefreshStart}
+          t={t}
         />
       )}
 

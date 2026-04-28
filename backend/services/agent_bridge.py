@@ -28,6 +28,7 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
 import shutil
@@ -37,6 +38,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import websockets
 
@@ -48,6 +50,11 @@ from project_planner import PlannerManager
 from task_graph import TaskGraphRegistry, TaskGraph, TaskNode
 from layer_coordinator import LayerCoordinator
 from knowledge_manager import KnowledgeManager
+
+if TYPE_CHECKING:
+    from result_registry import ResultRegistry
+
+logger = logging.getLogger(__name__)
 
 # EventBus for real-time streaming from agent turn loops
 _agent_dir = _this_dir.parent / "agent"
@@ -93,6 +100,125 @@ LAYER_RANGE: dict[str, tuple[int, int]] = {
 
 LAYER_RANGE_PHASE1: dict[str, tuple[int, int]] = {"idea": (1, 7)}
 LAYER_RANGE_PHASE2: dict[str, tuple[int, int]] = {"idea": (8, 8)}
+
+
+def _intersect_stage_bounds(lo1: int, hi1: int, lo2: int, hi2: int) -> tuple[int, int] | None:
+    lo = max(lo1, lo2)
+    hi = min(hi1, hi2)
+    if lo > hi:
+        return None
+    return (lo, hi)
+
+
+def _task_node_stage_window(task: "Task") -> tuple[int, int] | None:
+    if task.stage_from is not None and task.stage_to is not None:
+        return (int(task.stage_from), int(task.stage_to))
+    return None
+
+
+def _canonical_runtime_stage_range(
+    state: "BridgeState",
+    agent: "LobsterAgent",
+    *,
+    is_discussion_s8: bool,
+    task_meta: dict | None,
+) -> tuple[int, int]:
+    if getattr(agent, "_is_idea_factory_s7_only", False):
+        return (7, 7)
+    if is_discussion_s8:
+        return LAYER_RANGE_PHASE2["idea"]
+    is_reproduce = bool(task_meta and task_meta.get("mode") == "reproduce")
+    if state.discussion_mode and agent.layer == "idea" and not is_reproduce:
+        return LAYER_RANGE_PHASE1["idea"]
+    return LAYER_RANGE.get(agent.layer, (1, 15))
+
+
+def _effective_stage_range_for_launch(
+    state: "BridgeState",
+    agent: "LobsterAgent",
+    task: "Task | None",
+    task_meta: dict | None,
+    *,
+    is_discussion_s8: bool,
+    node_stage_override: tuple[int, int] | None = None,
+) -> tuple[int, int]:
+    b_lo, b_hi = _canonical_runtime_stage_range(
+        state, agent, is_discussion_s8=is_discussion_s8, task_meta=task_meta,
+    )
+    if node_stage_override is not None:
+        n_lo, n_hi = node_stage_override
+    elif task is not None:
+        tw = _task_node_stage_window(task)
+        if not tw:
+            return (b_lo, b_hi)
+        n_lo, n_hi = tw
+    else:
+        return (b_lo, b_hi)
+    hit = _intersect_stage_bounds(b_lo, b_hi, n_lo, n_hi)
+    if hit is None:
+        return (int(n_lo), int(n_hi))
+    return hit
+
+
+def _monitor_stage_range(
+    state: "BridgeState",
+    agent: "LobsterAgent",
+    task_meta: dict | None,
+) -> tuple[int, int]:
+    is_discussion_s8 = bool(getattr(agent, "_is_discussion_s8", False))
+    b_lo, b_hi = _canonical_runtime_stage_range(
+        state, agent, is_discussion_s8=is_discussion_s8, task_meta=task_meta,
+    )
+    af = getattr(agent, "_task_stage_from", None)
+    at = getattr(agent, "_task_stage_to", None)
+    if af is not None and at is not None:
+        hit = _intersect_stage_bounds(b_lo, b_hi, int(af), int(at))
+        if hit is not None:
+            return hit
+        return (int(af), int(at))
+    return (b_lo, b_hi)
+
+
+def _agent_node_stage_window(agent: "LobsterAgent") -> tuple[int, int] | None:
+    start = getattr(agent, "_task_stage_from", None)
+    end = getattr(agent, "_task_stage_to", None)
+    if start is None or end is None:
+        return None
+    return (int(start), int(end))
+
+
+def _agent_requires_discussion_before_s8(agent: "LobsterAgent") -> bool:
+    """Whether an idea task should pause after S7 for discussion before S8."""
+    window = _agent_node_stage_window(agent)
+    if window is None:
+        return True
+    start, end = window
+    if start > end:
+        start, end = end, start
+    return start <= 7 and end >= 8
+
+
+def _agent_subprocess_env(state: "BridgeState", agent: "LobsterAgent") -> dict[str, str]:
+    """Environment shared by researchclaw subprocess launches."""
+    env = {
+        **os.environ,
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "SCHOLARCLAW_PROJECT_ID": agent.project_id or "",
+        "SCHOLARCLAW_TASK_ID": agent.assigned_task_id or "",
+        "SCHOLARCLAW_NODE_ID": agent.assigned_task_id or "",
+        "SCHOLARCLAW_RUN_DIR": agent.run_dir or "",
+        "SCHOLARCLAW_AGENT_ID": agent.id or "",
+    }
+    if agent.run_dir:
+        env["SCHOLARCLAW_METAPROMPT_PROJECT_DIR"] = str(Path(agent.run_dir).parent)
+    workspace_dir = _get_workspace_dir(state, agent.project_id) if agent.project_id else ""
+    if workspace_dir:
+        env["SCHOLARCLAW_METAPROMPT_PROJECT_DIR"] = workspace_dir
+    env.pop("CUDA_VISIBLE_DEVICES", None)
+    return env
+
 
 DISCUSSION_STAGE = 100
 
@@ -711,6 +837,9 @@ class Task:
     created_at: int = 0
     assigned_at: int = 0
     completed_at: int = 0
+    # TaskGraph node stage window; when set, launch_agent_for_task intersects with layer/discussion bounds
+    stage_from: int | None = None
+    stage_to: int | None = None
 
     def to_dict(self) -> dict:
         return {k: v for k, v in self.__dict__.items()}
@@ -728,6 +857,8 @@ class Task:
         t.created_at = d.get("created_at", 0)
         t.assigned_at = d.get("assigned_at", 0)
         t.completed_at = d.get("completed_at", 0)
+        t.stage_from = d.get("stage_from")
+        t.stage_to = d.get("stage_to")
         return t
 
 
@@ -1096,7 +1227,13 @@ def msg_log(agent: LobsterAgent, message: str, level: str = "info", stage: int |
         "message": message, "level": level, "timestamp": _now_ms(),
     }}
 
-def msg_activity(agent: LobsterAgent, activity_type: str, summary: str, detail: str = "") -> dict:
+def msg_activity(
+    agent: LobsterAgent,
+    activity_type: str,
+    summary: str,
+    detail: str = "",
+    **extra: object,
+) -> dict:
     payload: dict = {
         "id": _uid(), "agentId": agent.id, "agentName": agent.name,
         "projectId": agent.project_id or "", "layer": agent.layer,
@@ -1104,6 +1241,13 @@ def msg_activity(agent: LobsterAgent, activity_type: str, summary: str, detail: 
     }
     if detail:
         payload["detail"] = detail
+    if agent.assigned_task_id:
+        payload["nodeId"] = agent.assigned_task_id
+    if agent.current_stage:
+        payload["stage"] = agent.current_stage
+    for key, value in extra.items():
+        if value is not None and value != "":
+            payload[key] = value
     return {"type": "agent_activity", "payload": payload}
 
 
@@ -1125,6 +1269,10 @@ def _event_to_ws_message(evt: "AgentEvent", agent: LobsterAgent) -> dict:
         "permission_request": "tool_call",
     }
     activity_type = _type_map.get(evt.type.value, evt.type.value)
+    detail = evt.data.get("detail", "") or evt.data.get("text", "") or evt.data.get("content", "")
+    summary = evt.data.get("summary", "")
+    if not summary and detail:
+        summary = str(detail)[:240]
     payload: dict = {
         "id": _uid(),
         "agentId": evt.agent_id or agent.id,
@@ -1132,12 +1280,32 @@ def _event_to_ws_message(evt: "AgentEvent", agent: LobsterAgent) -> dict:
         "projectId": agent.project_id or "",
         "layer": agent.layer,
         "activityType": activity_type,
-        "summary": evt.data.get("summary", ""),
+        "summary": summary,
         "timestamp": evt.timestamp * 1000 if evt.timestamp < 1e12 else evt.timestamp,
     }
-    detail = evt.data.get("detail", "")
     if detail:
         payload["detail"] = detail
+    for src_key, dst_key in (
+        ("node_id", "nodeId"),
+        ("nodeId", "nodeId"),
+        ("stage", "stage"),
+        ("model", "model"),
+        ("prompt_hash", "promptHash"),
+        ("promptHash", "promptHash"),
+        ("duration_ms", "durationMs"),
+        ("durationMs", "durationMs"),
+        ("elapsed_ms", "elapsedMs"),
+        ("tokens", "tokens"),
+        ("tool_name", "toolName"),
+        ("toolName", "toolName"),
+        ("args", "args"),
+    ):
+        if src_key in evt.data and evt.data[src_key] not in (None, ""):
+            payload[dst_key] = evt.data[src_key]
+    if "stage" not in payload and agent.current_stage:
+        payload["stage"] = agent.current_stage
+    if "nodeId" not in payload and agent.assigned_task_id:
+        payload["nodeId"] = agent.assigned_task_id
     return {"type": "agent_activity", "payload": payload}
 
 def msg_approval_request(agent: LobsterAgent, request_id: str, action_type: str, description: str, detail: str = "") -> dict:
@@ -1376,8 +1544,14 @@ def poll_agent(agent: LobsterAgent, state: "BridgeState | None" = None) -> list[
     # Only read heartbeat/checkpoint if THIS agent's process is running,
     # to avoid cross-contamination when multiple agents share a run_dir.
     if agent.process is not None and agent.process.poll() is None:
-        _s7_only = getattr(agent, '_is_idea_factory_s7_only', False)
-        layer_range = (7, 7) if _s7_only else LAYER_RANGE.get(agent.layer, (1, 15))
+        if state is not None:
+            _task_meta_poll = _read_project_meta(str(run_dir))
+            if not _task_meta_poll:
+                _task_meta_poll = _read_project_meta(str(run_dir.parent))
+            layer_range = _monitor_stage_range(state, agent, _task_meta_poll)
+        else:
+            _s7_only = getattr(agent, '_is_idea_factory_s7_only', False)
+            layer_range = (7, 7) if _s7_only else LAYER_RANGE.get(agent.layer, (1, 15))
 
         hb = _read_json(run_dir / "heartbeat.json")
         if hb and hb != agent._prev_heartbeat:
@@ -1449,8 +1623,14 @@ def poll_agent(agent: LobsterAgent, state: "BridgeState | None" = None) -> list[
         retcode = agent.process.poll()
         if retcode is not None:
             # Final read: catch any checkpoint/artifact updates written before exit
-            _s7_only_final = getattr(agent, '_is_idea_factory_s7_only', False)
-            layer_range = (7, 7) if _s7_only_final else LAYER_RANGE.get(agent.layer, (1, 15))
+            if state is not None:
+                _tm_final = _read_project_meta(str(run_dir))
+                if not _tm_final:
+                    _tm_final = _read_project_meta(str(run_dir.parent))
+                layer_range = _monitor_stage_range(state, agent, _tm_final)
+            else:
+                _s7_only_final = getattr(agent, '_is_idea_factory_s7_only', False)
+                layer_range = (7, 7) if _s7_only_final else LAYER_RANGE.get(agent.layer, (1, 15))
             cp = _read_json(run_dir / "checkpoint.json")
             if cp:
                 done_up_to = cp.get("last_completed_stage", 0)
@@ -1459,7 +1639,7 @@ def poll_agent(agent: LobsterAgent, state: "BridgeState | None" = None) -> list[
 
             if retcode == 0:
                 # Post-flight: validate outputs for each completed stage
-                _layer_r = LAYER_RANGE.get(agent.layer, (1, 26))
+                _layer_r = layer_range
                 _last_done = (cp or {}).get("last_completed_stage", _layer_r[1])
                 for _vs in range(_layer_r[0], min(_last_done, _layer_r[1]) + 1):
                     _missing_out = _validate_stage_outputs(str(run_dir), _vs)
@@ -1579,6 +1759,8 @@ def _assign_task_to_agent(agent: LobsterAgent, task: Task) -> None:
     import re as _re
     _role_match = _re.match(r"^\[(.+?)\]\s", task.topic or "")
     agent.role_tag = _role_match.group(1) if _role_match else ""
+    agent._task_stage_from = task.stage_from  # type: ignore[attr-defined]
+    agent._task_stage_to = task.stage_to  # type: ignore[attr-defined]
 
 
 def _passthrough_agent(agent: LobsterAgent) -> list[dict]:
@@ -1836,11 +2018,10 @@ def launch_agent_for_task(state: BridgeState, agent: LobsterAgent, task: Task) -
                     messages.append(msg_log(agent, f"使用全局模型: {_g['model']}", "info"))
                 except Exception as _e:
                     messages.append(msg_log(agent, f"全局模型配置失败: {_e}，使用默认模型", "warning"))
-    if state.discussion_mode and agent.layer == "idea" and not _is_reproduce:
-        layer_range = LAYER_RANGE_PHASE1["idea"]
-    else:
-        layer_range = LAYER_RANGE.get(agent.layer, (1, 15))
-    fs, ts = layer_range
+    fs, ts = _effective_stage_range_for_launch(
+        state, agent, task, _task_meta,
+        is_discussion_s8=False,
+    )
 
     # Checkpoint-aware resume: skip already-completed stages within this layer
     cp = _read_json(Path(task.run_dir) / "checkpoint.json")
@@ -1918,13 +2099,7 @@ def launch_agent_for_task(state: BridgeState, agent: LobsterAgent, task: Task) -
         cmd.extend(["--topic", task.topic])
 
     try:
-        proc_env = {
-            **os.environ,
-            "PYTHONUNBUFFERED": "1",
-            "PYTHONUTF8": "1",
-            "PYTHONIOENCODING": "utf-8",
-        }
-        proc_env.pop("CUDA_VISIBLE_DEVICES", None)
+        proc_env = _agent_subprocess_env(state, agent)
 
         log_path = Path(task.run_dir) / f"agent_{agent.id}.log"
         log_file = open(log_path, "w", encoding="utf-8")
@@ -2300,7 +2475,12 @@ def on_agent_done(state: BridgeState, agent: LobsterAgent) -> list[dict]:
     _agent_proj_dir = state.projects_dir() / agent.project_id if agent.project_id else None
     _agent_meta = _read_project_meta(str(_agent_proj_dir)) if _agent_proj_dir and _agent_proj_dir.exists() else None
     _agent_is_reproduce = _agent_meta.get("mode") == "reproduce" if _agent_meta else False
-    if state.discussion_mode and agent.layer == "idea" and not _agent_is_reproduce:
+    if (
+        state.discussion_mode
+        and agent.layer == "idea"
+        and not _agent_is_reproduce
+        and _agent_requires_discussion_before_s8(agent)
+    ):
         state.discussion_waiting[agent.id] = agent
         agent.current_stage = DISCUSSION_STAGE
         agent.stage_progress[DISCUSSION_STAGE] = "running"
@@ -2485,6 +2665,8 @@ def _reset_agent_idle(agent: LobsterAgent) -> None:
     base = getattr(agent, '_base_name', None)
     if base:
         agent.name = base
+    agent._task_stage_from = None  # type: ignore[attr-defined]
+    agent._task_stage_to = None  # type: ignore[attr-defined]
 
 
 def list_all_projects(state: BridgeState) -> list[dict]:
@@ -3574,7 +3756,7 @@ def _launch_idea_factory_run(state: BridgeState, agent: LobsterAgent, s7_only: b
         proc = subprocess.Popen(
             cmd, cwd=state.agent_package_dir,
             stdout=log_file, stderr=subprocess.STDOUT,
-            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+            env=_agent_subprocess_env(state, agent),
         )
         agent.process = proc
         n = state.idea_factory_produced + 1
@@ -3726,6 +3908,7 @@ def _trigger_discussion(state: BridgeState, group: DiscussionGroup) -> list[dict
             messages.append(msg_agent_update(agent))
 
     synthesis_dirs = group.synthesis_dirs()
+    mirror_run_dirs = [rd for rd in group.run_dirs.values() if rd]
     runner_path = str(Path(__file__).resolve().parent / "discussion_runner.py")
     cmd = [
         state.python_path, runner_path,
@@ -3734,6 +3917,9 @@ def _trigger_discussion(state: BridgeState, group: DiscussionGroup) -> list[dict
         "--output", disc_dir,
         "--rounds", str(state.discussion_rounds),
     ]
+    if mirror_run_dirs:
+        cmd.append("--mirror-run-dirs")
+        cmd.extend(mirror_run_dirs)
     if group.topic:
         cmd.extend(["--topic", group.topic])
 
@@ -3743,7 +3929,7 @@ def _trigger_discussion(state: BridgeState, group: DiscussionGroup) -> list[dict
         proc = subprocess.Popen(
             cmd, cwd=state.agent_package_dir,
             stdout=log_file, stderr=subprocess.STDOUT,
-            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+            env=_agent_subprocess_env(state, agent),
         )
         group.discussion_process = proc
         sys_agent = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
@@ -3801,6 +3987,7 @@ def _trigger_cross_project_discussion(
     group._cross_project = True  # type: ignore[attr-defined]
 
     runner_path = str(Path(__file__).resolve().parent / "discussion_runner.py")
+    mirror_run_dirs = [rd for rd in (agent1.run_dir, agent2.run_dir) if rd]
     cmd = [
         state.python_path, runner_path,
         "--config", agent1.config_path,
@@ -3809,6 +3996,9 @@ def _trigger_cross_project_discussion(
         "--rounds", str(state.discussion_rounds),
         "--topic", group.topic,
     ]
+    if mirror_run_dirs:
+        cmd.append("--mirror-run-dirs")
+        cmd.extend(mirror_run_dirs)
 
     try:
         log_path = Path(disc_dir) / "discussion.log"
@@ -3816,7 +4006,7 @@ def _trigger_cross_project_discussion(
         proc = subprocess.Popen(
             cmd, cwd=state.agent_package_dir,
             stdout=log_file, stderr=subprocess.STDOUT,
-            env={**os.environ, "PYTHONUNBUFFERED": "1"},
+            env=_agent_subprocess_env(state, agent1),
         )
         group.discussion_process = proc
         state.discussion_groups[disc_name] = group
@@ -3846,7 +4036,21 @@ def _skip_discussion_proceed_s8(state: BridgeState, agent: LobsterAgent) -> list
     agent.stage_progress[DISCUSSION_STAGE] = "completed"
     messages.append(msg_stage_update(agent.id, DISCUSSION_STAGE, "completed"))
 
-    fs, ts = LAYER_RANGE_PHASE2["idea"]
+    node_stage_override: tuple[int, int] | None = None
+    if agent.project_id and agent.assigned_task_id:
+        _g = state.task_graphs.get(agent.project_id)
+        if _g:
+            _nd = _g.nodes.get(agent.assigned_task_id)
+            if _nd:
+                node_stage_override = (_nd.stage_from, _nd.stage_to)
+    _tm_s8 = _read_project_meta(agent.run_dir) if agent.run_dir else None
+    if not _tm_s8 and agent.run_dir:
+        _tm_s8 = _read_project_meta(str(Path(agent.run_dir).parent))
+    fs, ts = _effective_stage_range_for_launch(
+        state, agent, None, _tm_s8,
+        is_discussion_s8=True,
+        node_stage_override=node_stage_override,
+    )
     agent.status = "working"
     agent.current_task = f"项目 {agent.project_id} · S8 假设生成 (跳过讨论)"
     agent.stage_progress[8] = "running"
@@ -4203,6 +4407,8 @@ def schedule_idle_agents(state: BridgeState) -> list[dict]:
                 config_path=_tnode.config_path,
                 source_layer=_LAYER_ORDER[max(0, _LAYER_ORDER.index(_tnode.layer) - 1)] if _tnode.layer != "idea" else "init",
                 target_layer=_tnode.layer, topic=_tnode.title,
+                stage_from=_tnode.stage_from,
+                stage_to=_tnode.stage_to,
             )
             messages.extend(launch_agent_for_task(state, agent, _tg_task))
             proj_dir = state.projects_dir() / _pid
@@ -4295,7 +4501,12 @@ _BRIDGE_READ_ONLY_COMMANDS: frozenset[str] = frozenset({
     "search_kb",
     "kb_stats",
     "get_stage_detail",
+    "get_node_detail",
     "get_artifact_preview",
+    "get_metaprompt",
+    "get_metaprompt_versions",
+    "get_prompt",
+    "get_prompt_versions",
 })
 
 
@@ -4369,6 +4580,459 @@ def _http_download_token_ok(state: BridgeState, request_headers, query_token: st
     if len(a) != len(b):
         return False
     return hmac.compare_digest(a.encode("utf-8"), b.encode("utf-8"))
+
+
+def _project_detail_dirs(proj_dir: Path) -> list[Path]:
+    """Resolve directories that may contain stage-* folders."""
+    detail_dirs: list[Path] = []
+    ws_link = _read_json(proj_dir / "_workspace_link.json")
+    if ws_link and ws_link.get("scholar_dir"):
+        detail_dirs.append(Path(ws_link["scholar_dir"]))
+    detail_dirs.append(proj_dir)
+    for angle in sorted(proj_dir.glob("run-*")):
+        if angle.is_dir():
+            detail_dirs.append(angle)
+    return detail_dirs
+
+
+def _collect_stage_files_for_detail(detail_dirs: list[Path], stage: int) -> list[dict]:
+    """List files under stage-XX for the first detail root that contains it."""
+    stage_dir_name = f"stage-{stage:02d}"
+    files_info: list[dict] = []
+    for detail_dir in detail_dirs:
+        stage_dir = detail_dir / stage_dir_name
+        if not stage_dir.is_dir():
+            continue
+        for file_path in sorted(stage_dir.rglob("*")):
+            if not file_path.is_file():
+                continue
+            rel = str(file_path.relative_to(stage_dir)).replace("\\", "/")
+            try:
+                size = file_path.stat().st_size
+                modified = file_path.stat().st_mtime
+            except OSError:
+                size, modified = 0, 0
+            files_info.append({
+                "name": rel,
+                "size": size,
+                "modified": modified,
+                "dir": str(stage_dir),
+            })
+        break
+    return files_info
+
+
+def _stage_detail_completion_status(files_info: list[dict], stage: int) -> str:
+    if not files_info:
+        return "pending"
+    expected = STAGE_OUTPUTS.get(stage, [])
+    if not expected:
+        return "completed"
+    found = {fi["name"] for fi in files_info}
+    for output in expected:
+        clean = output.rstrip("/")
+        if output.endswith("/"):
+            if not any(name.startswith(clean) for name in found):
+                return "incomplete"
+        elif clean not in found:
+            return "incomplete"
+    return "completed"
+
+
+def _input_path_resolves(prior_output_names: set[str], path: str) -> bool:
+    clean = path.rstrip("/")
+    if path.endswith("/"):
+        return any(name == clean or name.startswith(f"{clean}/") for name in prior_output_names)
+    return clean in prior_output_names
+
+
+def _read_checkpoint_for_node(proj_dir: Path, node: TaskNode) -> dict | None:
+    candidates = [Path(node.run_dir) / "checkpoint.json" if node.run_dir else None, proj_dir / "checkpoint.json"]
+    for candidate in candidates:
+        if candidate and candidate.is_file():
+            data = _read_json(candidate)
+            if data:
+                return data
+    return None
+
+
+def _light_agent_log_summary(state: BridgeState, node: TaskNode, max_lines: int = 40) -> dict:
+    agent_id = (node.assigned_agent or "").strip()
+    run_dir = ""
+    agent = state.agents.get(agent_id) if agent_id else None
+    if agent_id and agent and agent.run_dir:
+        run_dir = agent.run_dir
+    if not run_dir and node.run_dir:
+        run_dir = node.run_dir
+    lines: list[str] = []
+    if not run_dir or not agent_id:
+        return {"agentId": agent_id, "lines": lines, "truncated": False}
+    log_path = Path(run_dir) / f"agent_{agent_id}.log"
+    if log_path.is_file():
+        try:
+            all_lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+            lines = all_lines[-max_lines:]
+            return {"agentId": agent_id, "lines": lines, "truncated": len(all_lines) > max_lines}
+        except OSError:
+            pass
+    return {"agentId": agent_id, "lines": lines, "truncated": False}
+
+
+def _build_node_detail_payload(state: BridgeState, project_id: str, node_id: str) -> dict:
+    graph = state.task_graphs.get(project_id)
+    if not graph:
+        return {
+            "ok": False,
+            "error": "no_task_graph",
+            "message": "该项目没有 TaskGraph（可能尚未生成或未加载）",
+            "projectId": project_id,
+            "nodeId": node_id,
+        }
+    node = graph.nodes.get(node_id)
+    if not node:
+        return {
+            "ok": False,
+            "error": "node_not_found",
+            "message": "TaskGraph 中不存在该节点",
+            "projectId": project_id,
+            "nodeId": node_id,
+        }
+
+    proj_dir = state.projects_dir() / project_id
+    detail_dirs = _project_detail_dirs(proj_dir)
+    stage_from, stage_to = node.stage_from, node.stage_to
+    if stage_from > stage_to:
+        stage_from, stage_to = stage_to, stage_from
+
+    prior_names: set[str] = set()
+    for prior_stage in range(1, stage_from):
+        for file_info in _collect_stage_files_for_detail(detail_dirs, prior_stage):
+            prior_names.add(file_info["name"])
+
+    stages_detail: list[dict] = []
+    output_files: list[dict] = []
+    expected_union: list[str] = []
+
+    for stage in range(stage_from, stage_to + 1):
+        input_hints = [
+            {
+                "path": input_path,
+                "forStage": stage,
+                "present": _input_path_resolves(prior_names, input_path),
+            }
+            for input_path in STAGE_INPUTS.get(stage, [])
+        ]
+        files = _collect_stage_files_for_detail(detail_dirs, stage)
+        status = _stage_detail_completion_status(files, stage)
+        expected = STAGE_OUTPUTS.get(stage, [])
+        expected_union.extend(expected)
+
+        stages_detail.append({
+            "stage": stage,
+            "stageName": STAGE_NAMES.get(stage, f"S{stage}"),
+            "status": status,
+            "expectedOutputs": expected,
+            "inputs": input_hints,
+            "files": files,
+        })
+
+        for file_info in files:
+            row = dict(file_info)
+            row["stage"] = stage
+            output_files.append(row)
+            prior_names.add(file_info["name"])
+
+    contract = ""
+    if isinstance(node.config_overrides, dict):
+        contract = str(node.config_overrides.get("contract") or "")
+
+    checkpoint = _read_checkpoint_for_node(proj_dir, node)
+    execution_history: list[dict] = []
+    if isinstance(checkpoint, dict) and checkpoint.get("last_completed_stage") is not None:
+        execution_history.append({
+            "kind": "checkpoint",
+            "lastCompletedStage": checkpoint.get("last_completed_stage"),
+            "lastCompletedName": checkpoint.get("last_completed_name"),
+            "runId": checkpoint.get("run_id"),
+            "timestamp": checkpoint.get("timestamp"),
+        })
+
+    input_files: list[dict] = []
+    for stage_block in stages_detail:
+        input_files.extend(stage_block["inputs"])
+
+    expected_outputs: list[str] = []
+    seen_expected: set[str] = set()
+    for output in expected_union:
+        if output not in seen_expected:
+            seen_expected.add(output)
+            expected_outputs.append(output)
+
+    agent_log_summary = _light_agent_log_summary(state, node)
+
+    return {
+        "ok": True,
+        "projectId": project_id,
+        "nodeId": node_id,
+        "taskId": node_id,
+        "node": node.to_dict(),
+        "stageRange": {"from": node.stage_from, "to": node.stage_to},
+        "dependencies": list(node.dependencies),
+        "status": node.status,
+        "contract": contract,
+        "stages": stages_detail,
+        "inputFiles": input_files,
+        "inputs": input_files,
+        "outputFiles": output_files,
+        "outputs": output_files,
+        "expectedOutputs": expected_outputs,
+        "checkpoint": checkpoint,
+        "executionHistory": execution_history,
+        "currentPrompt": "",
+        "defaultPrompt": "",
+        "promptDraft": "",
+        "logs": "\n".join(agent_log_summary.get("lines", [])),
+        "agentLogSummary": agent_log_summary,
+    }
+
+
+def _task_graph_ws_payload(project_id: str, graph: TaskGraph) -> dict:
+    return {"type": "task_graph_update", "payload": {"projectId": project_id, **graph.to_dict()}}
+
+
+def _handle_skip_task(state: BridgeState, project_id: str, task_id: str) -> list[dict]:
+    messages: list[dict] = []
+    _graph = state.task_graphs.get(project_id) if project_id else None
+    if _graph and task_id in _graph.nodes:
+        for agent in list(state.agents.values()):
+            if (
+                agent.project_id == project_id
+                and agent.assigned_task_id == task_id
+                and agent.process is not None
+                and agent.process.poll() is None
+            ):
+                messages.extend(stop_agent(agent))
+        _graph.mark_skipped(task_id)
+        _proj_dir = state.projects_dir() / project_id
+        state.task_graphs.save_to_disk(project_id, _proj_dir)
+        messages.append(_task_graph_ws_payload(project_id, _graph))
+        _sys_a = LobsterAgent(id="system", name="System", layer="idea", run_id="", run_dir="", config_path="")
+        messages.append(msg_log(_sys_a, f"Task {task_id} skipped", "warning"))
+        messages.extend(schedule_idle_agents(state))
+    else:
+        messages.append({"type": "system", "payload": {"message": f"Task {task_id} not found"}})
+    return messages
+
+
+def _handle_retry_task(state: BridgeState, project_id: str, task_id: str) -> list[dict]:
+    messages: list[dict] = []
+    _graph = state.task_graphs.get(project_id) if project_id else None
+    if _graph and task_id in _graph.nodes:
+        dependents = _graph.dependent_ids(task_id)
+        for agent in list(state.agents.values()):
+            if (
+                agent.project_id == project_id
+                and agent.assigned_task_id in dependents
+                and agent.process is not None
+                and agent.process.poll() is None
+            ):
+                messages.extend(stop_agent(agent))
+        _graph.reset_node(task_id)
+        _proj_dir = state.projects_dir() / project_id
+        state.task_graphs.save_to_disk(project_id, _proj_dir)
+        messages.append(_task_graph_ws_payload(project_id, _graph))
+        _sys_a = LobsterAgent(id="system", name="System", layer="idea", run_id="", run_dir="", config_path="")
+        messages.append(msg_log(_sys_a, f"Task {task_id} reset for retry", "info"))
+        messages.extend(schedule_idle_agents(state))
+    else:
+        messages.append({"type": "system", "payload": {"message": f"Task {task_id} not found"}})
+    return messages
+
+
+def _apply_node_rollback_checkpoint(state: BridgeState, project_id: str, node: TaskNode) -> None:
+    rd = Path(node.run_dir) if node.run_dir else state.projects_dir() / project_id
+    if not rd.is_dir():
+        return
+    cp_path = rd / "checkpoint.json"
+    target_done = max(0, int(node.stage_from) - 1)
+    data = _read_json(cp_path) or {}
+    data["last_completed_stage"] = target_done
+    data["bridge_rollback"] = {
+        "node_id": node.id,
+        "ts": _now_ms(),
+        "note": "Non-destructive rollback: research artifacts were not deleted; re-execute from node stage_from.",
+    }
+    _write_json(cp_path, data)
+
+
+def _handle_node_action(state: BridgeState, data: dict) -> list[dict]:
+    messages: list[dict] = []
+    project_id = str(data.get("projectId", "") or "").strip()
+    node_id = str(data.get("nodeId") or data.get("taskId", "") or "").strip()
+    action = str(data.get("action", "") or "").lower().strip()
+    if not project_id or not node_id:
+        messages.append({
+            "type": "system",
+            "payload": {"message": "node_action requires projectId and nodeId or taskId"},
+        })
+        return messages
+    _graph = state.task_graphs.get(project_id)
+    if not _graph or node_id not in _graph.nodes:
+        messages.append({"type": "system", "payload": {"message": f"node_action: node {node_id} not found"}})
+        return messages
+    _sys = LobsterAgent(id="system", name="System", layer="idea", run_id="", run_dir="", config_path="")
+
+    if action == "skip":
+        return _handle_skip_task(state, project_id, node_id)
+    if action == "retry":
+        return _handle_retry_task(state, project_id, node_id)
+
+    if action in ("run", "resume"):
+        node = _graph.nodes[node_id]
+        if node.status == "paused":
+            _graph.resume_node(node_id)
+        elif node.status == "failed":
+            _graph.reset_node(node_id)
+        elif node.status == "skipped":
+            _graph.reset_node(node_id)
+        else:
+            messages.append(msg_log(_sys, f"node_action {action}: node {node_id} unchanged ({node.status})", "info"))
+        _proj_dir = state.projects_dir() / project_id
+        state.task_graphs.save_to_disk(project_id, _proj_dir)
+        messages.append(_task_graph_ws_payload(project_id, _graph))
+        messages.extend(schedule_idle_agents(state))
+        return messages
+
+    if action == "pause":
+        for ag in list(state.agents.values()):
+            if (
+                ag.assigned_task_id == node_id
+                and ag.project_id == project_id
+                and ag.process is not None
+                and ag.process.poll() is None
+            ):
+                messages.extend(stop_agent(ag))
+        _graph.mark_paused(node_id)
+        _proj_dir = state.projects_dir() / project_id
+        state.task_graphs.save_to_disk(project_id, _proj_dir)
+        messages.append(_task_graph_ws_payload(project_id, _graph))
+        messages.append(msg_log(_sys, f"node {node_id} paused", "warning"))
+        messages.extend(schedule_idle_agents(state))
+        return messages
+
+    if action == "rollback":
+        if _graph.nodes[node_id].status == "running":
+            for ag in list(state.agents.values()):
+                if (
+                    ag.assigned_task_id == node_id
+                    and ag.project_id == project_id
+                    and ag.process is not None
+                    and ag.process.poll() is None
+                ):
+                    messages.extend(stop_agent(ag))
+        dependents = _graph.dependent_ids(node_id)
+        for ag in list(state.agents.values()):
+            if (
+                ag.project_id == project_id
+                and ag.assigned_task_id in dependents
+                and ag.process is not None
+                and ag.process.poll() is None
+            ):
+                messages.extend(stop_agent(ag))
+        _graph.rollback_node(node_id)
+        _apply_node_rollback_checkpoint(state, project_id, _graph.nodes[node_id])
+        _proj_dir = state.projects_dir() / project_id
+        state.task_graphs.save_to_disk(project_id, _proj_dir)
+        messages.append(_task_graph_ws_payload(project_id, _graph))
+        messages.append(msg_log(_sys, f"node {node_id} rolled back (checkpoint pointer only)", "info"))
+        messages.extend(schedule_idle_agents(state))
+        return messages
+
+    messages.append({"type": "system", "payload": {"message": f"Unknown node_action: {action}"}})
+    return messages
+
+
+_METAPROMPT_LAYERS: frozenset[str] = frozenset({"system", "domain", "project", "node"})
+_METAPROMPT_NODE_ID_RE = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
+
+
+def _safe_metaprompt_node_id(raw: str) -> str | None:
+    node_id = (raw or "").strip()
+    if not node_id or not _METAPROMPT_NODE_ID_RE.fullmatch(node_id):
+        return None
+    if node_id in (".", ".."):
+        return None
+    return node_id
+
+
+def _bridge_metaprompt_allowed(state: BridgeState, path: Path) -> bool:
+    try:
+        resolved = path.resolve()
+    except (OSError, ValueError):
+        return False
+    return any(_ab_path_under_root(resolved, root) for root in _browse_allowed_roots(state))
+
+
+def _bridge_metaprompt_project_run_paths(
+    state: BridgeState, data: dict
+) -> tuple[Path | None, Path | None, str]:
+    project_id = str(data.get("projectId", "") or "").strip()
+    if not project_id:
+        return None, None, "projectId is required"
+    workspace = _get_workspace_dir(state, project_id) or str(state.projects_dir() / project_id)
+    project_dir = Path(workspace)
+    if not _bridge_metaprompt_allowed(state, project_dir):
+        return None, None, "project path not allowed"
+    run_id = str(data.get("runId") or "").strip()
+    if not run_id:
+        return project_dir, None, ""
+    run_dir = project_dir / run_id
+    if not run_dir.is_dir():
+        return project_dir, None, f"run directory not found: {run_dir}"
+    if not _bridge_metaprompt_allowed(state, run_dir):
+        return None, None, "run path not allowed"
+    return project_dir, run_dir, ""
+
+
+def _bridge_metaprompt_write_target(state: BridgeState, data: dict) -> tuple[Path, str]:
+    """Directory to read/write metaprompt files (project root or run-* subdir)."""
+    scope = str(data.get("scope", "project") or "").strip().lower()
+    project_dir, run_dir, err = _bridge_metaprompt_project_run_paths(state, data)
+    if err:
+        return Path(), err
+    if scope in ("run", "run_dir", "rundir"):
+        if run_dir is None:
+            return Path(), "runId is required when scope is run"
+        return run_dir, ""
+    return project_dir, ""  # type: ignore[return-value]
+
+
+def _bridge_metaprompt_delete_layer_files(
+    target: Path, layer: str, *, node_id: str | None = None
+) -> list[str]:
+    removed: list[str] = []
+    for base in (target / ".researchclaw" / "metaprompts", target / "metaprompts"):
+        if not base.is_dir():
+            continue
+        if layer == "node" and node_id:
+            for ext in (".yaml", ".yml", ".json"):
+                path = base / "nodes" / f"{node_id}{ext}"
+                if path.is_file():
+                    try:
+                        path.unlink()
+                        removed.append(str(path))
+                    except OSError:
+                        pass
+            continue
+        for ext in (".yaml", ".yml", ".json"):
+            path = base / f"{layer}{ext}"
+            if path.is_file():
+                try:
+                    path.unlink()
+                    removed.append(str(path))
+                except OSError:
+                    pass
+    return removed
 
 
 async def broadcast(state: BridgeState, messages: list[dict]):
@@ -4530,34 +5194,13 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
             messages.extend(stop_agent(agent))
 
     elif cmd == "skip_task":
-        task_id = data.get("taskId", "")
-        project_id = data.get("projectId", "")
-        _graph = state.task_graphs.get(project_id) if project_id else None
-        if _graph and task_id in _graph.nodes:
-            _graph.mark_skipped(task_id)
-            _proj_dir = state.projects_dir() / project_id
-            state.task_graphs.save_to_disk(project_id, _proj_dir)
-            messages.append({"type": "task_graph_update", "payload": {"projectId": project_id, **_graph.to_dict()}})
-            _sys_a = LobsterAgent(id="system", name="System", layer="idea", run_id="", run_dir="", config_path="")
-            messages.append(msg_log(_sys_a, f"Task {task_id} skipped", "warning"))
-            messages.extend(schedule_idle_agents(state))
-        else:
-            messages.append({"type": "system", "payload": {"message": f"Task {task_id} not found"}})
+        messages.extend(_handle_skip_task(state, str(data.get("projectId", "") or ""), str(data.get("taskId", "") or "")))
 
     elif cmd == "retry_task":
-        task_id = data.get("taskId", "")
-        project_id = data.get("projectId", "")
-        _graph = state.task_graphs.get(project_id) if project_id else None
-        if _graph and task_id in _graph.nodes:
-            _graph.reset_node(task_id)
-            _proj_dir = state.projects_dir() / project_id
-            state.task_graphs.save_to_disk(project_id, _proj_dir)
-            messages.append({"type": "task_graph_update", "payload": {"projectId": project_id, **_graph.to_dict()}})
-            _sys_a = LobsterAgent(id="system", name="System", layer="idea", run_id="", run_dir="", config_path="")
-            messages.append(msg_log(_sys_a, f"Task {task_id} reset for retry", "info"))
-            messages.extend(schedule_idle_agents(state))
-        else:
-            messages.append({"type": "system", "payload": {"message": f"Task {task_id} not found"}})
+        messages.extend(_handle_retry_task(state, str(data.get("projectId", "") or ""), str(data.get("taskId", "") or "")))
+
+    elif cmd == "node_action":
+        messages.extend(_handle_node_action(state, data))
 
     elif cmd == "approval_response":
         req_id = data.get("requestId", "")
@@ -4776,7 +5419,15 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
             id="system", name="系统", layer=target_layer if target_layer != "all" else "idea",
             run_id="", run_dir="", config_path="",
         )
+        sys_agent.project_id = str(data.get("projectId", "") or "")
         messages.append(msg_log(sys_agent, f"收到人工反馈: {content[:80]}{'...' if len(content) > 80 else ''}", "info"))
+        messages.append(msg_activity(
+            sys_agent,
+            "human_feedback",
+            f"人工反馈 → {target_layer}: {content[:120]}{'...' if len(content) > 120 else ''}",
+            detail=content,
+            stage=None,
+        ))
 
         _save_feedback(state, content, target_layer, message_id)
 
@@ -4801,6 +5452,210 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
                 f"已记录反馈。当前无匹配的运行中项目，反馈将在新任务启动时生效。"
             )
         messages.append(msg_feedback_ack(message_id, plan_hint, target_layer))
+
+    elif cmd in ("get_metaprompt", "get_prompt"):
+        scope = str(data.get("promptScope", "") or "").lower()
+        if cmd == "get_prompt" and scope != "metaprompt":
+            messages.append({
+                "type": "metaprompt_error",
+                "payload": {"error": "get_prompt requires promptScope=metaprompt"},
+            })
+        else:
+            try:
+                from researchclaw.metaprompt import resolve_metaprompt_overlay
+            except ImportError as exc:
+                messages.append({
+                    "type": "metaprompt_error",
+                    "payload": {"error": f"metaprompt unavailable: {exc}"},
+                })
+            else:
+                project_dir, run_dir, err = _bridge_metaprompt_project_run_paths(state, data)
+                if err:
+                    messages.append({"type": "metaprompt_error", "payload": {"error": err}})
+                else:
+                    raw_node_id = str(data.get("nodeId") or "").strip()
+                    node_id = _safe_metaprompt_node_id(raw_node_id) if raw_node_id else None
+                    if raw_node_id and node_id is None:
+                        messages.append({
+                            "type": "metaprompt_error",
+                            "payload": {"error": "invalid nodeId for node metaprompt"},
+                        })
+                        return messages
+                    resolved = resolve_metaprompt_overlay(
+                        project_dir=project_dir,
+                        run_dir=run_dir,
+                        node_id=node_id,
+                    )
+                    messages.append({
+                        "type": "metaprompt_resolved",
+                        "payload": {
+                            "projectId": str(data.get("projectId", "") or "").strip(),
+                            "runId": str(data.get("runId") or "").strip(),
+                            "nodeId": node_id or "",
+                            "versionHash": resolved.version_hash if resolved else "",
+                            "sources": list(resolved.sources) if resolved else [],
+                            "appendSystemPreview": (resolved.append_system[:2000] if resolved else ""),
+                            "appendUserPreview": (resolved.append_user[:2000] if resolved else ""),
+                        },
+                    })
+
+    elif cmd in ("save_metaprompt", "save_prompt"):
+        scope = str(data.get("promptScope", "") or "").lower()
+        if cmd == "save_prompt" and scope != "metaprompt":
+            messages.append({
+                "type": "metaprompt_error",
+                "payload": {"error": "save_prompt requires promptScope=metaprompt"},
+            })
+        else:
+            try:
+                from researchclaw.metaprompt import (
+                    append_metaprompt_version_record,
+                    resolve_metaprompt_overlay,
+                )
+            except ImportError as exc:
+                messages.append({
+                    "type": "metaprompt_error",
+                    "payload": {"error": f"metaprompt unavailable: {exc}"},
+                })
+            else:
+                target, err = _bridge_metaprompt_write_target(state, data)
+                layer = str(data.get("layer", "") or "").strip().lower()
+                if err:
+                    messages.append({"type": "metaprompt_error", "payload": {"error": err}})
+                elif layer not in _METAPROMPT_LAYERS:
+                    messages.append({
+                        "type": "metaprompt_error",
+                        "payload": {"error": f"invalid layer (expected one of {_METAPROMPT_LAYERS})"},
+                    })
+                elif layer == "node" and not _safe_metaprompt_node_id(str(data.get("nodeId") or "")):
+                    messages.append({
+                        "type": "metaprompt_error",
+                        "payload": {"error": "invalid nodeId for node metaprompt"},
+                    })
+                else:
+                    mp_root = target / ".researchclaw" / "metaprompts"
+                    mp_root.mkdir(parents=True, exist_ok=True)
+                    body = {
+                        "system": str(data.get("system", "") or ""),
+                        "user": str(data.get("user", "") or ""),
+                    }
+                    node_id_raw = str(data.get("nodeId") or "").strip()
+                    safe_node_id = _safe_metaprompt_node_id(node_id_raw)
+                    if layer == "node" and not safe_node_id:
+                        messages.append({
+                            "type": "metaprompt_error",
+                            "payload": {"error": "invalid nodeId for node metaprompt"},
+                        })
+                    if layer == "node" and safe_node_id:
+                        node_dir = mp_root / "nodes"
+                        node_dir.mkdir(parents=True, exist_ok=True)
+                        out = node_dir / f"{safe_node_id}.json"
+                    else:
+                        out = mp_root / f"{layer}.json"
+                    out.write_text(json.dumps(body, ensure_ascii=False, indent=2), encoding="utf-8")
+
+                    project_dir, run_dir, err2 = _bridge_metaprompt_project_run_paths(state, data)
+                    version_hash = ""
+                    if not err2:
+                        node_id = safe_node_id if layer == "node" else (node_id_raw or None)
+                        resolved = resolve_metaprompt_overlay(
+                            project_dir=project_dir,
+                            run_dir=run_dir,
+                            node_id=node_id,
+                        )
+                        version_hash = resolved.version_hash if resolved else ""
+                        if resolved and str(data.get("recordVersion", "")).lower() in ("1", "true", "yes"):
+                            append_metaprompt_version_record(
+                                run_dir if run_dir is not None else target,
+                                version_hash=resolved.version_hash,
+                                layers_snapshot=body | {"layer": layer},
+                            )
+                    messages.append({
+                        "type": "metaprompt_saved",
+                        "payload": {
+                            "path": str(out),
+                            "versionHash": version_hash,
+                            "layer": layer,
+                        },
+                    })
+                    _sys = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+                    _sys.project_id = str(data.get("projectId", "") or "")
+                    messages.append(msg_activity(
+                        _sys,
+                        "metaprompt_update",
+                        f"保存 {layer} MetaPrompt",
+                        detail=f"path={out}\nversion={version_hash}",
+                        nodeId=safe_node_id if layer == "node" else "",
+                        promptHash=version_hash,
+                    ))
+
+    elif cmd in ("reset_metaprompt", "reset_prompt"):
+        scope = str(data.get("promptScope", "") or "").lower()
+        if cmd == "reset_prompt" and scope != "metaprompt":
+            messages.append({
+                "type": "metaprompt_error",
+                "payload": {"error": "reset_prompt requires promptScope=metaprompt"},
+            })
+        else:
+            target, err = _bridge_metaprompt_write_target(state, data)
+            layer = str(data.get("layer", "") or "").strip().lower()
+            node_id_raw = str(data.get("nodeId") or "").strip()
+            node_id = _safe_metaprompt_node_id(node_id_raw) if layer == "node" else (node_id_raw or None)
+            if err:
+                messages.append({"type": "metaprompt_error", "payload": {"error": err}})
+            elif layer not in _METAPROMPT_LAYERS:
+                messages.append({
+                    "type": "metaprompt_error",
+                    "payload": {"error": f"invalid layer (expected one of {_METAPROMPT_LAYERS})"},
+                })
+            elif layer == "node" and node_id is None:
+                messages.append({
+                    "type": "metaprompt_error",
+                    "payload": {"error": "invalid nodeId for node metaprompt"},
+                })
+            else:
+                removed = _bridge_metaprompt_delete_layer_files(target, layer, node_id=node_id)
+                messages.append({
+                    "type": "metaprompt_reset",
+                    "payload": {"removed": removed, "layer": layer},
+                })
+                _sys = LobsterAgent(id="system", name="系统", layer="idea", run_id="", run_dir="", config_path="")
+                _sys.project_id = str(data.get("projectId", "") or "")
+                messages.append(msg_activity(
+                    _sys,
+                    "metaprompt_update",
+                    f"重置 {layer} MetaPrompt",
+                    detail="\n".join(removed),
+                    nodeId=node_id or "",
+                ))
+
+    elif cmd in ("get_metaprompt_versions", "get_prompt_versions"):
+        scope = str(data.get("promptScope", "") or "").lower()
+        if cmd == "get_prompt_versions" and scope != "metaprompt":
+            messages.append({
+                "type": "metaprompt_error",
+                "payload": {"error": "get_prompt_versions requires promptScope=metaprompt"},
+            })
+        else:
+            try:
+                from researchclaw.metaprompt import read_metaprompt_versions
+            except ImportError as exc:
+                messages.append({
+                    "type": "metaprompt_error",
+                    "payload": {"error": f"metaprompt unavailable: {exc}"},
+                })
+            else:
+                target, err = _bridge_metaprompt_write_target(state, data)
+                if err:
+                    messages.append({"type": "metaprompt_error", "payload": {"error": err}})
+                else:
+                    messages.append({
+                        "type": "metaprompt_versions",
+                        "payload": {
+                            "entries": read_metaprompt_versions(target),
+                            "runDir": str(target),
+                        },
+                    })
 
     elif cmd == "get_download_url":
         project_id = data.get("projectId", "")
@@ -5314,6 +6169,26 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
                 },
             })
 
+    elif cmd == "get_node_detail":
+        pid = str(data.get("projectId", "") or "").strip()
+        node_id = str(data.get("nodeId", "") or data.get("taskId", "") or "").strip()
+        if not pid or not node_id:
+            messages.append({
+                "type": "node_detail",
+                "payload": {
+                    "ok": False,
+                    "error": "bad_request",
+                    "message": "get_node_detail requires projectId and nodeId",
+                    "projectId": pid,
+                    "nodeId": node_id,
+                },
+            })
+        else:
+            messages.append({
+                "type": "node_detail",
+                "payload": _build_node_detail_payload(state, pid, node_id),
+            })
+
     elif cmd == "get_artifact_preview":
         pid = str(data.get("projectId", "") or "").strip()
         stage = int(data.get("stage", 0))
@@ -5776,6 +6651,8 @@ async def poll_loop(state: BridgeState, interval: float):
                         source_layer=_orig_task.source_layer,
                         target_layer=_orig_task.target_layer,
                         created_at=_now_ms(),
+                        stage_from=_orig_task.stage_from,
+                        stage_to=_orig_task.stage_to,
                     )
                     _q_name = _queue_for_layer(_orig_task.target_layer)
                     if _q_name in state.queues:

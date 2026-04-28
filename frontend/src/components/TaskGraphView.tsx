@@ -1,11 +1,12 @@
 import React, { memo, useState, useCallback, useEffect, useRef } from 'react';
-import type { TaskGraphInfo, TaskNodeInfo } from '../types';
+import type { TaskGraphInfo, TaskNodeInfo, TaskNodeActionKind } from '../types';
 
 interface Props {
   taskGraph: TaskGraphInfo | null;
   t: (key: string) => string;
   ws: WebSocket | null;
   selectedProjectId: string | null;
+  onRequestNodeDetail?: (taskId: string) => void;
 }
 
 const LAYER_ORDER = ['idea', 'experiment', 'coding', 'execution', 'writing'];
@@ -24,7 +25,33 @@ interface ContextMenu {
   status: string;
 }
 
-export default memo(function TaskGraphView({ taskGraph, t, ws, selectedProjectId }: Props) {
+function showRun(status: string): boolean {
+  return status === 'pending' || status === 'ready' || status === 'failed';
+}
+
+function showPause(status: string): boolean {
+  return status === 'running';
+}
+
+function showRetry(status: string): boolean {
+  return status === 'failed' || status === 'skipped';
+}
+
+function showSkip(status: string): boolean {
+  return status === 'pending' || status === 'ready' || status === 'running' || status === 'paused' || status === 'blocked';
+}
+
+function showRollback(status: string): boolean {
+  return status === 'done' || status === 'running' || status === 'failed';
+}
+
+export default memo(function TaskGraphView({
+  taskGraph,
+  t,
+  ws,
+  selectedProjectId,
+  onRequestNodeDetail,
+}: Props) {
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -40,12 +67,28 @@ export default memo(function TaskGraphView({ taskGraph, t, ws, selectedProjectId
     setContextMenu({ x: e.clientX, y: e.clientY, nodeId: node.id, status: node.status });
   }, []);
 
-  const sendCommand = useCallback((command: string, taskId: string) => {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const projectId = selectedProjectId || taskGraph?.projectId || taskGraph?.project_id || '';
-    ws.send(JSON.stringify({ command, taskId, projectId }));
-    setContextMenu(null);
-  }, [ws, selectedProjectId, taskGraph]);
+  const projectId = selectedProjectId || taskGraph?.projectId || taskGraph?.project_id || '';
+
+  const emitNodeAction = useCallback(
+    (action: TaskNodeActionKind, taskId: string) => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ command: 'node_action', action, taskId, projectId }));
+      }
+      setContextMenu(null);
+    },
+    [ws, projectId],
+  );
+
+  const openDetail = useCallback(
+    (taskId: string) => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ command: 'node_action', action: 'detail', taskId, projectId }));
+      }
+      setContextMenu(null);
+      onRequestNodeDetail?.(taskId);
+    },
+    [ws, projectId, onRequestNodeDetail],
+  );
 
   if (!taskGraph || !taskGraph.nodes || Object.keys(taskGraph.nodes).length === 0) {
     return (
@@ -93,8 +136,12 @@ export default memo(function TaskGraphView({ taskGraph, t, ws, selectedProjectId
                 {layerNodes.map(node => (
                   <div
                     key={node.id}
-                    className={`taskgraph-node taskgraph-node--${node.status}`}
+                    className={`taskgraph-node taskgraph-node--${node.status} ${selectedNode === node.id ? 'taskgraph-node--selected' : ''}`}
                     onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+                    onDoubleClick={e => {
+                      e.stopPropagation();
+                      openDetail(node.id);
+                    }}
                     onContextMenu={(e) => handleContextMenu(e, node)}
                   >
                     <div className="taskgraph-node-title">{node.title}</div>
@@ -132,25 +179,55 @@ export default memo(function TaskGraphView({ taskGraph, t, ws, selectedProjectId
           style={{ top: contextMenu.y, left: contextMenu.x }}
           onClick={e => e.stopPropagation()}
         >
-          {(contextMenu.status === 'pending' || contextMenu.status === 'ready' || contextMenu.status === 'running') && (
+          {showRun(contextMenu.status) && (
             <button
-              className="taskgraph-context-item taskgraph-context-item--danger"
-              onClick={() => sendCommand('skip_task', contextMenu.nodeId)}
+              type="button"
+              className="taskgraph-context-item"
+              onClick={() => emitNodeAction('run', contextMenu.nodeId)}
             >
-              ⏭ {t('taskgraph.skip')}
+              ▶ {t('taskgraph.run')}
             </button>
           )}
-          {(contextMenu.status === 'failed' || contextMenu.status === 'skipped') && (
+          {showPause(contextMenu.status) && (
             <button
+              type="button"
               className="taskgraph-context-item"
-              onClick={() => sendCommand('retry_task', contextMenu.nodeId)}
+              onClick={() => emitNodeAction('pause', contextMenu.nodeId)}
+            >
+              ⏸ {t('taskgraph.pause')}
+            </button>
+          )}
+          {showRetry(contextMenu.status) && (
+            <button
+              type="button"
+              className="taskgraph-context-item"
+              onClick={() => emitNodeAction('retry', contextMenu.nodeId)}
             >
               🔄 {t('taskgraph.retry')}
             </button>
           )}
+          {showSkip(contextMenu.status) && (
+            <button
+              type="button"
+              className="taskgraph-context-item taskgraph-context-item--danger"
+              onClick={() => emitNodeAction('skip', contextMenu.nodeId)}
+            >
+              ⏭ {t('taskgraph.skip')}
+            </button>
+          )}
+          {showRollback(contextMenu.status) && (
+            <button
+              type="button"
+              className="taskgraph-context-item"
+              onClick={() => emitNodeAction('rollback', contextMenu.nodeId)}
+            >
+              ↩ {t('taskgraph.rollback')}
+            </button>
+          )}
           <button
+            type="button"
             className="taskgraph-context-item"
-            onClick={() => { setSelectedNode(contextMenu.nodeId); setContextMenu(null); }}
+            onClick={() => openDetail(contextMenu.nodeId)}
           >
             🔍 {t('taskgraph.detail')}
           </button>

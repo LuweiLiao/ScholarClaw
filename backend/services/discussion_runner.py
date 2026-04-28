@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -28,6 +29,25 @@ if AGENT_PACKAGE_DIR not in sys.path:
 
 from researchclaw.config import RCConfig
 from researchclaw.llm import create_llm_client
+
+try:
+    from researchclaw.pipeline.activity_writer import write_event as _aw_write_event
+except Exception:  # noqa: BLE001
+    _aw_write_event = None
+
+
+_MIRROR_DIRS: list[Path] = []
+
+
+def _mirror_event(event_type: str, summary: str, detail: str = "", **extra) -> None:
+    """Write an activity event to every mirrored run dir + the discussion output."""
+    if _aw_write_event is None:
+        return
+    for d in _MIRROR_DIRS:
+        try:
+            _aw_write_event(d, event_type, summary, detail=detail, **extra)
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def _read_synthesis(stage_dir: Path) -> str | None:
@@ -180,7 +200,43 @@ def main():
     parser.add_argument("--output", required=True, help="Output directory")
     parser.add_argument("--rounds", type=int, default=3, help="Number of discussion rounds")
     parser.add_argument("--topic", default="", help="Research topic override")
+    parser.add_argument(
+        "--mirror-run-dirs", nargs="*", default=[],
+        help="Additional run dirs to mirror activity events into (so each agent's "
+             "supervisor timeline sees the discussion).",
+    )
     args = parser.parse_args()
+
+    # Build the mirror set: the discussion output + all participant run_dirs.
+    output_dir_path = Path(args.output)
+    mirror_targets: list[Path] = [output_dir_path]
+    for d in args.mirror_run_dirs:
+        if d:
+            mirror_targets.append(Path(d))
+    # Stage-07 dirs are typically <agent_run_dir>/stage-07; the parent is the run dir.
+    for sd in args.synthesis_dirs:
+        try:
+            mirror_targets.append(Path(sd).parent)
+        except Exception:  # noqa: BLE001
+            pass
+    env_run_dir = os.environ.get("SCHOLARCLAW_RUN_DIR", "")
+    if env_run_dir:
+        mirror_targets.append(Path(env_run_dir))
+    seen: set[str] = set()
+    deduped: list[Path] = []
+    for d in mirror_targets:
+        try:
+            key = str(d.resolve())
+        except Exception:  # noqa: BLE001
+            key = str(d)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(d)
+    _MIRROR_DIRS.extend(deduped)
+    # Make LLMClient stream its own llm_request/llm_response into the discussion
+    # output dir so the supervisor sees full prompt + response of each round.
+    os.environ["SCHOLARCLAW_RUN_DIR"] = str(output_dir_path)
 
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -233,9 +289,20 @@ def main():
         json.dumps(heartbeat, ensure_ascii=False), encoding="utf-8",
     )
 
+    _mirror_event(
+        "stage_transition",
+        f"🗣️ 跨 agent 讨论开始 ({len(syntheses)} 个视角, {args.rounds} 轮)",
+        detail=f"Topic: {topic}\nParticipants: {', '.join(syntheses.keys())}",
+    )
+
     # Run discussion
     print(f"\n🗣️  Starting {args.rounds}-round discussion with {len(syntheses)} perspectives...\n")
     transcript, consensus = run_discussion(llm, topic, syntheses, args.rounds, output_dir)
+    _mirror_event(
+        "stage_transition",
+        f"✅ 讨论完成 ({len(consensus)} chars consensus)",
+        detail=consensus[:8 * 1024],
+    )
 
     # Write outputs
     (output_dir / "discussion_transcript.md").write_text(transcript, encoding="utf-8")

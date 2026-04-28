@@ -11,6 +11,8 @@ Features:
 
 from __future__ import annotations
 
+import hashlib
+import itertools
 import json
 import logging
 import os
@@ -21,6 +23,71 @@ from dataclasses import dataclass, field
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+_PROMPT_PREVIEW_BYTES = 8 * 1024
+_RESP_PREVIEW_BYTES = 8 * 1024
+_MAX_TURN_NUMBER_RESET = 10_000
+
+_turn_counter = itertools.count(1)
+
+
+def _next_turn_number() -> int:
+    n = next(_turn_counter)
+    if n > _MAX_TURN_NUMBER_RESET:
+        # reset so the counter doesn't grow unbounded across long-lived processes
+        globals()["_turn_counter"] = itertools.count(1)
+        n = 1
+    return n
+
+
+def _truncate_text(text: str, limit: int) -> str:
+    if not text:
+        return ""
+    encoded = text.encode("utf-8", errors="ignore")
+    if len(encoded) <= limit:
+        return text
+    head = encoded[:limit].decode("utf-8", errors="ignore")
+    return f"{head}\n[truncated {len(encoded) - limit} bytes]"
+
+
+def _format_messages_preview(messages: list[dict[str, str]]) -> str:
+    """Render a chat-style preview of messages for the activity timeline."""
+    parts: list[str] = []
+    for msg in messages:
+        role = str(msg.get("role", "")).strip() or "user"
+        content = msg.get("content", "")
+        if isinstance(content, list):
+            content = "\n".join(str(p) for p in content)
+        parts.append(f"### {role}\n{content}")
+    joined = "\n\n".join(parts)
+    return _truncate_text(joined, _PROMPT_PREVIEW_BYTES)
+
+
+def _hash_messages(messages: list[dict[str, str]]) -> str:
+    canon = json.dumps(messages, ensure_ascii=False, sort_keys=False)
+    return hashlib.sha1(canon.encode("utf-8", errors="ignore")).hexdigest()[:12]
+
+
+def _resolve_activity_run_dir(client: "LLMClient") -> str:
+    explicit = getattr(client, "_activity_run_dir", "")
+    if explicit:
+        return str(explicit)
+    env_dir = os.environ.get("SCHOLARCLAW_RUN_DIR", "")
+    if env_dir:
+        try:
+            client._activity_run_dir = env_dir  # type: ignore[attr-defined]
+        except Exception:
+            pass
+        return env_dir
+    return ""
+
+
+def _safe_write_event(*args, **kwargs) -> None:
+    try:
+        from researchclaw.pipeline.activity_writer import write_event
+        write_event(*args, **kwargs)
+    except Exception:
+        pass
 
 # Models that require max_completion_tokens instead of max_tokens
 _NEW_PARAM_MODELS = frozenset(
@@ -94,6 +161,11 @@ class LLMClient:
         self.config = config
         self._model_chain = [config.primary_model] + list(config.fallback_models)
         self._anthropic = None  # Will be set by from_rc_config if needed
+        # Auto-bind activity run_dir so subprocess-spawned LLM clients still
+        # stream their request/response events to the supervisor timeline.
+        env_run_dir = os.environ.get("SCHOLARCLAW_RUN_DIR", "")
+        if env_run_dir:
+            self._activity_run_dir = env_run_dir  # type: ignore[attr-defined]
 
     @classmethod
     def from_rc_config(cls, rc_config: Any) -> LLMClient:
@@ -190,24 +262,52 @@ class LLMClient:
         last_error: Exception | None = None
         _t0 = time.monotonic()
 
+        # Pre-compute the prompt preview & hash once per chat() invocation so we
+        # can stream a "user" bubble to the supervisor before the model replies.
+        _act_dir = _resolve_activity_run_dir(self)
+        _turn_no = _next_turn_number() if _act_dir else 0
+        _prompt_hash = _hash_messages(messages) if _act_dir else ""
+        if _act_dir:
+            _prompt_preview = _format_messages_preview(messages)
+            _prompt_chars = sum(len(str(m.get("content", ""))) for m in messages)
+            _safe_write_event(
+                _act_dir,
+                "llm_request",
+                f"🧑 Turn {_turn_no} · {self.config.primary_model} · {_prompt_chars} chars",
+                detail=_prompt_preview,
+                tokens=0,
+                elapsed_ms=0,
+                stage=None,
+                tool_name="",
+            )
+
         for idx, m in enumerate(models):
             try:
                 resp = self._call_with_retry(m, messages, max_tok, temp, json_mode)
                 _elapsed_ms = int((time.monotonic() - _t0) * 1000)
-                # Activity logging for timeline
-                _act_dir = getattr(self, '_activity_run_dir', None)
                 if _act_dir:
-                    try:
-                        from researchclaw.pipeline.activity_writer import write_event
-                        write_event(
-                            _act_dir, "llm_call",
-                            f"🤖 {resp.model or m}: {resp.total_tokens} tokens ({_elapsed_ms}ms)",
-                            detail=f"prompt={resp.prompt_tokens}, completion={resp.completion_tokens}, "
-                                   f"content_len={len(resp.content)}",
-                            tokens=resp.total_tokens, elapsed_ms=_elapsed_ms,
-                        )
-                    except Exception:
-                        pass
+                    response_preview = _truncate_text(resp.content or "", _RESP_PREVIEW_BYTES)
+                    _safe_write_event(
+                        _act_dir,
+                        "llm_response",
+                        f"🤖 Turn {_turn_no} · {resp.model or m} · {resp.total_tokens} tokens ({_elapsed_ms}ms)",
+                        detail=response_preview,
+                        tokens=resp.total_tokens,
+                        elapsed_ms=_elapsed_ms,
+                    )
+                    # Backward-compatible legacy event so older UI clients still
+                    # see a single "llm_call" line with the stats summary.
+                    _safe_write_event(
+                        _act_dir,
+                        "llm_call",
+                        f"🤖 {resp.model or m}: {resp.total_tokens} tokens ({_elapsed_ms}ms)",
+                        detail=(
+                            f"prompt={resp.prompt_tokens}, completion={resp.completion_tokens}, "
+                            f"content_len={len(resp.content)}, hash={_prompt_hash}"
+                        ),
+                        tokens=resp.total_tokens,
+                        elapsed_ms=_elapsed_ms,
+                    )
                 if strip_thinking:
                     from researchclaw.utils.thinking_tags import strip_thinking_tags
                     resp = LLMResponse(
@@ -236,6 +336,13 @@ class LLMClient:
                     )
                     time.sleep(_backoff)
 
+        if _act_dir:
+            _safe_write_event(
+                _act_dir,
+                "error",
+                f"❌ Turn {_turn_no} · all models failed",
+                detail=str(last_error)[:_RESP_PREVIEW_BYTES],
+            )
         raise RuntimeError(
             f"All models failed. Last error: {last_error}"
         ) from last_error

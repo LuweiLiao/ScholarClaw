@@ -19,6 +19,7 @@ from researchclaw.config import RCConfig
 from researchclaw.hardware import HardwareProfile, detect_hardware, ensure_torch_available, is_metric_name
 from researchclaw.llm import create_llm_client
 from researchclaw.llm.client import LLMClient
+from researchclaw.metaprompt import resolve_metaprompt_overlay
 from researchclaw.prompts import PromptManager
 from researchclaw.pipeline.stages import (
     NEXT_STAGE,
@@ -9674,7 +9675,20 @@ def execute_stage(
     try:
         _ = advance(stage, StageStatus.PENDING, TransitionEvent.START)
         executor = _STAGE_EXECUTORS[stage]
-        prompts = PromptManager(config.prompts.custom_file or None)  # type: ignore[attr-defined]
+        _meta_project_dir = Path(
+            os.environ.get("SCHOLARCLAW_METAPROMPT_PROJECT_DIR", "") or run_dir.parent
+        )
+        if not _meta_project_dir.exists():
+            _meta_project_dir = Path(config.knowledge_base.root)
+        _meta = resolve_metaprompt_overlay(
+            project_dir=_meta_project_dir,
+            run_dir=run_dir,
+            node_id=os.environ.get("SCHOLARCLAW_NODE_ID") or None,
+        )
+        prompts = PromptManager(  # type: ignore[attr-defined]
+            config.prompts.custom_file or None,
+            metaprompt=_meta,
+        )
 
         human_fb = _load_human_feedback(run_dir, stage)
         if human_fb:

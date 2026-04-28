@@ -305,6 +305,7 @@ class TestRenderedPrompt:
         rp = RenderedPrompt(system="sys", user="usr")
         assert rp.json_mode is False
         assert rp.max_tokens is None
+        assert rp.metaprompt_version_hash is None
 
     def test_with_options(self) -> None:
         rp = RenderedPrompt(system="s", user="u", json_mode=True, max_tokens=4096)

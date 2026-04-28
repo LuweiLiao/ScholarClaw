@@ -24,6 +24,7 @@ interface ConversationTurn {
   layer: string;
   startTime: number;
   endTime: number;
+  llmRequest?: ActivityEvent;
   llmCall?: ActivityEvent;
   llmResponse?: ActivityEvent;
   thinking: ActivityEvent[];
@@ -56,8 +57,31 @@ function groupIntoTurns(events: ActivityEvent[]): ConversationTurn[] {
   let turnNum = 0;
 
   for (const evt of events) {
-    if (evt.activityType === 'llm_call' || evt.activityType === 'stage_transition') {
-      if (current && (current.llmCall || current.toolCalls.length > 0 || current.thinking.length > 0)) {
+    // llm_call after llm_request belongs to the same turn (legacy stats event).
+    if (
+      evt.activityType === 'llm_call' &&
+      current &&
+      current.llmRequest &&
+      !current.llmCall &&
+      current.agentId === evt.agentId
+    ) {
+      current.llmCall = evt;
+      current.endTime = evt.timestamp;
+      continue;
+    }
+
+    if (
+      evt.activityType === 'llm_request' ||
+      evt.activityType === 'llm_call' ||
+      evt.activityType === 'stage_transition'
+    ) {
+      if (
+        current &&
+        (current.llmRequest ||
+          current.llmCall ||
+          current.toolCalls.length > 0 ||
+          current.thinking.length > 0)
+      ) {
         current.endTime = evt.timestamp;
         turns.push(current);
       }
@@ -77,7 +101,9 @@ function groupIntoTurns(events: ActivityEvent[]): ConversationTurn[] {
         fileOps: [],
         userMessages: [],
       };
-      if (evt.activityType === 'llm_call') {
+      if (evt.activityType === 'llm_request') {
+        current.llmRequest = evt;
+      } else if (evt.activityType === 'llm_call') {
         current.llmCall = evt;
       } else {
         current.stageTransitions.push(evt);
@@ -131,6 +157,8 @@ function groupIntoTurns(events: ActivityEvent[]): ConversationTurn[] {
         current.fileOps.push(evt);
         break;
       case 'user_message':
+      case 'human_feedback':
+      case 'metaprompt_update':
         current.userMessages.push(evt);
         break;
       default:
@@ -138,12 +166,84 @@ function groupIntoTurns(events: ActivityEvent[]): ConversationTurn[] {
     }
   }
 
-  if (current && (current.llmCall || current.toolCalls.length > 0 || current.thinking.length > 0 || current.stageTransitions.length > 0 || current.userMessages.length > 0)) {
+  if (
+    current &&
+    (current.llmRequest ||
+      current.llmCall ||
+      current.llmResponse ||
+      current.toolCalls.length > 0 ||
+      current.thinking.length > 0 ||
+      current.stageTransitions.length > 0 ||
+      current.userMessages.length > 0)
+  ) {
     turns.push(current);
   }
 
   return turns;
 }
+
+/** Render a chat-style message bubble with collapsible long content + copy. */
+const ChatBubble: React.FC<{
+  role: 'user' | 'assistant' | 'system' | 'tool';
+  agentName: string;
+  meta?: string;
+  body: string;
+  expanded: boolean;
+  onToggle: () => void;
+  layerColor?: string;
+  pending?: boolean;
+  t: (key: string) => string;
+}> = ({ role, agentName, meta, body, expanded, onToggle, layerColor, pending, t }) => {
+  const trimmed = body || '';
+  const PREVIEW_CHARS = 1200;
+  const isLong = trimmed.length > PREVIEW_CHARS;
+  const preview = isLong && !expanded ? `${trimmed.slice(0, PREVIEW_CHARS)}…` : trimmed;
+  const icons: Record<string, string> = { user: '🧑', assistant: '🤖', system: '⚙️', tool: '🛠' };
+  const labels: Record<string, string> = {
+    user: t('conversation.role_user'),
+    assistant: t('conversation.role_assistant'),
+    system: t('conversation.role_system'),
+    tool: t('conversation.role_tool'),
+  };
+
+  const onCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(trimmed).catch(() => undefined);
+    }
+  };
+
+  return (
+    <div className={`cv-bubble cv-bubble--${role}`} style={layerColor ? { borderLeftColor: layerColor } : undefined}>
+      <div className="cv-bubble-header">
+        <span className="cv-bubble-icon">{icons[role] || '•'}</span>
+        <span className="cv-bubble-role">{labels[role] || role}</span>
+        <span className="cv-bubble-agent" style={{ color: layerColor }}>{agentName}</span>
+        {meta && <span className="cv-bubble-meta">{meta}</span>}
+        <div className="cv-bubble-actions">
+          {pending && <span className="cv-bubble-pending">{t('conversation.waiting_response')}</span>}
+          {trimmed && (
+            <button type="button" className="cv-bubble-btn" onClick={onCopy}>
+              {t('conversation.copy')}
+            </button>
+          )}
+          {isLong && (
+            <button type="button" className="cv-bubble-btn" onClick={(e) => { e.stopPropagation(); onToggle(); }}>
+              {expanded ? t('conversation.collapse') : t('conversation.expand')}
+            </button>
+          )}
+        </div>
+      </div>
+      {trimmed ? (
+        <pre className="cv-bubble-body">{preview}</pre>
+      ) : pending ? (
+        <div className="cv-bubble-pending-body">…</div>
+      ) : (
+        <div className="cv-bubble-empty">{t('conversation.no_content')}</div>
+      )}
+    </div>
+  );
+};
 
 const ThinkingBlock = memo<{ events: ActivityEvent[]; expanded: boolean; onToggle: () => void }>(
   ({ events, expanded, onToggle }) => {
@@ -242,12 +342,30 @@ const TurnCard = memo<{
   turn: ConversationTurn;
   expandedIds: Set<string>;
   onToggle: (id: string) => void;
+  t: (key: string) => string;
 }>(
-  ({ turn, expandedIds, onToggle }) => {
+  ({ turn, expandedIds, onToggle, t }) => {
     const layerColor = LAYER_COLORS[turn.layer] || '#555';
     const duration = turn.endTime - turn.startTime;
     const hasToolCalls = turn.toolCalls.length > 0;
     const isCollapsed = !expandedIds.has(turn.id);
+
+    const tokens = turn.llmResponse?.tokens
+      || turn.llmCall?.tokens
+      || (turn.llmResponse?.summary.match(/(\d+)\s*tokens/i)?.[1] ? Number(turn.llmResponse?.summary.match(/(\d+)\s*tokens/i)?.[1]) : 0);
+    const elapsed = turn.llmResponse?.elapsedMs || turn.llmCall?.elapsedMs || 0;
+    const requestBody = turn.llmRequest?.detail || turn.llmRequest?.summary || '';
+    const responseBody = turn.llmResponse?.detail || '';
+    const requestMeta = [
+      turn.stageTransitions[0]?.stage ? `S${turn.stageTransitions[0].stage}` : turn.llmRequest?.stage ? `S${turn.llmRequest.stage}` : '',
+      formatTime(turn.startTime),
+      duration > 0 ? formatDuration(duration) : '',
+    ].filter(Boolean).join(' · ');
+    const responseMeta = [
+      turn.llmResponse?.model || turn.llmCall?.model || '',
+      tokens ? `${tokens} tokens` : '',
+      elapsed ? formatDuration(elapsed) : '',
+    ].filter(Boolean).join(' · ');
 
     return (
       <div className="cv-turn" style={{ borderLeftColor: layerColor }}>
@@ -259,11 +377,7 @@ const TurnCard = memo<{
             {duration > 0 && <span className="cv-turn-duration">{formatDuration(duration)}</span>}
           </div>
           <div className="cv-turn-summary">
-            {turn.llmResponse && (
-              <span className="cv-turn-tokens">
-                {turn.llmResponse.summary.match(/\d+ tokens/)?.[0] || ''}
-              </span>
-            )}
+            {tokens > 0 && <span className="cv-turn-tokens">{tokens} tokens</span>}
             {hasToolCalls && (
               <span className="cv-turn-tools">
                 {turn.toolCalls.length} tool{turn.toolCalls.length > 1 ? 's' : ''}
@@ -288,10 +402,65 @@ const TurnCard = memo<{
 
         {!isCollapsed && (
           <div className="cv-turn-body">
-            {turn.llmCall && (
-              <div className="cv-llm-badge">
-                🤖 {turn.llmCall.summary}
-              </div>
+            {turn.userMessages
+              .filter(msg => msg.activityType === 'user_message' || msg.activityType === 'agent_chat')
+              .map(msg => (
+                <ChatBubble
+                  key={msg.id}
+                  role="user"
+                  agentName={msg.agentName || 'You'}
+                  meta={formatTime(msg.timestamp)}
+                  body={msg.detail || msg.summary}
+                  expanded={expandedIds.has(`${msg.id}-chat`)}
+                  onToggle={() => onToggle(`${msg.id}-chat`)}
+                  layerColor={layerColor}
+                  t={t}
+                />
+              ))}
+
+            {turn.userMessages
+              .filter(msg => msg.activityType === 'human_feedback')
+              .map(msg => (
+                <ChatBubble
+                  key={msg.id}
+                  role="system"
+                  agentName={t('conversation.human_feedback')}
+                  meta={formatTime(msg.timestamp)}
+                  body={msg.detail || msg.summary}
+                  expanded={expandedIds.has(`${msg.id}-fb`)}
+                  onToggle={() => onToggle(`${msg.id}-fb`)}
+                  layerColor={layerColor}
+                  t={t}
+                />
+              ))}
+
+            {turn.userMessages
+              .filter(msg => msg.activityType === 'metaprompt_update')
+              .map(msg => (
+                <ChatBubble
+                  key={msg.id}
+                  role="system"
+                  agentName={t('conversation.metaprompt_update')}
+                  meta={formatTime(msg.timestamp)}
+                  body={msg.detail || msg.summary}
+                  expanded={expandedIds.has(`${msg.id}-mp`)}
+                  onToggle={() => onToggle(`${msg.id}-mp`)}
+                  layerColor={layerColor}
+                  t={t}
+                />
+              ))}
+
+            {(turn.llmRequest || turn.llmCall) && (
+              <ChatBubble
+                role="user"
+                agentName={turn.agentName}
+                meta={requestMeta}
+                body={requestBody}
+                expanded={expandedIds.has(`${turn.id}-req`)}
+                onToggle={() => onToggle(`${turn.id}-req`)}
+                layerColor={layerColor}
+                t={t}
+              />
             )}
 
             <ThinkingBlock
@@ -311,16 +480,6 @@ const TurnCard = memo<{
 
             <CollapsedFileOps events={turn.fileOps} />
 
-            {turn.userMessages.map(msg => (
-              <div key={msg.id} className="cv-user-message">
-                <span className="cv-user-icon">👤</span>
-                <div className="cv-user-bubble">
-                  <span className="cv-user-label">You</span>
-                  <span className="cv-user-text">{msg.summary}</span>
-                </div>
-              </div>
-            ))}
-
             {turn.errors.map(err => (
               <div key={err.id} className="cv-error-block">
                 <span className="cv-error-icon">❌</span>
@@ -329,10 +488,18 @@ const TurnCard = memo<{
               </div>
             ))}
 
-            {turn.llmResponse && (
-              <div className="cv-llm-response">
-                {turn.llmResponse.summary}
-              </div>
+            {(turn.llmResponse || turn.llmRequest) && (
+              <ChatBubble
+                role="assistant"
+                agentName={turn.agentName}
+                meta={responseMeta || (turn.llmResponse ? formatTime(turn.llmResponse.timestamp) : '')}
+                body={responseBody}
+                expanded={expandedIds.has(`${turn.id}-resp`)}
+                onToggle={() => onToggle(`${turn.id}-resp`)}
+                layerColor={layerColor}
+                pending={!turn.llmResponse && !!turn.llmRequest}
+                t={t}
+              />
             )}
           </div>
         )}
@@ -446,14 +613,20 @@ const ConversationView: React.FC<Props> = ({ activities, t, filterAgentId }) => 
 
       <div className="cv-body" ref={containerRef} onScroll={handleScroll}>
         {viewMode === 'conversation' ? (
-          turns.map(turn => (
-            <TurnCard
-              key={turn.id}
-              turn={turn}
-              expandedIds={expandedIds}
-              onToggle={toggleExpand}
-            />
-          ))
+          turns.map((turn, idx) => {
+            const isDefaultOpen = idx >= turns.length - 3;
+            const turnExpanded = new Set(expandedIds);
+            if (isDefaultOpen) turnExpanded.add(turn.id);
+            return (
+              <TurnCard
+                key={turn.id}
+                turn={turn}
+                expandedIds={turnExpanded}
+                onToggle={toggleExpand}
+                t={t}
+              />
+            );
+          })
         ) : (
           filtered.map(event => (
             <FlatEvent

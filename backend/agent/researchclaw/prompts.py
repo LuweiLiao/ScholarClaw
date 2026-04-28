@@ -37,7 +37,10 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from researchclaw.metaprompt import ResolvedMetaPrompt
 
 import yaml
 
@@ -77,6 +80,8 @@ class RenderedPrompt:
     user: str
     json_mode: bool = False
     max_tokens: int | None = None
+    metaprompt_version_hash: str | None = None
+    """SHA-256 hex of composed MetaPrompt layers when overlay applied; else ``None``."""
 
 
 # ---------------------------------------------------------------------------
@@ -87,7 +92,12 @@ class RenderedPrompt:
 class PromptManager:
     """Central registry for pipeline prompts with optional YAML overrides."""
 
-    def __init__(self, overrides_path: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        overrides_path: str | Path | None = None,
+        *,
+        metaprompt: "ResolvedMetaPrompt | None" = None,
+    ) -> None:
         # Deep-copy defaults so mutations don't leak across instances
         self._stages: dict[str, dict[str, Any]] = {
             k: dict(v) for k, v in _DEFAULT_STAGES.items()
@@ -97,8 +107,13 @@ class PromptManager:
             k: dict(v) for k, v in _DEFAULT_SUB_PROMPTS.items()
         }
         self._human_feedback: str = ""
+        self._metaprompt = metaprompt
         if overrides_path:
             self._load_overrides(Path(overrides_path))
+
+    def set_metaprompt(self, meta: "ResolvedMetaPrompt | None") -> None:
+        """Attach optional Kimi-style MetaPrompt overlay for subsequent renders."""
+        self._metaprompt = meta  # type: ignore[assignment]
 
     def set_human_feedback(self, feedback: str) -> None:
         """Set accumulated human feedback to inject into all subsequent prompts."""
@@ -139,6 +154,7 @@ class PromptManager:
         stage: str,
         *,
         evolution_overlay: str = "",
+        meta_prompt_overlay: str = "",
         **kwargs: Any,
     ) -> RenderedPrompt:
         """Return a fully rendered prompt for *stage* with variables filled.
@@ -148,9 +164,28 @@ class PromptManager:
         """
         entry = self._stages[stage]
         kw = {k: str(v) for k, v in kwargs.items()}
+        system_text = _render(entry["system"], kw)
         user_text = _render(entry["user"], kw)
         if evolution_overlay:
             user_text = f"{user_text}\n\n{evolution_overlay}"
+        if meta_prompt_overlay:
+            user_text = f"{user_text}\n\n{meta_prompt_overlay}"
+        metaprompt_version_hash = None
+        if self._metaprompt is not None:
+            from researchclaw.metaprompt import apply_metaprompt_to_rendered
+
+            rp = apply_metaprompt_to_rendered(
+                RenderedPrompt(
+                    system=system_text,
+                    user=user_text,
+                    json_mode=entry.get("json_mode", False),
+                    max_tokens=entry.get("max_tokens"),
+                ),
+                self._metaprompt,
+            )
+            system_text = rp.system
+            user_text = rp.user
+            metaprompt_version_hash = rp.metaprompt_version_hash
         if self._human_feedback:
             user_text = (
                 f"{user_text}\n\n"
@@ -160,12 +195,14 @@ class PromptManager:
                 "priorities, and output accordingly:\n\n"
                 f"{self._human_feedback}"
             )
-        return RenderedPrompt(
-            system=_render(entry["system"], kw),
+        rp = RenderedPrompt(
+            system=system_text,
             user=user_text,
             json_mode=entry.get("json_mode", False),
             max_tokens=entry.get("max_tokens"),
+            metaprompt_version_hash=metaprompt_version_hash,
         )
+        return rp
 
     def system(self, stage: str) -> str:
         """Return the raw system prompt template for *stage*."""
@@ -199,10 +236,15 @@ class PromptManager:
         """Return a rendered sub-prompt (e.g. code_repair)."""
         entry = self._sub_prompts[name]
         kw = {k: str(v) for k, v in kwargs.items()}
-        return RenderedPrompt(
+        rp = RenderedPrompt(
             system=_render(entry["system"], kw),
             user=_render(entry["user"], kw),
         )
+        if self._metaprompt is not None:
+            from researchclaw.metaprompt import apply_metaprompt_to_rendered
+
+            return apply_metaprompt_to_rendered(rp, self._metaprompt)
+        return rp
 
     # -- introspection ----------------------------------------------------
 

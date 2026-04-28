@@ -3,6 +3,9 @@ TaskGraph — DAG-based task scheduling for ScholarLab v2.0.
 
 Replaces the fixed 22-stage linear pipeline with a dynamic dependency graph.
 Each TaskNode maps to a researchclaw stage range via --from-stage/--to-stage.
+
+Node status (compatible with legacy task_graph.json; `done` kept for frontend):
+pending | ready | running | paused | done | failed | skipped | rolled_back | blocked
 """
 
 from __future__ import annotations
@@ -13,6 +16,36 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 LAYERS = ["idea", "experiment", "coding", "execution", "writing"]
+
+ALLOWED_NODE_STATUSES: frozenset[str] = frozenset(
+    {
+        "pending",
+        "ready",
+        "running",
+        "paused",
+        "done",
+        "failed",
+        "skipped",
+        "rolled_back",
+        "blocked",
+    }
+)
+
+# Load-time only: external / legacy labels ??canonical
+_STATUS_ALIASES: dict[str, str] = {
+    "completed": "done",
+}
+
+
+def _normalize_status(raw: str | None) -> str:
+    if not raw:
+        return "pending"
+    s = str(raw).strip().lower()
+    if s in _STATUS_ALIASES:
+        return _STATUS_ALIASES[s]
+    if s in ALLOWED_NODE_STATUSES:
+        return s
+    return "pending"
 
 
 @dataclass
@@ -25,10 +58,45 @@ class TaskNode:
     stage_to: int
     dependencies: list[str] = field(default_factory=list)
     assigned_agent: str | None = None
-    status: str = "pending"  # pending | ready | running | done | failed
+    status: str = "pending"
     config_overrides: dict = field(default_factory=dict)
     run_dir: str = ""
     config_path: str = ""
+
+    def can_run(self) -> bool:
+        return self.status in ("ready", "paused")
+
+    def can_pause(self) -> bool:
+        return self.status in ("pending", "ready", "running")
+
+    def can_retry(self) -> bool:
+        return self.status in ("failed", "rolled_back")
+
+    def can_skip(self) -> bool:
+        return self.status in ("pending", "ready", "blocked", "paused")
+
+    def can_rollback(self) -> bool:
+        return self.status in ("done", "running")
+
+    def mark_paused(self) -> bool:
+        if not self.can_pause():
+            return False
+        self.status = "paused"
+        return True
+
+    def mark_blocked(self) -> bool:
+        if self.status not in ("pending", "ready"):
+            return False
+        self.status = "blocked"
+        return True
+
+    def mark_rolled_back(self) -> bool:
+        if not self.can_rollback():
+            return False
+        self.status = "rolled_back"
+        self.assigned_agent = None
+        self.run_dir = ""
+        return True
 
     def to_dict(self) -> dict:
         return {
@@ -97,6 +165,7 @@ class TaskGraph:
         if node:
             node.status = "failed"
             node.assigned_agent = None
+            self._invalidate_dependents(node_id)
 
     def mark_skipped(self, node_id: str) -> None:
         node = self.nodes.get(node_id)
@@ -105,6 +174,48 @@ class TaskGraph:
             node.assigned_agent = None
             self._update_readiness()
 
+    def mark_paused(self, node_id: str) -> bool:
+        node = self.nodes.get(node_id)
+        if not node or not node.mark_paused():
+            return False
+        self._update_readiness()
+        return True
+
+    def mark_blocked(self, node_id: str) -> bool:
+        node = self.nodes.get(node_id)
+        if not node or not node.mark_blocked():
+            return False
+        self._update_readiness()
+        return True
+
+    def mark_rolled_back(self, node_id: str) -> bool:
+        node = self.nodes.get(node_id)
+        if not node or not node.mark_rolled_back():
+            return False
+        self._invalidate_dependents(node_id)
+        self._update_readiness()
+        return True
+
+    def resume_node(self, node_id: str) -> bool:
+        node = self.nodes.get(node_id)
+        if not node or node.status != "paused":
+            return False
+        node.status = "pending"
+        node.assigned_agent = None
+        self._update_readiness()
+        return True
+
+    def rollback_node(self, node_id: str) -> TaskNode | None:
+        """Set node back to pending without deleting research artifacts."""
+        node = self.nodes.get(node_id)
+        if not node:
+            return None
+        node.status = "pending"
+        node.assigned_agent = None
+        self._invalidate_dependents(node_id)
+        self._update_readiness()
+        return node
+
     def reset_node(self, node_id: str) -> None:
         """Reset a node to pending for retry. Re-evaluates readiness."""
         node = self.nodes.get(node_id)
@@ -112,6 +223,7 @@ class TaskGraph:
             node.status = "pending"
             node.assigned_agent = None
             node.run_dir = ""
+            self._invalidate_dependents(node_id)
             self._update_readiness()
 
     def is_complete(self) -> bool:
@@ -119,6 +231,19 @@ class TaskGraph:
 
     def get_layer_tasks(self, layer: str) -> list[TaskNode]:
         return [n for n in self.nodes.values() if n.layer == layer]
+
+    def dependent_ids(self, node_id: str) -> set[str]:
+        """Return all transitive dependents of a node."""
+        result: set[str] = set()
+        stack = [node_id]
+        while stack:
+            current = stack.pop()
+            for child in self.nodes.values():
+                if child.id in result or current not in child.dependencies:
+                    continue
+                result.add(child.id)
+                stack.append(child.id)
+        return result
 
     def _update_readiness(self) -> None:
         """Promote 'pending' tasks to 'ready' if all dependencies are done or skipped."""
@@ -134,6 +259,13 @@ class TaskGraph:
             )
             if all_resolved:
                 node.status = "ready"
+
+    def _invalidate_dependents(self, node_id: str) -> None:
+        """Mark descendants pending when an upstream node is no longer resolved."""
+        for child_id in self.dependent_ids(node_id):
+            child = self.nodes[child_id]
+            child.status = "pending"
+            child.assigned_agent = None
 
     def to_dict(self) -> dict:
         return {
@@ -158,6 +290,7 @@ class TaskGraph:
 
         graph = cls(data.get("project_id", ""))
         for nid, nd in data.get("nodes", {}).items():
+            raw_status = nd.get("status", "pending")
             graph.nodes[nid] = TaskNode(
                 id=nd["id"],
                 layer=nd.get("layer", "idea"),
@@ -167,7 +300,7 @@ class TaskGraph:
                 stage_to=nd.get("stage_to", 22),
                 dependencies=nd.get("dependencies", []),
                 assigned_agent=nd.get("assigned_agent"),
-                status=nd.get("status", "pending"),
+                status=_normalize_status(raw_status),
                 run_dir=str(Path(nd["run_dir"])) if nd.get("run_dir") else "",
                 config_path=str(Path(nd["config_path"])) if nd.get("config_path") else "",
             )

@@ -229,6 +229,9 @@ export type ActivityType =
   | 'conversation_turn'
   | 'permission_request'
   | 'user_message'
+  | 'human_feedback'
+  | 'metaprompt_update'
+  | 'agent_chat'
   | 'error';
 
 export interface ActivityEvent {
@@ -241,6 +244,11 @@ export interface ActivityEvent {
   summary: string;
   detail?: string;
   timestamp: number;
+  nodeId?: string;
+  stage?: number;
+  model?: string;
+  promptHash?: string;
+  durationMs?: number;
   toolName?: string;
   args?: Record<string, unknown>;
   tokens?: number;
@@ -542,7 +550,7 @@ export interface TaskNodeInfo {
   stage_to: number;
   dependencies: string[];
   assigned_agent: string | null;
-  status: 'pending' | 'ready' | 'running' | 'done' | 'failed' | 'skipped';
+  status: 'pending' | 'ready' | 'running' | 'paused' | 'done' | 'failed' | 'skipped' | 'rolled_back' | 'blocked';
   run_dir: string;
   config_path: string;
 }
@@ -551,6 +559,23 @@ export interface TaskGraphInfo {
   projectId: string;
   project_id: string;
   nodes: Record<string, TaskNodeInfo>;
+}
+
+/** WebSocket `node_action` / context menu (unified); legacy `skip_task` / `retry_task` may mirror skip & retry */
+export type TaskNodeActionKind = 'run' | 'pause' | 'retry' | 'skip' | 'rollback' | 'detail';
+
+/** Payload for `node_detail` WS message and merged client-side task node inspector state */
+export interface TaskNodeDetailPayload {
+  projectId: string;
+  taskId: string;
+  /** Full or partial node snapshot from server; UI falls back to task graph node */
+  node?: Partial<TaskNodeInfo> | TaskNodeInfo | null;
+  inputs?: Record<string, unknown> | Array<unknown>;
+  outputs?: Record<string, unknown> | Array<unknown>;
+  logs?: string;
+  /** Meta-prompt / node prompt placeholder (full editor not in scope) */
+  promptDraft?: string;
+  error?: string;
 }
 
 // ===================== v2.0: Coordination =====================
@@ -595,6 +620,7 @@ export type WSMessage =
   | { type: 'planner_proposals'; payload: { projectId: string; proposals: AcademicProposal[] } }
   | { type: 'planner_plan'; payload: ProjectPlan & { projectId: string; confirmed?: boolean } }
   | { type: 'task_graph_update'; payload: TaskGraphInfo }
+  | { type: 'node_detail'; payload: TaskNodeDetailPayload }
   | { type: 'coordination_update'; payload: { projectId: string; sessions: CoordinationSessionInfo[] } }
   | { type: 'agent_removed'; payload: { id: string } }
   | { type: 'project_name'; payload: { projectId: string; projectName: string } }
@@ -643,6 +669,7 @@ export interface ArtifactPreviewInfo {
 // ===================== App State =====================
 
 export type CenterTab = 'overview' | 'timeline' | 'tasks';
+export type SupervisorTab = 'process' | 'conversation' | 'prompt' | 'intervention';
 
 export interface AppState {
   agents: LobsterAgent[];
