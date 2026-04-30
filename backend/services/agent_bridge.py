@@ -1639,6 +1639,10 @@ class _AgentFileHandler(FileSystemEventHandler):
                     self.agent, "stage_transition",
                     f"开始阶段 S{new_stage}: {STAGE_NAMES.get(new_stage, '?')}",
                 ))
+                self.agent._watchdog_messages.append(msg_stage_session_update(
+                    self.agent, new_stage,
+                    {"stage_name": STAGE_NAMES.get(new_stage, '?'), "status": "running", "elapsed_sec": 0}
+                ))
             _hb_status = hb.get("status", "")
             if _hb_status and _hb_status not in ("idle",):
                 self.agent._watchdog_messages.append(msg_activity(self.agent, "thinking", f"Agent 心跳: {_hb_status}"))
@@ -5331,8 +5335,19 @@ def _bridge_metaprompt_delete_layer_files(
 async def broadcast(state: BridgeState, messages: list[dict]):
     if not messages or not state.clients:
         return
-    dead = set()
+    # Deduplicate log messages by (agentId, message, stage) to prevent duplicate Event Log entries
+    seen_logs = set()
+    deduped = []
     for msg in messages:
+        if msg.get("type") == "log":
+            payload = msg.get("payload", {})
+            key = (payload.get("agentId"), payload.get("message"), payload.get("stage"))
+            if key in seen_logs:
+                continue
+            seen_logs.add(key)
+        deduped.append(msg)
+    dead = set()
+    for msg in deduped:
         data = json.dumps(msg, ensure_ascii=False)
         for ws in list(state.clients):
             try:

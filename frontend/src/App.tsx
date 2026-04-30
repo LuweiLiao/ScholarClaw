@@ -80,8 +80,13 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case 'resource_stats':
       return { ...state, resources: action.payload, resConnected: true };
-    case 'log':
+    case 'log': {
+      const logId = action.payload?.id;
+      if (logId && state.logs.some((l) => l.id === logId)) {
+        return state;
+      }
       return { ...state, logs: [...state.logs, action.payload] };
+    }
     case 'chat_message':
       return { ...state, chatMessages: [...state.chatMessages, action.payload] };
     case 'set_connected':
