@@ -208,6 +208,10 @@ export default function CreateTaskWizard({
           model: cfg.model.trim(),
         }]),
     );
+    if (Object.keys(cleanLayerModels).length === 0) {
+      alert(t('wizard.no_models_configured') || '请至少配置一个 LLM 模型');
+      return;
+    }
     localStorage.setItem('scholar-approval-mode', approvalMode);
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ command: 'set_approval_mode', mode: approvalMode }));
@@ -401,7 +405,14 @@ export default function CreateTaskWizard({
           {step < steps.length - 1 ? (
             <button type="button" onClick={() => setStep(s => Math.min(steps.length - 1, s + 1))}>{t('wizard.next')}</button>
           ) : (
-            <button type="button" className="wizard-submit" onClick={submit} disabled={!connected || !topic.trim()}>{t('wizard.submit')}</button>
+            <button
+              type="button"
+              className="wizard-submit"
+              onClick={submit}
+              disabled={!connected || !topic.trim() || !Object.values(layerModels).some(hasLM)}
+            >
+              {t('wizard.submit')}
+            </button>
           )}
         </div>
       </div>

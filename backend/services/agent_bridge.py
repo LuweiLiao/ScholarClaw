@@ -2137,7 +2137,11 @@ def _diagnose_failure(agent: "LobsterAgent") -> tuple[str, str]:
         return "config_not_found", log_tail.strip().splitlines()[-1] if log_tail.strip() else ""
     if "missing input" in lower or "missing required" in lower or "filenotfounderror" in lower:
         return "missing_input", log_tail.strip().splitlines()[-1] if log_tail.strip() else ""
-    if "api" in lower and ("error" in lower or "timeout" in lower or "429" in lower or "rate" in lower):
+    if "429" in lower or "rate limit" in lower or "too many requests" in lower:
+        return "api_error", log_tail.strip().splitlines()[-1] if log_tail.strip() else ""
+    if "api" in lower and ("error" in lower or "timeout" in lower or "rate" in lower):
+        return "api_error", log_tail.strip().splitlines()[-1] if log_tail.strip() else ""
+    if "http error" in lower or "authentication" in lower or "api_key" in lower or "invalid key" in lower:
         return "api_error", log_tail.strip().splitlines()[-1] if log_tail.strip() else ""
     if "timed out" in lower or "timeout" in lower:
         return "timeout", log_tail.strip().splitlines()[-1] if log_tail.strip() else ""
@@ -3754,6 +3758,10 @@ def quick_submit_project(
 
     if not topic.strip():
         messages.append(msg_log(sys_agent, "请输入研究主题", "error"))
+        return messages
+
+    if not layer_models or not any(v.get("model") for v in layer_models.values() if isinstance(v, dict)):
+        messages.append(msg_log(sys_agent, "请至少配置一个 LLM 模型（缺少 model 配置）", "error"))
         return messages
 
     base_id = project_id or _slugify(topic)
