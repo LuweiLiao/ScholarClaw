@@ -40,6 +40,7 @@ class EventType(str, Enum):
     CONVERSATION_TURN = "conversation_turn"
     FILE_WRITE = "file_write"
     FILE_READ = "file_read"
+    STAGE_SESSION_UPDATE = "stage_session_update"
 
 
 @dataclass

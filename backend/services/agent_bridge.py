@@ -1253,7 +1253,34 @@ def msg_activity(
 
 
 def _event_to_ws_message(evt: "AgentEvent", agent: LobsterAgent) -> dict:
-    """Convert an EventBus AgentEvent to a WebSocket agent_activity message."""
+    """Convert an EventBus AgentEvent to a WebSocket message."""
+    # Special-case: stage_session_update carries its own structured payload
+    if evt.type.value == "stage_session_update":
+        session = evt.data.get("session", {})
+        stage_dir = Path(evt.data.get("stage_dir", ""))
+        stage_num = 0
+        try:
+            stage_num = int(stage_dir.name.replace("stage-", ""))
+        except ValueError:
+            pass
+        return {
+            "type": "stage_session_update",
+            "payload": {
+                "projectId": agent.project_id or "",
+                "agentId": agent.id,
+                "stage": stage_num,
+                "stageName": session.get("stage_name", ""),
+                "status": session.get("status", "pending"),
+                "elapsedSec": session.get("elapsed_sec", 0),
+                "llmCalls": session.get("llm_calls", 0),
+                "sandboxRuns": session.get("sandbox_runs", 0),
+                "phaseLog": session.get("phase_log", []),
+                "artifacts": session.get("artifacts", []),
+                "errors": session.get("errors", []),
+                "metadata": session.get("metadata", {}),
+            },
+        }
+
     _type_map = {
         "thinking_delta": "thinking",
         "text_delta": "thinking",

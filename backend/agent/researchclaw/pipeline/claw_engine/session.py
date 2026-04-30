@@ -15,6 +15,57 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Lazy import to avoid circular deps at module load time
+_get_event_bus = None
+_EventType = None
+_AgentEvent = None
+
+
+def _emit_stage_session(stage_dir: Path, payload: dict[str, Any]) -> None:
+    """Try to infer project_id from stage_dir and emit a StageSessionUpdate event."""
+    global _get_event_bus, _EventType, _AgentEvent
+    if _get_event_bus is None:
+        try:
+            from researchclaw.pipeline.claw_engine.event_bus import (
+                AgentEvent,
+                EventType,
+                get_event_bus,
+            )
+            _get_event_bus = get_event_bus
+            _EventType = EventType
+            _AgentEvent = AgentEvent
+        except Exception:
+            return
+    if _get_event_bus is None or _EventType is None:
+        return
+
+    # Infer project_id from path: .../projects/<proj-id>/stage-NN/...
+    parts = stage_dir.parts
+    project_id: str | None = None
+    for i, part in enumerate(parts):
+        if part == "projects" and i + 1 < len(parts):
+            project_id = parts[i + 1]
+            break
+    if not project_id:
+        # Fallback: use parent directory name if it looks like a project dir
+        for i, part in enumerate(parts):
+            if part.startswith("proj-"):
+                project_id = part
+                break
+    if not project_id:
+        return
+
+    try:
+        bus = _get_event_bus(project_id)
+        event = _AgentEvent(
+            type=_EventType.STAGE_SESSION_UPDATE,
+            agent_id="",
+            data={"stage_dir": str(stage_dir), "session": payload},
+        )
+        bus.emit(event)
+    except Exception:
+        pass
+
 
 @dataclass
 class StageSession:
@@ -85,6 +136,7 @@ class StageSession:
             "metadata": self.metadata,
         }
         log_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        _emit_stage_session(self.stage_dir, payload)
         return log_path
 
     def _try_persist(self) -> None:
