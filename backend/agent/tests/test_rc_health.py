@@ -324,10 +324,15 @@ def test_run_doctor_all_pass_openai(tmp_path: Path) -> None:
             "check_experiment_mode",
             return_value=health.CheckResult("experiment_mode", "pass", "ok"),
         ),
+        patch.object(
+            health,
+            "check_ascend_runtime",
+            return_value=health.CheckResult("ascend_runtime", "pass", "ok"),
+        ),
     ):
         report = health.run_doctor(config_path)
     assert report.overall == "pass"
-    assert len(report.checks) == 9
+    assert len(report.checks) == 10
 
 
 def test_run_doctor_with_failures(tmp_path: Path) -> None:

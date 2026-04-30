@@ -1567,6 +1567,12 @@ class _AgentFileHandler(FileSystemEventHandler):
             self._handle_session_update(path)
         elif path.name == "pending_approval.json":
             self._handle_approval_request(path)
+        elif path.name == "heartbeat.json":
+            self._handle_heartbeat(path)
+        elif path.name == "checkpoint.json":
+            self._handle_checkpoint(path)
+        elif path.name == "activity.jsonl":
+            self._handle_activity_jsonl(path)
 
     def _handle_session_update(self, path: Path) -> None:
         try:
@@ -1578,6 +1584,10 @@ class _AgentFileHandler(FileSystemEventHandler):
                 stage_num = int(stage_dir.name.replace("stage-", ""))
             except ValueError:
                 pass
+            # Update checksum so poll_agent._read_session_updates skips this file
+            run_dir = stage_dir.parent
+            key = str(path.relative_to(run_dir))
+            self.agent._prev_session_checksums[key] = hashlib.md5(raw.encode()).hexdigest()
             msg = msg_stage_session_update(self.agent, stage_num, data)
             self.agent._watchdog_messages.append(msg)
         except Exception:
@@ -1599,6 +1609,114 @@ class _AgentFileHandler(FileSystemEventHandler):
             self.agent._watchdog_messages.append(msg)
             self.agent.status = "awaiting_approval"
             self.agent._watchdog_messages.append(msg_agent_update(self.agent))
+        except Exception:
+            pass
+
+    def _handle_heartbeat(self, path: Path) -> None:
+        """Watchdog-driven heartbeat processing — eliminates polling for this file."""
+        try:
+            hb = _read_json(path)
+            if not hb or hb == self.agent._prev_heartbeat:
+                return
+            new_stage = hb.get("last_stage")
+            old_stage = self.agent.current_stage
+            _s7_only = getattr(self.agent, '_is_idea_factory_s7_only', False)
+            layer_range = (7, 7) if _s7_only else LAYER_RANGE.get(self.agent.layer, (1, 15))
+            if (
+                new_stage and new_stage != old_stage
+                and new_stage in STAGE_TO_LAYER
+                and layer_range[0] <= new_stage <= layer_range[1]
+            ):
+                self.agent.current_stage = new_stage
+                self.agent.current_task = f"Stage {new_stage}: {STAGE_NAMES.get(new_stage, '?')}"
+                self.agent.status = "working"
+                if new_stage not in self.agent.stage_progress or self.agent.stage_progress[new_stage] != "completed":
+                    self.agent.stage_progress[new_stage] = "running"
+                self.agent._watchdog_messages.append(msg_agent_update(self.agent))
+                self.agent._watchdog_messages.append(msg_stage_update(self.agent.id, new_stage, "running"))
+                self.agent._watchdog_messages.append(msg_log(self.agent, f"开始 {STAGE_NAMES.get(new_stage, f'S{new_stage}')}", "info", new_stage))
+                self.agent._watchdog_messages.append(msg_activity(
+                    self.agent, "stage_transition",
+                    f"开始阶段 S{new_stage}: {STAGE_NAMES.get(new_stage, '?')}",
+                ))
+            _hb_status = hb.get("status", "")
+            if _hb_status and _hb_status not in ("idle",):
+                self.agent._watchdog_messages.append(msg_activity(self.agent, "thinking", f"Agent 心跳: {_hb_status}"))
+            self.agent._prev_heartbeat = hb
+        except Exception:
+            pass
+
+    def _handle_checkpoint(self, path: Path) -> None:
+        """Watchdog-driven checkpoint processing — eliminates polling for this file."""
+        try:
+            cp = _read_json(path)
+            if not cp or cp == self.agent._prev_checkpoint:
+                return
+            done_up_to = cp.get("last_completed_stage", 0)
+            _prev_done = (self.agent._prev_checkpoint or {}).get("last_completed_stage", 0) if self.agent._prev_checkpoint else 0
+            _s7_only = getattr(self.agent, '_is_idea_factory_s7_only', False)
+            layer_range = (7, 7) if _s7_only else LAYER_RANGE.get(self.agent.layer, (1, 15))
+            for _cs in range(_prev_done + 1, done_up_to + 1):
+                if layer_range[0] <= _cs <= layer_range[1]:
+                    self.agent._watchdog_messages.append(msg_activity(
+                        self.agent, "stage_transition",
+                        f"✅ 阶段 S{_cs} ({STAGE_NAMES.get(_cs, '?')}) 已完成",
+                    ))
+            # Update stage progress to completed
+            for _s in range(layer_range[0], done_up_to + 1):
+                if _s <= layer_range[1]:
+                    self.agent.stage_progress[_s] = "completed"
+            # Advance current stage if needed
+            if self.agent.current_stage and done_up_to >= self.agent.current_stage and done_up_to < layer_range[1]:
+                next_stage = done_up_to + 1
+                if next_stage in STAGE_TO_LAYER and layer_range[0] <= next_stage <= layer_range[1]:
+                    self.agent.current_stage = next_stage
+                    self.agent.current_task = f"Stage {next_stage}: {STAGE_NAMES.get(next_stage, '?')}"
+                    self.agent.stage_progress[next_stage] = "running"
+                    self.agent._watchdog_messages.append(msg_agent_update(self.agent))
+                    self.agent._watchdog_messages.append(msg_stage_update(self.agent.id, next_stage, "running"))
+                    self.agent._watchdog_messages.append(msg_log(self.agent, f"开始 {STAGE_NAMES.get(next_stage, f'S{next_stage}')}", "info", next_stage))
+                    self.agent._watchdog_messages.append(msg_activity(
+                        self.agent, "stage_transition",
+                        f"开始阶段 S{next_stage}: {STAGE_NAMES.get(next_stage, '?')}",
+                    ))
+            self.agent._prev_checkpoint = cp
+        except Exception:
+            pass
+
+    def _handle_activity_jsonl(self, path: Path) -> None:
+        """Watchdog-driven activity.jsonl tailing — push new lines to message queue."""
+        try:
+            if not path.exists():
+                return
+            # Share offset attribute with poll_agent._read_activity_events
+            prev_offset = getattr(self.agent, '_activity_offset', 0)
+            current_size = path.stat().st_size
+            if current_size <= prev_offset:
+                return
+            with path.open("r", encoding="utf-8") as fh:
+                fh.seek(prev_offset)
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        data = json.loads(line)
+                        act_type = data.get("type", "")
+                        detail = data.get("detail", data.get("message", ""))
+                        if act_type == "tool_call":
+                            self.agent._watchdog_messages.append(msg_activity(self.agent, "tool_call", detail, data.get("detail", "")))
+                        elif act_type == "stage_transition":
+                            self.agent._watchdog_messages.append(msg_activity(self.agent, "stage_transition", detail))
+                        elif act_type == "thinking":
+                            self.agent._watchdog_messages.append(msg_activity(self.agent, "thinking", detail))
+                        elif act_type == "error":
+                            self.agent._watchdog_messages.append(msg_activity(self.agent, "error", detail))
+                        else:
+                            self.agent._watchdog_messages.append(msg_activity(self.agent, act_type or "tool_call", detail))
+                    except json.JSONDecodeError:
+                        continue
+                self.agent._activity_offset = fh.tell()
         except Exception:
             pass
 

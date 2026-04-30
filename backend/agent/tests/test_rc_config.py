@@ -142,7 +142,7 @@ def test_validate_config_rejects_invalid_knowledge_base_backend(tmp_path: Path):
     assert "Invalid knowledge_base.backend: sqlite" in result.errors
 
 
-@pytest.mark.parametrize("entry", [0, 24, "5", 9.1])
+@pytest.mark.parametrize("entry", [0, 27, "5", 9.1])
 def test_validate_config_rejects_invalid_hitl_required_stages_entries(
     tmp_path: Path, entry: object
 ):
