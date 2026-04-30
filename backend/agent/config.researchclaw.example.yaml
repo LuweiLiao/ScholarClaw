@@ -1,0 +1,50 @@
+project:
+  name: "example_project"
+  mode: "full-auto"
+
+research:
+  topic: "Example research topic"
+  domains:
+    - "machine-learning"
+  daily_paper_count: 5
+  quality_threshold: 3.0
+  reference_papers: []
+
+runtime:
+  timezone: "Asia/Shanghai"
+  max_parallel_tasks: 2
+  approval_timeout_hours: 24
+
+notifications:
+  channel: "console"
+  on_stage_start: true
+  on_gate_required: true
+
+knowledge_base:
+  backend: "markdown"
+  root: "docs/kb"
+
+openclaw_bridge:
+  use_cron: false
+  use_message: false
+  use_memory: false
+  use_sessions_spawn: false
+  use_web_fetch: false
+  use_browser: false
+
+llm:
+  provider: "openai-compatible"
+  base_url: "https://api.openai.com/v1"
+  api_key_env: "OPENAI_API_KEY"
+  api_key: ""
+  primary_model: "gpt-4o"
+  coding_model: "gpt-4o"
+  image_model: "gpt-4o"
+  fallback_models: []
+
+security:
+  hitl_required_stages: []
+
+experiment:
+  mode: "simulated"
+  time_budget_sec: 3600

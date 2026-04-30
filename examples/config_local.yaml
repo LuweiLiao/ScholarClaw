@@ -1,0 +1,63 @@
+project:
+  name: "test-project"
+  mode: "full-auto"
+
+research:
+  topic: "Test topic for UI exploration"
+  domains:
+    - "deep-learning"
+  daily_paper_count: 5
+  quality_threshold: 3.0
+  reference_papers: []
+
+runtime:
+  timezone: "Asia/Shanghai"
+  max_parallel_tasks: 1
+  approval_timeout_hours: 12
+
+notifications:
+  channel: "console"
+  on_stage_start: true
+  on_gate_required: true
+
+knowledge_base:
+  backend: "markdown"
+  root: "docs/kb"
+
+scholar_bridge:
+  use_message: false
+  use_memory: false
+  use_web_fetch: false
+
+llm:
+  provider: "openai-compatible"
+  base_url: "https://open.bigmodel.cn/api/paas/v4"
+  api_key: ""
+  api_key_env: "ZAI_API_KEY"
+  primary_model: "glm-5-turbo"
+  coding_model: "glm-5-turbo"
+  image_model: "glm-5-turbo"
+  fallback_models: []
+
+security:
+  hitl_required_stages: []
+
+experiment:
+  mode: "sandbox"
+  time_budget_sec: 2400
+  max_iterations: 3
+  metric_key: "primary_metric"
+  metric_direction: "minimize"
+  datasets_dir: ""
+  checkpoints_dir: ""
+  codebases_dir: ""
+  shared_results_dir: "runs/shared_results"
+  paper_length: "long"
+  sandbox:
+    python_path: "/home/llw/ScholarClaw/venv/bin/python3"
+  datasets_dir: "/home/llw/ScholarClaw/backend/runs/datasets"
+  checkpoints_dir: "/home/llw/ScholarClaw/backend/runs/checkpoints"
+  sanity_check_max_iterations: 100
+
+prompts:
+  custom_file: ""

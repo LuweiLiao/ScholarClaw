@@ -1,0 +1,27 @@
+{
+  "query": "test",
+  "source": "arxiv",
+  "limit": 20,
+  "timestamp": 1777564187.5895715,
+  "papers": [
+    {
+      "paper_id": "arxiv-ok",
+      "title": "ArXiv Paper",
+      "authors": [
+        {
+          "name": "Ashish Vaswani",
+          "affiliation": ""
+        }
+      ],
+      "year": 2017,
+      "abstract": "",
+      "venue": "NeurIPS",
+      "citation_count": 80000,
+      "doi": "10.1/ax",
+      "arxiv_id": "2401.99999",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    }
+  ]
+}

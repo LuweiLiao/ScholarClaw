@@ -1,0 +1,409 @@
+{
+  "query": "Increasing protocol control for test-driven science improves metric stability across random seeds.",
+  "source": "arxiv",
+  "limit": 15,
+  "timestamp": 1777565206.8825223,
+  "papers": [
+    {
+      "paper_id": "arxiv-1002.1162",
+      "title": "Node Disjoint Multipath Routing Considering Link and Node Stability protocol: A characteristic Evaluation",
+      "authors": [
+        {
+          "name": "Shuchita Upadhayaya",
+          "affiliation": ""
+        },
+        {
+          "name": "Charu Gandhi",
+          "affiliation": ""
+        }
+      ],
+      "year": 2010,
+      "abstract": "Mobile Ad hoc Networks are highly dynamic networks. Quality of Service (QoS) routing in such networks is usually limited by the network breakage due to either node mobility or energy depletion of the mobile nodes. Also, to fulfill certain quality parameters, presence of multiple node-disjoint paths becomes essential. Such paths aid in the optimal traffic distribution and reliability in case of path breakages. Thus, to cater various challenges in QoS routing in Mobile Add hoc Networks, a Node Disjoint Multipath Routing Considering Link and Node Stability (NDMLNR) protocol has been proposed by the authors. The metric used to select the paths takes into account the stability of the nodes and the corresponding links. This paper studies various challenges in the QoS routing and presents the characteristic evaluation of NDMLNR w.r.t various existing protocols in this area.",
+      "venue": "cs.NI",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1002.1162",
+      "url": "https://arxiv.org/abs/1002.1162",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2411.03875",
+      "title": "Koopman-based control using sum-of-squares optimization: Improved stability guarantees and data efficiency",
+      "authors": [
+        {
+          "name": "Robin Str\u00e4sser",
+          "affiliation": ""
+        },
+        {
+          "name": "Julian Berberich",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Allg\u00f6wer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "In this paper, we propose a novel controller design approach for unknown nonlinear systems using the Koopman operator. In particular, we use the recently proposed stability- and feedback-oriented extended dynamic mode decomposition (SafEDMD) architecture to generate a data-driven bilinear surrogate model with certified error bounds. Then, by accounting for the obtained error bounds in a controller design based on the bilinear system, one can guarantee closed-loop stability for the true nonlinear system. While existing approaches over-approximate the bilinearity of the surrogate model, thus introducing conservatism and providing only local guarantees, we explicitly account for the bilinearity by using sum-of-squares (SOS) optimization in the controller design. More precisely, we parametrize a rational controller stabilizing the error-affected bilinear surrogate model and, consequently, the underlying nonlinear system. The resulting SOS optimization problem provides explicit data-driven controller design conditions for unknown nonlinear systems based on semidefinite programming. Our approach significantly reduces conservatism by establishing a larger region of attraction and improved data efficiency. The proposed method is evaluated using numerical examples, demonstrating its advantages over existing approaches.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1016/j.ejcon.2025.101367",
+      "arxiv_id": "2411.03875",
+      "url": "https://arxiv.org/abs/2411.03875",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2512.16152",
+      "title": "Pulsar Science with the SKA Observatory",
+      "authors": [
+        {
+          "name": "Bhal Chandra Joshi",
+          "affiliation": ""
+        },
+        {
+          "name": "Aris Karastergiou",
+          "affiliation": ""
+        },
+        {
+          "name": "Marta Burgay",
+          "affiliation": ""
+        },
+        {
+          "name": "The SKA pulsar science working group",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+      "venue": "astro-ph.HE",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2512.16152",
+      "url": "https://arxiv.org/abs/2512.16152",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2003.05711",
+      "title": "Exponential input-to-state stabilization of a class of diagonal boundary control systems with delay boundary control",
+      "authors": [
+        {
+          "name": "Hugo Lhachemi",
+          "affiliation": ""
+        },
+        {
+          "name": "Robert Shorten",
+          "affiliation": ""
+        },
+        {
+          "name": "Christophe Prieur",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "This paper deals with the exponential input-to-state stabilization with respect to boundary disturbances of a class of diagonal infinite-dimensional systems via delay boundary control. The considered input delays are uncertain and time-varying. The proposed control strategy consists of a constant-delay predictor feedback controller designed on a truncated finite-dimensional model capturing the unstable modes of the original infinite-dimensional system. We show that the resulting closed-loop system is exponentially input-to-state stable with fading memory of both additive boundary input perturbations and disturbances in the computation of the predictor feedback.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1016/j.sysconle.2020.104651",
+      "arxiv_id": "2003.05711",
+      "url": "https://arxiv.org/abs/2003.05711",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1211.0310",
+      "title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+      "authors": [
+        {
+          "name": "LSST Dark Energy Science Collaboration",
+          "affiliation": ""
+        }
+      ],
+      "year": 2012,
+      "abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+      "venue": "astro-ph.CO",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1211.0310",
+      "url": "https://arxiv.org/abs/1211.0310",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2006.04361",
+      "title": "Neural Contraction Metrics for Robust Estimation and Control: A Convex Optimization Approach",
+      "authors": [
+        {
+          "name": "Hiroyasu Tsukamoto",
+          "affiliation": ""
+        },
+        {
+          "name": "Soon-Jo Chung",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "This paper presents a new deep learning-based framework for robust nonlinear estimation and control using the concept of a Neural Contraction Metric (NCM). The NCM uses a deep long short-term memory recurrent neural network for a global approximation of an optimal contraction metric, the existence of which is a necessary and sufficient condition for exponential stability of nonlinear systems. The optimality stems from the fact that the contraction metrics sampled offline are the solutions of a convex optimization problem to minimize an upper bound of the steady-state Euclidean distance between perturbed and unperturbed system trajectories. We demonstrate how to exploit NCMs to design an online optimal estimator and controller for nonlinear systems with bounded disturbances utilizing their duality. The performance of our framework is illustrated through Lorenz oscillator state estimation and spacecraft optimal motion planning problems.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1109/LCSYS.2020.3001646",
+      "arxiv_id": "2006.04361",
+      "url": "https://arxiv.org/abs/2006.04361",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1507.01146",
+      "title": "Passivity-based PI control of first-order systems with I/O communication delays: A complete sigma-stability analysis",
+      "authors": [
+        {
+          "name": "Fernando Casta\u00f1os",
+          "affiliation": ""
+        },
+        {
+          "name": "Edgar Estrada",
+          "affiliation": ""
+        },
+        {
+          "name": "Sabine Mondi\u00e9",
+          "affiliation": ""
+        },
+        {
+          "name": "Adri\u00e1n Ram\u00edrez",
+          "affiliation": ""
+        }
+      ],
+      "year": 2015,
+      "abstract": "The PI control of first-order linear passive systems through a delayed communication channel is revisited in light of the relative stability concept called sigma-stability. Treating the delayed communication channel as a transport PDE, the passivity of the overall control-loop is guaranteed, resulting in a closed-loop system of neutral nature. Spectral methods are then applied to the system to obtain a complete stability map. In particular, we perform the D-subdivision method to declare the exact sigma-stability regions in the space of PI parameters. This framework is then utilized to analytically determine the maximum achievable exponential decay rate of the system while achieving the PI tuning as an explicit function of the decay rate and the system parameters.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1080/00207179.2017.1327083",
+      "arxiv_id": "1507.01146",
+      "url": "https://arxiv.org/abs/1507.01146",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2304.04486",
+      "title": "Control of bilinear systems using gain-scheduling: Stability and performance guarantees",
+      "authors": [
+        {
+          "name": "Robin Str\u00e4sser",
+          "affiliation": ""
+        },
+        {
+          "name": "Julian Berberich",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Allg\u00f6wer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "In this paper, we present a state-feedback controller design method for bilinear systems. To this end, we write the bilinear system as a linear fractional representation by interpreting the state in the bilinearity as a structured uncertainty. Based on that, we derive convex conditions in terms of linear matrix inequalities for the controller design, which are efficiently solvable by semidefinite programming. Further, we prove asymptotic stability and quadratic performance of the resulting closed-loop system locally in a predefined region. The proposed design uses gain-scheduling techniques and results in a state feedback with rational dependence on the state, which can substantially reduce conservatism and improve performance in comparison to a simpler, linear state feedback. Moreover, the design method is easily adaptable to various scenarios due to its modular formulation in the robust control framework. Finally, we apply the developed approaches to numerical examples and illustrate the benefits of the approach.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1109/CDC49753.2023.10384021",
+      "arxiv_id": "2304.04486",
+      "url": "https://arxiv.org/abs/2304.04486",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1002.1178",
+      "title": "Adaptation of TURN protocol to SIP protocol",
+      "authors": [
+        {
+          "name": "Mustapha Guezouri",
+          "affiliation": ""
+        },
+        {
+          "name": "Ahmed Blaha",
+          "affiliation": ""
+        },
+        {
+          "name": "Mokhtar Keche",
+          "affiliation": ""
+        }
+      ],
+      "year": 2010,
+      "abstract": "Today, SIP is a protocol par Excellence in the field of communication over Internet. But, the fact that it belongs to the application layer constitutes a weakness vis-a-vis the NAT traversal. This weakness is due to the way in which the server replies to the requests of clients on the one hand. On the other, it is caused by the dynamic allocation of UDP ports for emission and reception of packets RTP/RTCP. The TURN Protocol may face this weakness. However, its use requires a certain number of exchanges between the clients and a TURN server before establishing the multimedia sessions and this increase the latent time. In this article, we propose to adapt TURN protocol for applications based on SIP protocol such as telephony over Internet, conference video, etc. This adaptation optimises the establishment of multimedia sessions by integrating a manager of TCP connections and multimedia flow controller into SIP Proxy server.",
+      "venue": "cs.NI",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1002.1178",
+      "url": "https://arxiv.org/abs/1002.1178",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2208.09687",
+      "title": "Distributed Optimal Secondary Frequency Control in Power Networks with Delay Independent Stability",
+      "authors": [
+        {
+          "name": "Mengmou Li",
+          "affiliation": ""
+        },
+        {
+          "name": "Jeremy Watson",
+          "affiliation": ""
+        },
+        {
+          "name": "Ioannis Lestas",
+          "affiliation": ""
+        }
+      ],
+      "year": 2022,
+      "abstract": "Distributed secondary frequency control for power systems, is a problem that has been extensively studied in the literature, and one of its key features is that an additional communication network is required to achieve optimal power allocation. Therefore, being able to provide stability guarantees in the presence of communication delays is an important requirement. Primal-dual and distributed averaging proportional-integral (DAPI) protocols, respectively, are two main control schemes that have been proposed in the literature. Each has its own relative merits, with the former allowing to incorporate general cost functions and additional operational constraints, and the latter being more straightforward in its implementation. Although delays have been addressed in DAPI schemes, there are currently no theoretical guarantees for the stability of primal-dual schemes for frequency control, when these are subject to communication delays. In fact, simulations illustrate that even small delays can destabilize such schemes. In this paper, we show how a novel formulation of prima-dual schemes allows to construct a distributed algorithm with delay independent stability guarantees. We also show that this algorithm can incorporate many of the key features of these schemes such as tie-line power flow requirements, generation constraints, and the relaxation of demand measurements with an observer layer. Finally, we illustrate our results through simulations on a 5-bus example and on the IEEE-39 test system.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/TAC.2023.3333790",
+      "arxiv_id": "2208.09687",
+      "url": "https://arxiv.org/abs/2208.09687",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2302.01021",
+      "title": "Faster Consensus via a Sparser Controller",
+      "authors": [
+        {
+          "name": "Luca Ballotta",
+          "affiliation": ""
+        },
+        {
+          "name": "Vijay Gupta",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "In this paper, we investigate the architecture of an optimal controller that maximizes the convergence speed of a consensus protocol with single-integrator dynamics. Under the assumption that communication delays increase with the number of hops from which information is allowed to reach each agent, we address the optimal control design under delayed feedback and show that the optimal controller features, in general, a sparsely connected architecture.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/LCSYS.2023.3268005",
+      "arxiv_id": "2302.01021",
+      "url": "https://arxiv.org/abs/2302.01021",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2004.00417",
+      "title": "Distributed Nonlinear Model Predictive Control and Metric Learning for Heterogeneous Vehicle Platooning with Cut-in/Cut-out Maneuvers",
+      "authors": [
+        {
+          "name": "Mohammad Hossein Basiri",
+          "affiliation": ""
+        },
+        {
+          "name": "Benyamin Ghojogh",
+          "affiliation": ""
+        },
+        {
+          "name": "Nasser L. Azad",
+          "affiliation": ""
+        },
+        {
+          "name": "Sebastian Fischmeister",
+          "affiliation": ""
+        },
+        {
+          "name": "Fakhri Karray",
+          "affiliation": ""
+        },
+        {
+          "name": "Mark Crowley",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "Vehicle platooning has been shown to be quite fruitful in the transportation industry to enhance fuel economy, road throughput, and driving comfort. Model Predictive Control (MPC) is widely used in literature for platoon control to achieve certain objectives, such as safely reducing the distance among consecutive vehicles while following the leader vehicle. In this paper, we propose a Distributed Nonlinear MPC (DNMPC), based upon an existing approach, to control a heterogeneous dynamic platoon with unidirectional topologies, handling possible cut-in/cut-out maneuvers. The introduced method addresses a collision-free driving experience while tracking the desired speed profile and maintaining a safe desired gap among the vehicles. The time of convergence in the dynamic platooning is derived based on the time of cut-in and/or cut-out maneuvers. In addition, we analyze the improvement level of driving comfort, fuel economy, and absolute and relative convergence of the method by using distributed metric learning and distributed optimization with Alternating Direction Method of Multipliers (ADMM). Simulation results on a dynamic platoon with cut-in and cut-out maneuvers and with different unidirectional topologies show the effectiveness of the introduced method.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/CDC42340.2020.9304180",
+      "arxiv_id": "2004.00417",
+      "url": "https://arxiv.org/abs/2004.00417",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2305.07875",
+      "title": "On $\\ell_2$-performance of weakly-hard real-time control systems",
+      "authors": [
+        {
+          "name": "Marc Seidel",
+          "affiliation": ""
+        },
+        {
+          "name": "Simon Lang",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Allg\u00f6wer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "This paper considers control systems with failures in the feedback channel, that occasionally lead to loss of the control input signal. A useful approach for modeling such failures is to consider window-based constraints on possible loss sequences, for example that at least r control attempts in every window of s are successful. A powerful framework to model such constraints are weakly-hard real-time constraints. Various approaches for stability analysis and the synthesis of stabilizing controllers for such systems have been presented in the past. However, existing results are mostly limited to asymptotic stability and rarely consider performance measures such as the resulting $\\ell_2$-gain. To address this problem, we adapt a switched system description where the switching sequence is constrained by a graph that captures the loss information. We present an approach for $\\ell_2$-performance analysis involving linear matrix inequalities (LMI). Further, leveraging a system lifting method, we propose an LMI-based approach for synthesizing state-feedback controllers with guaranteed $\\ell_2$-performance. The results are illustrated by a numerical example.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1016/j.ejcon.2024.101056",
+      "arxiv_id": "2305.07875",
+      "url": "https://arxiv.org/abs/2305.07875",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2604.21989",
+      "title": "Model Predictive Control of Hybrid Dynamical Systems",
+      "authors": [
+        {
+          "name": "Ricardo G. Sanfelice",
+          "affiliation": ""
+        },
+        {
+          "name": "Berk Altin",
+          "affiliation": ""
+        }
+      ],
+      "year": 2026,
+      "abstract": "The problem of controlling hybrid dynamical systems using model predictive control (MPC) is formulated and sufficient conditions for asymptotic stability of a set are provided. Hybrid dynamical systems are modeled in terms of hybrid equations, involving a differential equation and a difference equation with inputs and constraints. The proposed hybrid MPC algorithm uses a suitable prediction and control horizon construction inspired by hybrid time domains. Structural properties of the hybrid optimization problem, its feasible set, and its value function are provided. Checkable conditions to guarantee asymptotic stability of a set are provided. These conditions are given in terms of properties on the stage cost, terminal cost, and the existence of static state-feedback laws, related through a control Lyapunov function condition. Examples illustrate the results throughout the paper.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2604.21989",
+      "url": "https://arxiv.org/abs/2604.21989",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2011.11355",
+      "title": "Data-Driven Control of Nonlinear Systems: Beyond Polynomial Dynamics",
+      "authors": [
+        {
+          "name": "Robin Str\u00e4sser",
+          "affiliation": ""
+        },
+        {
+          "name": "Julian Berberich",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Allg\u00f6wer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "In this paper, we present a data-driven controller design method for continuous-time nonlinear systems, using no model knowledge but only measured data affected by noise. While most existing approaches focus on systems with polynomial dynamics, our approach allows to design controllers for unknown systems with rational or general non-polynomial dynamics. We first derive a data-driven parametrization of unknown nonlinear systems with rational dynamics. By applying robust control techniques to this parametrization, we obtain sum-of-squares based criteria for designing controllers with closed-loop robust stability and performance guarantees for all systems which are consistent with the measured data and the assumed noise bound. We then apply this approach to control systems whose dynamics are linear in general non-polynomial basis functions by transforming them into polynomial systems. Finally, we apply the developed approaches to numerical examples.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1109/CDC45484.2021.9683211",
+      "arxiv_id": "2011.11355",
+      "url": "https://arxiv.org/abs/2011.11355",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    }
+  ]
+}

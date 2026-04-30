@@ -1,0 +1,373 @@
+{
+  "query": "test hypothesis",
+  "source": "openalex",
+  "limit": 15,
+  "timestamp": 1777565763.157265,
+  "papers": [
+    {
+      "paper_id": "oalex-W2140784970",
+      "title": "Statistical method for testing the neutral mutation hypothesis by DNA polymorphism.",
+      "authors": [
+        {
+          "name": "Fumio Tajima",
+          "affiliation": "Kyushu University"
+        }
+      ],
+      "year": 1989,
+      "abstract": "The relationship between the two estimates of genetic variation at the DNA level, namely the number of segregating sites and the average number of nucleotide differences estimated from pairwise comparison, is investigated. It is found that the correlation between these two estimates is large when the sample size is small, and decreases slowly as the sample size increases. Using the relationship obtained, a statistical method for testing the neutral mutation hypothesis is developed. This method needs only the data of DNA polymorphism, namely the genetic variation within population at the DNA level. A simple method of computer simulation, that was used in order to obtain the distribution of a new statistic developed, is also presented. Applying this statistical method to the five regions of DNA sequences in Drosophila melanogaster, it is found that large insertion/deletion (greater than 100 bp) is deleterious. It is suggested that the natural selection against large insertion/deletion is so weak that a large amount of variation is maintained in a population.",
+      "venue": "Genetics",
+      "citation_count": 14136,
+      "doi": "10.1093/genetics/123.3.585",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1093/genetics/123.3.585",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W1588163064",
+      "title": "Testing the null hypothesis of stationarity against the alternative of a unit root",
+      "authors": [
+        {
+          "name": "Denis Kwiatkowski",
+          "affiliation": "Central Michigan University"
+        },
+        {
+          "name": "Peter C.B. Phillips",
+          "affiliation": "Yale University"
+        },
+        {
+          "name": "Peter Schmidt",
+          "affiliation": "Michigan State University"
+        },
+        {
+          "name": "Yongcheol Shin",
+          "affiliation": "Michigan State University"
+        }
+      ],
+      "year": 1992,
+      "abstract": "",
+      "venue": "Journal of Econometrics",
+      "citation_count": 12463,
+      "doi": "10.1016/0304-4076(92)90104-y",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/0304-4076(92)90104-y",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2141845152",
+      "title": "Random effects structure for confirmatory hypothesis testing: Keep it maximal",
+      "authors": [
+        {
+          "name": "Dale J. Barr",
+          "affiliation": "University of Glasgow"
+        },
+        {
+          "name": "Roger L\u00e9vy",
+          "affiliation": "University of California, San Diego"
+        },
+        {
+          "name": "Christoph Scheepers",
+          "affiliation": "University of Glasgow"
+        },
+        {
+          "name": "Harry Tily",
+          "affiliation": "Massachusetts Institute of Technology"
+        }
+      ],
+      "year": 2013,
+      "abstract": "",
+      "venue": "Journal of Memory and Language",
+      "citation_count": 10269,
+      "doi": "10.1016/j.jml.2012.11.001",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/j.jml.2012.11.001",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2080977367",
+      "title": "A numerical approach to the testing of the fission hypothesis",
+      "authors": [
+        {
+          "name": "L. B. Lucy",
+          "affiliation": "University of Cambridge"
+        }
+      ],
+      "year": 1977,
+      "abstract": "A finite-size particle scheme for the numerical solution of twoand three-dimensional gasdynamic problems of astronomical interest is described and tested. The scheme is then applied to the fission problem for optically thick protostars. Results are given, showing the evolution of one such protostar from an initial state as a single rotating star to a final state as a triple system whose components contain 60% of the original mass. The decisiveness of this numerical test of the fission hypothesis and its relevance to observed binaries are briefly discussed.",
+      "venue": "The Astronomical Journal",
+      "citation_count": 6063,
+      "doi": "10.1086/112164",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1086/112164",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2034707435",
+      "title": "Estimation and Hypothesis Testing of Cointegration Vectors in Gaussian Vector Autoregressive Models",
+      "authors": [
+        {
+          "name": "S\u00f8ren Johansen",
+          "affiliation": ""
+        }
+      ],
+      "year": 1991,
+      "abstract": "Matematisk Statistik",
+      "venue": "Econometrica",
+      "citation_count": 11084,
+      "doi": "10.2307/2938278",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.2307/2938278",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W1978662219",
+      "title": "Bayesian t tests for accepting and rejecting the null hypothesis",
+      "authors": [
+        {
+          "name": "Jeffrey N. Rouder",
+          "affiliation": "University of Missouri"
+        },
+        {
+          "name": "Paul L. Speckman",
+          "affiliation": "University of Missouri"
+        },
+        {
+          "name": "Dongchu Sun",
+          "affiliation": "University of Missouri"
+        },
+        {
+          "name": "Richard D. Morey",
+          "affiliation": "University of Missouri"
+        },
+        {
+          "name": "Geoffrey Iverson",
+          "affiliation": "University of California, Irvine"
+        }
+      ],
+      "year": 2009,
+      "abstract": "",
+      "venue": "Psychonomic Bulletin & Review",
+      "citation_count": 3914,
+      "doi": "10.3758/pbr.16.2.225",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.3758/pbr.16.2.225",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2009166480",
+      "title": "The concept of symmorphosis: a testable hypothesis of structure-function relationship.",
+      "authors": [
+        {
+          "name": "Ewald R. Weibel",
+          "affiliation": "University of Bern"
+        },
+        {
+          "name": "Caeden Taylor",
+          "affiliation": "University of Bern"
+        },
+        {
+          "name": "Hans Hoppeler",
+          "affiliation": "University of Bern"
+        }
+      ],
+      "year": 1991,
+      "abstract": "The hypothesis that, in biological organisms, structural design is matched to functional demand is difficult to test because it is largely based on anecdotal evidence suggesting economic design. The hypothesis of symmorphosis postulates a quantitative match of design and function parameters within a defined functional system; because of its stringency it is refutable and can, therefore, be subjected to empirical test, for example, by assessing whether the structures that support the pathway for oxygen from the lung to the consumer in muscle cells are quantitatively adjusted to the limit of functional performance of the respiratory system. The study of allometric and adaptive variation leads to the conclusion that the hypothesis of symmorphosis is acceptable for all internal compartments of the respiratory system (blood, heart, muscle capillaries, and mitochondria), whereas it must be refuted for the lung that forms the interface to the environment.",
+      "venue": "Proceedings of the National Academy of Sciences",
+      "citation_count": 479,
+      "doi": "10.1073/pnas.88.22.10357",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1073/pnas.88.22.10357",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2100807224",
+      "title": "Exploration vs. Exploitation: An Empirical Test of the Ambidexterity Hypothesis",
+      "authors": [
+        {
+          "name": "Zi\u2010Lin He",
+          "affiliation": "Japan External Trade Organization"
+        },
+        {
+          "name": "Poh-Kam Wong",
+          "affiliation": "National University of Singapore"
+        }
+      ],
+      "year": 2004,
+      "abstract": "While exploration and exploitation represent two fundamentally different approaches to organizational learning, recent literature has increasingly indicated the need for firms to achieve a balance between the two. This balanced view is embedded in the concept of ambidextrous organizations. However, there is little direct evidence of the positive effect of ambidexterity on firm performance. This paper seeks to test the ambidexterity hypothesis by examining how exploration and exploitation can jointly influence firm performance in the context of firms' approach to technological innovation. Based on a sample of 206 manufacturing firms, we find evidence consistent with the ambidexterity hypothesis by showing that (1) the interaction between explorative and exploitative innovation strategies is positively related to sales growth rate, and (2) the relative imbalance between explorative and exploitative innovation strategies is negatively related to sales growth rate.",
+      "venue": "Organization Science",
+      "citation_count": 3633,
+      "doi": "10.1287/orsc.1040.0078",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1287/orsc.1040.0078",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2042587503",
+      "title": "A Measure of Asymptotic Efficiency for Tests of a Hypothesis Based on the sum of Observations",
+      "authors": [
+        {
+          "name": "Herman Chernoff",
+          "affiliation": ""
+        }
+      ],
+      "year": 1952,
+      "abstract": "In many cases an optimum or computationally convenient test of a simple hypothesis $H_0$ against a simple alternative $H_1$ may be given in the following form. Reject $H_0$ if $S_n = \\sum^n_{j=1} X_j \\leqq k,$ where $X_1, X_2, \\cdots, X_n$ are $n$ independent observations of a chance variable $X$ whose distribution depends on the true hypothesis and where $k$ is some appropriate number. In particular the likelihood ratio test for fixed sample size can be reduced to this form. It is shown that with each test of the above form there is associated an index $\\rho$. If $\\rho_1$ and $\\rho_2$ are the indices corresponding to two alternative tests $e = \\log \\rho_1/\\log \\rho_2$ measures the relative efficiency of these tests in the following sense. For large samples, a sample of size $n$ with the first test will give about the same probabilities of error as a sample of size $en$ with the second test. To obtain the above result, use is made of the fact that $P(S_n \\leqq na)$ behaves roughly like $m^n$ where $m$ is the minimum value assumed by the moment generating function of $X - a$. It is shown that if $H_0$ and $H_1$ specify probability distributions of $X$ which are very close to each other, one may approximate $\\rho$ by assuming that $X$ is normally distributed.",
+      "venue": "The Annals of Mathematical Statistics",
+      "citation_count": 3610,
+      "doi": "10.1214/aoms/1177729330",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1214/aoms/1177729330",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2124884000",
+      "title": "PANEL COINTEGRATION: ASYMPTOTIC AND FINITE SAMPLE PROPERTIES OF POOLED TIME SERIES TESTS WITH AN APPLICATION TO THE PPP HYPOTHESIS",
+      "authors": [
+        {
+          "name": "Peter Pedroni",
+          "affiliation": "Williams College"
+        }
+      ],
+      "year": 2004,
+      "abstract": "We examine properties of residual-based tests for the null of no cointegration for dynamic panels in which both the short-run dynamics and the long-run slope coefficients are permitted to be heterogeneous across individual members of the panel. The tests also allow for individual heterogeneous fixed effects and trend terms, and we consider both pooled within dimension tests and group mean between dimension tests. We derive limiting distributions for these and show that they are normal and free of nuisance parameters. We also provide Monte Carlo evidence to demonstrate their small sample size and power performance, and we illustrate their use in testing purchasing power parity for the post\u2013Bretton Woods period.I thank Rich Clarida, Bob Cumby, Mahmoud El-Gamal, Heejoon Kang, Chiwha Kao, Andy Levin, Klaus Neusser, Masao Ogaki, David Papell, Pierre Perron, Abdel Senhadji, Jean-Pierre Urbain, Alan Taylor, and three anonymous referees for helpful comments on various earlier versions of this paper. The paper has also benefited from presentations at the 1994 North American Econometric Society Summer Meetings in Quebec City, the 1994 European Econometric Society Summer Meetings in Maastricht, and workshop seminars at the Board of Governors of the Federal Reserve, INSEE-CREST Paris, IUPUI, Ohio State, Purdue, Queens University Belfast, Rice University\u2013University of Houston, and Southern Methodist University. Finally, I thank the following students who provided assistance in the earlier stages of the project: Younghan Kim, Rasmus Ruffer, and Lining Wan.",
+      "venue": "Econometric Theory",
+      "citation_count": 6441,
+      "doi": "10.1017/s0266466604203073",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1017/s0266466604203073",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2138178197",
+      "title": "HyPhy: hypothesis testing using phylogenies",
+      "authors": [
+        {
+          "name": "Sergei L. Kosakovsky Pond",
+          "affiliation": "University of California, San Diego"
+        },
+        {
+          "name": "Simon D. W. Frost",
+          "affiliation": "University of California, San Diego"
+        },
+        {
+          "name": "Spencer V. Muse",
+          "affiliation": "North Carolina State University"
+        }
+      ],
+      "year": 2004,
+      "abstract": "UNLABELLED: The HyPhypackage is designed to provide a flexible and unified platform for carrying out likelihood-based analyses on multiple alignments of molecular sequence data, with the emphasis on studies of rates and patterns of sequence evolution. AVAILABILITY: http://www.hyphy.org CONTACT: muse@stat.ncsu.edu SUPPLEMENTARY INFORMATION: HyPhydocumentation and tutorials are available at http://www.hyphy.org.",
+      "venue": "Bioinformatics",
+      "citation_count": 3020,
+      "doi": "10.1093/bioinformatics/bti079",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1093/bioinformatics/bti079",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2025781576",
+      "title": "In Search of Golden Rules: Comment on Hypothesis-Testing Approaches to Setting Cutoff Values for Fit Indexes and Dangers in Overgeneralizing Hu and Bentler's (1999) Findings",
+      "authors": [
+        {
+          "name": "Herbert W. Marsh",
+          "affiliation": "Western Sydney University"
+        },
+        {
+          "name": "Kit\u2010Tai Hau",
+          "affiliation": "Chinese University of Hong Kong"
+        },
+        {
+          "name": "Zhonglin Wen",
+          "affiliation": "South China Normal University"
+        }
+      ],
+      "year": 2004,
+      "abstract": "Goodness-of-fit (GOF) indexes provide \"rules of thumb\" - recommended cutoff values for assessing fit in structural equation modeling. Hu and Bender (1999) proposed a more rigorous approach to evaluating decision rules based on GOF indexes and, on this basis, proposed new and more stringent cutoff values for many indexes. This article discusses potential problems underlying the hypothesis-testing rationale of their research, which is more appropriate to testing statistical significance than evaluating GOF. Many of their misspecified models resulted in a fit that should have been deemed acceptable according to even their new, more demanding criteria. Hence, rejection of these acceptable-misspecified models should have constituted a Type 1 error (incorrect rejection of an \"acceptable\" model), leading to the seemingly paradoxical results whereby the probability of correctly rejecting misspecified models decreased substantially with increasing N. In contrast to the application of cutoff values to evaluate each solution in isolation, all the GOF indexes were more effective at identifying differences in misspecification based on nested models. Whereas Hu and Bentler (1999) offered cautions about the use of GOF indexes, current practice seems to have incorporated their new guidelines without sufficient attention to the limitations noted by Hu and Bentler (1999).",
+      "venue": "Structural Equation Modeling A Multidisciplinary Journal",
+      "citation_count": 6339,
+      "doi": "10.1207/s15328007sem1103_2",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1207/s15328007sem1103_2",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2124371667",
+      "title": "Confirmation, disconfirmation, and information in hypothesis testing.",
+      "authors": [
+        {
+          "name": "Joshua Klayman",
+          "affiliation": "University of Chicago"
+        },
+        {
+          "name": "Young-Won Ha",
+          "affiliation": ""
+        }
+      ],
+      "year": 1987,
+      "abstract": "Strategies for hypothesis testing in scientific investigation and everyday reasoning have interested both psychologists and philosophers. A number of these scholars stress the importance of disconnrmation in reasoning and suggest that people are instead prone to a general deleterious &amp;quot;confirmation bias.&amp;quot; In particular, it is suggested that people tend to test those cases that have the best chance of verifying current beliefs rather than those that have the best chance of falsifying them. We show, however; that many phenomena labeled &amp;quot;confirmation bias&amp;quot; are better understood in terms of a general positive test strategy. With this strategy, there is a tendency to test cases that are expected (or known) to have the property of interest rather than those expected (or known) to lack that property. This strategy is not equivalent to confirmation bias in the first sense; we show that the positive test strategy can be a very good heuristic for determining the truth or falsity of a hypothesis under realistic conditions. It can, however, lead to systematic errors or inefficiencies. The appropriateness of human hypothesis-testing strategies and prescriptions about optimal strategies must be understood in terms of the interaction between the strategy and the task at hand.",
+      "venue": "Psychological Review",
+      "citation_count": 2060,
+      "doi": "10.1037/0033-295x.94.2.211",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1037/0033-295x.94.2.211",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2135445066",
+      "title": "Multiple Hypothesis Testing",
+      "authors": [
+        {
+          "name": "Joyce Shaffer",
+          "affiliation": "California Department of Education"
+        }
+      ],
+      "year": 1995,
+      "abstract": "",
+      "venue": "Annual Review of Psychology",
+      "citation_count": 1887,
+      "doi": "10.1146/annurev.ps.46.020195.003021",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1146/annurev.ps.46.020195.003021",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W1991445071",
+      "title": "Null Hypothesis Testing: Problems, Prevalence, and an Alternative",
+      "authors": [
+        {
+          "name": "David R. Anderson",
+          "affiliation": ""
+        },
+        {
+          "name": "Kenneth P. Burnham",
+          "affiliation": ""
+        },
+        {
+          "name": "William L. Thompson",
+          "affiliation": ""
+        }
+      ],
+      "year": 2000,
+      "abstract": "This paper presents a review and critique of statistical null hypothesis testing in ecological studies in general, and wildlife studies in particular, and describes an alternative. Our review of Ecology and the Journal of Wildlife Management found the use of null hypothesis testing to be pervasive. The estimated number of P-values appearing within articles of Ecology exceeded 8,000 in 1991 and has exceeded 3,000 in each year since 1984, whereas the estimated number of P-values in the Journal of Wildlife Management exceeded 8,000 in 1997 and has exceeded 3,000 in each year since 1994. We estimated that 47% (SE = 3.9%) of the P-values in the Journal of Wildlife Management lacked estimates of means or effect sizes or even the sign of the difference in means or other parameters. We find that null hypothesis testing is uninformative when no estimates of means or effect size and their precision are given. Contrary to common dogma, tests of statistical null hypotheses have relatively little utility in science and are not a fundamental aspect of the scientific method. We recommend their use be reduced in favor of more informative approaches. Towards this objective, we describe a relatively new paradigm of data analysis based on Kullback-Leibler information. This paradigm is an extension of likelihood theory and, when used correctly, avoids many of the fundamental limitations and common misuses of null hypothesis testing. Information-theoretic methods focus on providing a strength of evidence for an a priori set of alternative hypotheses, rather than a statistical test of a null hypothesis. This paradigm allows the following types of evidence for the alternative hypotheses: the rank of each hypothesis, expressed as a model; an estimate of the formal likelihood of each model, given the data; a measure of precision that incorporates model selection uncertainty; and simple methods to allow the use of the set of alternative models in making, formal inference. We provide an example of the information-theoretic approach using data on the effect of lead on survival in spectacled eider ducks (Somateria fischeri). Regardless of the analysis paradigm used, we strongly recommend inferences based on a priori considerations be clearly separated from those resulting from some form of data dredging.",
+      "venue": "Journal of Wildlife Management",
+      "citation_count": 1951,
+      "doi": "10.2307/3803199",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.2307/3803199",
+      "source": "openalex",
+      "_bibtex_override": ""
+    }
+  ]
+}

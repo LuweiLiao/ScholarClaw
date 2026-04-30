@@ -45,6 +45,7 @@ interface Props {
   onUpdateLayerModels: (projectId: string, layerModels: Record<string, LayerModelCfg>) => void;
   scanResult?: ProjectScanResult | null;
   coordSessions?: Record<string, CoordinationSessionInfo[]>;
+  stageSessions?: Record<string, any>;
   onScanProject?: (workspaceDir: string, mainTexFile: string) => void;
   onStartPlanning?: (
     projectId: string,
@@ -90,6 +91,7 @@ export default memo(function ProjectPanel({
   onUpdateLayerModels,
   scanResult,
   coordSessions,
+  stageSessions,
   onScanProject,
   onStartPlanning,
   onRestoreProject,
@@ -329,6 +331,17 @@ export default memo(function ProjectPanel({
                         <span className="project-summary-name" title={proj.projectName || proj.topic || proj.projectId}>
                           {proj.projectName || proj.topic || proj.projectId}
                         </span>
+                        {(() => {
+                          const currentStage = (proj.lastCompletedStage || 0) + 1;
+                          const ss = stageSessions?.[`${proj.projectId}:${currentStage}`];
+                          if (!ss || ss.status === 'pending') return null;
+                          return (
+                            <span className={`project-stage-badge status-${ss.status}`} title={`${ss.status} · ${ss.elapsedSec ? (ss.elapsedSec < 60 ? ss.elapsedSec.toFixed(0) + 's' : (ss.elapsedSec / 60).toFixed(1) + 'm') : ''}`}>
+                              {ss.status === 'running' ? '🔄' : ss.status === 'completed' ? '✅' : ss.status === 'failed' ? '❌' : '⏭️'}
+                              S{currentStage}
+                            </span>
+                          );
+                        })()}
                         <span className="project-summary-progress">{pct}%</span>
                         {arts.length > 0 && <span className="project-summary-arts">📦{arts.length}</span>}
                         {proj.intervention && <span className="project-intervention-icon" title={t('project.intervention_needed')}>⚠</span>}

@@ -1,0 +1,1841 @@
+{
+  "query": "hypotheses increasing protocol control test-driven",
+  "source": "openalex",
+  "limit": 15,
+  "timestamp": 1777564922.5774138,
+  "papers": [
+    {
+      "paper_id": "oalex-W2128114769",
+      "title": "Genome sequencing in microfabricated high-density picolitre reactors",
+      "authors": [
+        {
+          "name": "Marcel Margulies",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Michael D. Miller",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "William E. Altman",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Said Attiya",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Joel S. Bader",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Lisa A. Bemben",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Jan Berka",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Michael Braverman",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Yi\u2010Ju Chen",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Zhoutao Chen",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Scott Dewell",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Lei Du",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Joseph M. Fierro",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Xavier V. Gomes",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Bailey Godwin",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Wen He",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Scott Helgesen",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Chun He Ho",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Gerard P. Irzyk",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Szilveszter C. Jando",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Maria L. I. Alenquer",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Thomas Jarvie",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Kshama B. Jirage",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Jong\u2010Bum Kim",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "James R. Knight",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Janna R. Lanza",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "John H. Leamon",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Steven M. Lefkowitz",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Ming Lei",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Jing Li",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Kenton L. Lohman",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Hong L\u00fc",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Vinod B. Makhijani",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Keith E. McDade",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Michael P. McKenna",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Eugene W. Myers",
+          "affiliation": "University of California, Berkeley"
+        },
+        {
+          "name": "Elizabeth Nickerson",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "John R. Nobile",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Ramona Plant",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Bernard P. Puc",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "M. T. Ronan",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "George T. Roth",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Gary J. Sarkis",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Jan Fredrik Simons",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "John Simpson",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Maithreyan Srinivasan",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Karrie Tartaro",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Alexander Tomasz",
+          "affiliation": "Rockefeller University"
+        },
+        {
+          "name": "Kari A. Vogt",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Greg A. Volkmer",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Shally H. Wang",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Yong Wang",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Michael P. Weiner",
+          "affiliation": "Rothberg Institute For Childhood Diseases"
+        },
+        {
+          "name": "Pengguang Yu",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "R. F. Begley",
+          "affiliation": "Enzo Life Sciences (United States)"
+        },
+        {
+          "name": "Jonathan M. Rothberg",
+          "affiliation": "Enzo Life Sciences (United States)"
+        }
+      ],
+      "year": 2005,
+      "abstract": "The proliferation of large-scale DNA-sequencing projects in recent years has driven a search for alternative methods to reduce time and cost. Here we describe a scalable, highly parallel sequencing system with raw throughput significantly greater than that of state-of-the-art capillary electrophoresis instruments. The apparatus uses a novel fibre-optic slide of individual wells and is able to sequence 25 million bases, at 99% or better accuracy, in one four-hour run. To achieve an approximately 100-fold increase in throughput over current Sanger sequencing technology, we have developed an emulsion method for DNA amplification and an instrument for sequencing by synthesis using a pyrosequencing protocol optimized for solid support and picolitre-scale volumes. Here we show the utility, throughput, accuracy and robustness of this system by shotgun sequencing and de novo assembly of the Mycoplasma genitalium genome with 96% coverage at 99.96% accuracy in one run of the machine.",
+      "venue": "Nature",
+      "citation_count": 7697,
+      "doi": "10.1038/nature03959",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/nature03959",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2117131162",
+      "title": "Integrative Genomics Viewer (IGV): high-performance genomics data visualization and exploration",
+      "authors": [
+        {
+          "name": "Helga Thorvaldsd\u00f3ttir",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "James Robinson",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Jill P. Mesirov",
+          "affiliation": "Broad Institute"
+        }
+      ],
+      "year": 2012,
+      "abstract": "Data visualization is an essential component of genomic data analysis. However, the size and diversity of the data sets produced by today's sequencing and array-based profiling methods present major challenges to visualization tools. The Integrative Genomics Viewer (IGV) is a high-performance viewer that efficiently handles large heterogeneous data sets, while providing a smooth and intuitive user experience at all levels of genome resolution. A key characteristic of IGV is its focus on the integrative nature of genomic studies, with support for both array-based and next-generation sequencing data, and the integration of clinical and phenotypic data. Although IGV is often used to view genomic data from public sources, its primary emphasis is to support researchers who wish to visualize and explore their own data sets or those from colleagues. To that end, IGV supports flexible loading of local and remote data sets, and is optimized to provide high-performance data visualization and exploration on standard desktop systems. IGV is freely available for download from http://www.broadinstitute.org/igv, under a GNU LGPL open-source license.",
+      "venue": "Briefings in Bioinformatics",
+      "citation_count": 9689,
+      "doi": "10.1093/bib/bbs017",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1093/bib/bbs017",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2085001923",
+      "title": "Process evaluation of complex interventions: Medical Research Council guidance",
+      "authors": [
+        {
+          "name": "Gary F. Moore",
+          "affiliation": "Cardiff University"
+        },
+        {
+          "name": "Suzanne Audrey",
+          "affiliation": "University of Bristol"
+        },
+        {
+          "name": "Mary Barker",
+          "affiliation": "MRC Lifecourse Epidemiology Unit"
+        },
+        {
+          "name": "Lyndal Bond",
+          "affiliation": ""
+        },
+        {
+          "name": "Chris Bonell",
+          "affiliation": "University of London"
+        },
+        {
+          "name": "Wendy Hardeman",
+          "affiliation": "University of Cambridge"
+        },
+        {
+          "name": "Laurence Moore",
+          "affiliation": "University of Glasgow"
+        },
+        {
+          "name": "Alicia O\u2019Cathain",
+          "affiliation": "University of Sheffield"
+        },
+        {
+          "name": "Tannaze Tinati",
+          "affiliation": "University of Southampton"
+        },
+        {
+          "name": "Daniel Wight",
+          "affiliation": "MRC/CSO Social and Public Health Sciences Unit"
+        },
+        {
+          "name": "Janis Baird",
+          "affiliation": "University of Southampton"
+        }
+      ],
+      "year": 2015,
+      "abstract": "Process evaluation is an essential part of designing and testing complex interventions. New MRC guidance provides a framework for conducting and reporting process evaluation studies",
+      "venue": "BMJ",
+      "citation_count": 6391,
+      "doi": "10.1136/bmj.h1258",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1136/bmj.h1258",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W4232249876",
+      "title": "Guidelines for good pharmacoepidemiology practice (GPP)",
+      "authors": [
+        {
+          "name": "",
+          "affiliation": ""
+        }
+      ],
+      "year": 2015,
+      "abstract": "Pharmacoepidemiologic studies provide valuable information about the health effects of healthcare products. The ISPE Guidelines for Good Pharmacoepidemiology Practice (GPP) are intended to assist investigators with issues pertaining to the planning, conduct, and interpretation of pharmacoepidemiologic research. This paper represents the fourth version and supersedes previous versions. While the overall structure and nature of the GPP has been preserved in the current revision, new sections have been added, and the text has been updated to reflect current practice. Pharmacoepidemiology is being used increasingly to evaluate health care systems, interventions, and health-related behaviors. Pharmacoepidemiology is the scientific backbone of therapeutic risk management\u2014the process of assessing a product's benefits and risks, and developing, implementing, and evaluating strategies to enhance the overall balance of such benefits and risks. Pharmacoepidemiology is also the scientific backbone of comparative effectiveness research (CER). These guidelines are intended to address these activities and other pharmacoepidemiologic studies. The GPP propose essential practices and procedures that should be considered to help ensure the quality and integrity of pharmacoepidemiologic research and to provide adequate documentation of research methods and results. The GPP do not prescribe specific research methods nor will adherence to guidelines guarantee valid research. The GPP are intended to apply broadly to all types of pharmacoepidemiologic research, including feasibility assessments, validation studies, descriptive studies, and etiologic investigations, and all of their related activities from design through publication. Therapeutic risk management activities provide a formal framework in which medicine, pharmacoepidemiology, and public health are integrated in the development and life-cycle management of healthcare products. Pharmacoepidemiology is the core science of risk assessment and the evaluation of the effectiveness of risk minimization interventions. Therefore, the GPP also support risk management activities. In a similar fashion, pharmacoepidemiology is the core discipline of CER. Such activities are based on problems from clinical medicine, by using rigorous methods to compare the outcomes of two or more therapeutic alternatives. Thereby, comparative effectiveness activities are defined by their research questions rather than by their methods. a statement of research objectives, specific aims, and rationale; Research objectives describe the knowledge or information to be gained from the study. Specific aims list key exposures and outcomes of interest, and any hypotheses to be evaluated. The protocol should distinguish between a limited number of a priori research hypotheses and hypotheses that are generated based on knowledge of the source data. The rationale explains how achievement of the specific aims will further the research objectives. The research question may be phrased by using the PICOT template; population, intervention, comparator, outcome, and timing. a critical review of the literature to evaluate pertinent information and gaps in knowledge; The literature review should describe specific gaps in knowledge that the study is intended to fill. The literature review might encompass relevant animal and human experiments, clinical studies, vital statistics, and previous epidemiologic studies. The literature review should also cite the findings of similar studies, and the expected contribution of the current study. the overall research design and reasons for choosing the proposed study design; Research designs include, for example, case\u2013control, cohort, cross-sectional, nested case\u2013control, self-controlled, randomized trials or hybrid designs. Any feasibility or pilot work that informed the choice of design should be described here. the population or sample to be studied; The population is defined in terms of persons, place, time period, and selection criteria. The rationale for the inclusion and exclusion criteria and their impact on the number of subjects available for analysis should be described, if known. If any sampling from a defined population is undertaken, description of the population and details of sampling methods should be provided. Some justification should be given to support that the necessary study size is actually attainable from the given data source or design. This could be data from informal queries or pilot studies. Considerations of generalizability from the study population to those actually receiving the drug may be voiced here. the strategies and data sources for determining exposures, health outcomes, and all other variables relevant to the study objectives, such as potential confounding variables and effect measure modifiers; Data sources might include, for example, questionnaires, hospital discharge files, abstracts of primary clinical records, clinical databases, electronic medical records, ad hoc data collection, administrative records such as eligibility files, prescription drug files, biological measurements, exposure/work history record reviews, or exposure/disease registries. If the study uses secondary data, the name of the data source should be included (e.g., Medicare, CPRD, and MarketScan). Use validated instruments and measures whenever such exist and describe the validation method and summarize what is known about the completeness and validity of those instruments and measures. If data collection methods or instruments will be tested in a pilot study, plans for the pilot study should be described. Any procedures to be used to validate diagnosis should be described. clear operational definitions of disease state, exposures, health outcomes, and other measured risk factors for outcome; An operational definition is one that can be implemented independently using the data available in the proposed study. For example \u201cpneumocystis carinii pneumonia, episode\u201d is not an operational definition; a better description would be \u201chospitalization with a principal discharge diagnosis of ICD-9-CM code 136.3.\u201d If complex algorithms are used to establish exposure or health status, they should be described or referenced. projected study size, statistical precision, and the basis for their determination; Describe the relation between the specific aims of the study and the projected study size in relation to each outcome. In most circumstances, it is desirable to express study goals in terms of precision sought for study estimates rather than statistical power. For safety studies, it may be useful to specify the sample size that can minimally detect a pre-specified risk with a pre-specified power, for example, \u201cthe study has an 80% power to detect a relative risk of 3 or greater for drug x compared with treatment with other drugs commonly used in this condition.\u201d For descriptive studies, for example, studies on drug utilization, where the result is a measure of frequency rather than of association, the protocol might specify the expected precision of these frequency estimates, if possible. methods used in assembling the study data; This should include a description of, or reference to, any pre-testing procedures for research instruments and any manuals and formal training to be provided to interviewers, abstractors, coders, or data entry personnel. This should also include procedures for linkage and data mining of administrative databases. If data are validated, methods should mentioned, for example, review of ICD codes. procedures for data management; Describe data management and statistical software programs and hardware to be used in the study. Describe data preparation as well as the methods for data retrieval and collection. Data management also includes methods used to correct inconsistencies or errors, impute values, or modify raw data. methods for data analysis; Data analysis comprises comparisons and methods for analyzing and presenting results, categorizations, and procedures to control sources of bias and their influence on results, for example, possible impact of biases due to selection bias, misclassification, confounding, and missing data. For instance, the statistical procedures to be applied to the data to obtain point estimates and confidence intervals of measures of occurrence or association should be presented. Any sensitivity analyses should be described.Details of the statistical analysis may be specified later, but before analysis begins, as part of a protocol amendment to the study protocol, or more typically as a separate document, usually referred to as a Statistical Analysis Plan. See Analysis under Study Conduct section. a description of quality assurance and quality control procedures for all phases of the study; Mechanisms to ensure data quality and integrity should be described or referenced if the mechanisms are published elsewhere (e.g., when publications describing procedures for existing data collection systems are published or in the public domain), including abstraction of original documents, extent of source data verification, validation of endpoints, and revision and oversight of programming. As appropriate, include certification and/or qualifications of any supporting laboratory or research groups. limitations or strengths of the study design, data sources, and analytic methods; At a minimum, issues relating to confounding, misclassification, selection bias, generalizability, and random error should be considered. The likely success of efforts taken to reduce errors should be discussed. a description of plans for protecting human subjects; This section should include information about whether study subjects will be placed at risk as a result of the study, provisions for maintaining confidentiality of information on study subjects, and potential circumstances and safeguards under which identifiable personal information may be provided to entities outside the study. Conditions under which a clinical trial would be terminated for ethical reasons (stopping rules) should be described. Procedures for monitoring results should be described, and the use of a Data Safety Monitoring Board for clinical trials should be considered for this purpose. The need for submitting the protocol to an Institutional Review Board (IRB)/Independent Ethics Committee and the requirement of informed consent should be considered in accordance with local law. Research using de-identified data from commercially or publically available secondary data sources represents the lowest risk to potential subjects because it involves the collection of anonymous or publically available data. These studies therefore may not require IRB review in all jurisdictions if the study meets other legal and regulatory requirements for the protection of human subjects. If the study is categorized as exempt from IRB review, this should be stated and duly referenced in the protocol. Further, if the investigator's sponsoring institution (e.g., university) or owner of the data source requires the registration and/or ethical review of all research, including \u201cexempt from human subjects research,\u201d this should also be stated. See section on Protection of human subjects. a description of plans for disseminating and communicating study results, including the presence or absence of any restrictions on the extent and timing of publication; There is an ethical obligation to disseminate findings of potential scientific or public health importance (e.g., results pertaining to the safety of a marketed medication). Authorship should follow guidelines established by the International Committee of Medical Journal Editors (http://www.icmje.org/). See also Communication section. dated amendments to the protocol; Significant deviations from the protocol, such as any changes in the population or sample that were implemented after the beginning of the study, along with the rationale, should be documented in writing. Any changes made after data analysis has begun should be documented as such and the rationale provided. archiving or registration of protocol; ISPE endorses the opportunity to register and publicly disclose hypothesis-driven pharmacoepidemiology research protocols in a suitable public site, such as the ENCePP registry (also currently functioning as the EU PAS Register) or ClinicalTrials.gov. If it is chosen, registration and disclosure should be permanent, without the option to retract the protocol. If possible, the researcher may choose to register a protocol with a published timetable for its later disclosure, rather than immediately disclose the protocol at the time of registration. This delay may be scientifically appropriate to avoid the potential for recall or other bias resulting from study participants' knowledge of the study hypothesis, such as in a case control study collecting data on past exposures. The procedures for protocol registration should also include a mechanism for amendment of previously posted protocols. In the registration statement, the investigators should declare the extent to which they were aware, through advance exploratory analyses, of the likely ultimate findings of the study at the time that the protocol is submitted. exceptions from overall protocol requirement; Active surveillance of medical products seeks to proactively identify suspected or unanticipated medical product-associated adverse events. The primary goal of active surveillance is to identify potential safety signals quickly. While these active surveillance activities generally employ sound design and analytic approaches, they are often not fully specified, protocol-driven analyses. As part of surveillance, identified safety alerts undergo further investigations using methods that are tailored to specific product\u2013outcome pairs. If a protocol-driven assessment is deemed necessary to confirm or refute the safety signal, the analysis should follow the GPP to the extent possible. The organization(s) and individual(s) conducting and sponsoring the research shall be fully responsible for the research. The relationship, roles, and responsibilities of the organizations and/or individuals conducting and sponsoring the study should be described. The individuals responsible for pharmacoepidemiologic research, along with the type of expertise and autonomy in conducting the research, should be stated clearly. For projects sponsored by one organization (such as a pharmaceutical company or government agency) but implemented by another (e.g., an academic institution or a contract research organization [CRO]), responsibility for scientific integrity is shared by the collaborating institutions (e.g., sponsor, the principal investigator conducting the study, the senior qualified epidemiology staff within the CRO, and the organization that employs the principal investigator). In such situations of shared responsibility, contractual arrangements should include a timeline for study completion and potential actions to be taken if the timeline cannot be met. In particular, the contract should delineate the roles and responsibilities to be assumed by the study sponsor and the contractor(s) in communicating various aspects of the study as well as data access, ownership, and archiving. Personnel engaged in epidemiologic research and related activities should have the education, training, or experience necessary to perform the assigned functions competently. The organization should maintain a current summary of training and experience of these personnel. A list of individuals engaged in or supervising activities should be maintained and updated periodically with current job titles. Adequate physical facilities shall be provided to all those engaged in epidemiologic research and related activities. Suitable storage facilities shall be available to maintain technical records in a secure and confidential environment in compliance with local regulations. For the purposes of ensuring and documenting the contractor's conformance with the GPP, it is recommended that the study sponsor have the right during the course of the study, and for a reasonable period following completion of the study, to inspect the contractor's facilities, including equipment, technical record, programming, and records relating to the work conducted under the sponsor's contract. The nature of the audit, including procedures that ensure patient confidentiality, should be agreed upon at the outset of any contract. The principal investigator shall be responsible for the overall content of the research project, including the day-to-day conduct of the study, interpretation of the study data, and preparation and publication of the final report. These responsibilities extend to all aspects of the study, including periodic reporting of study progress as well as quality assurance. The unusual decision to terminate a study prematurely should be taken with great caution and should be based on good scientific and ethical reasons and documented in writing. There may be rare instances in which administrative reasons require study termination. Investigators and sponsors should specify and agree in advance about the circumstances under which the study could be terminated early. Included should be a mechanism for resolution of any disagreement. Approval by an IRB, Independent Ethics Committee, or other appropriate body, should be obtained for all research involving human subjects. Studies using commercially or publically available de-identified secondary data sources, or which meet certain other criteria, are not considered research involving human subjects in some countries and may be exempt from IRB review. Informed consent beyond that already obtained for participants in a research database may be needed when the research imposes a risk for patients or data containing personal identifiers is required by the investigator (e.g., medical record). The legal definition of a personal identifier varies across countries; therefore, national and local laws should be consulted when proposing to obtain this type of data. In some circumstances, and in some countries, disclosure of relevant personal medical information (e.g., medical record) without consent is permissible under public health laws, for example, when government organizations conduct infectious disease surveillance or monitoring and reporting adverse drug reactions through secondary data sources (see section on Protocol Development, N on Active Surveillance). Investigators shall ensure that personal identifiers will be removed from any study files that are accessible to non-study personnel in accordance with applicable laws and regulations. Whenever feasible, study files should be coded and stripped of personal identifiers, and code keys should be stored separate from study files. All personnel with access to data containing personal identifiers should sign a pledge to maintain the confidentiality of study subjects. For additional information, please consult the ISPE guidelines on Data Privacy, Medical Record Confidentiality, and Research in the Interest of Public Health (http://www.pharmacoepi.org/resources/privacy.cfm). Blood and serum sample collections stored after completion of clinical studies are a valuable resource. However, protecting confidentiality in such data requires special consideration, and investigators are encouraged to consult guidelines developed by the NHLBI.1 All data collected for the study should be recorded accurately, promptly, and legibly. The individual(s) responsible for the integrity of the data, computerized or hard copy, shall be identified and shall have the education, training, and experience needed to perform the assigned tasks. All procedures used to obtain, verify, and promote the quality and integrity of the data should be recorded in sufficient detail so that others can replicate them. A historical file of these procedures shall be maintained, including all revisions and the dates of such revisions. Any changes in data entries shall be documented. For any endpoint or covariate status ascertainment (in a cohort study or trial) or exposure ascertainment (in a case\u2013control study) that requires adjudication, all measures taken to assure blinding of the adjudicators to the exposure (cohort) or outcome (case\u2013control) status of the subject should be outlined in the protocol. Documentation of these measures needs to be maintained with the data files throughout the course of the study and archiving period. Security of the data should be maintained at all times. Access should be limited to authorized individuals. Control systems, such as document encryption, should be used to ensure the authenticity, integrity, and confidentiality of electronic records when transmitted over open networks (e.g., the Internet). Adequate back up of the data should be maintained throughout the course of the study. The analysis should be directed toward the unbiased estimation of the epidemiologic parameters of interest (e.g., risk or rate differences and risk or rate ratios). The precision of effect estimates should be quantified using confidence intervals. Comparability of populations for pooled estimates should be assured, and missing of important variables should be addressed. Interpretation of statistical measures, including confidence intervals, should be tempered with appropriate judgment and acknowledgements of potential sources of error and limitations of the analysis and should never be taken as the sole or basis for that is or is not a relation between an exposure and outcome. analyses should be conducted to the effect of critical of the Describe the need and of an or analysis when If the of such be pre-specified in the study protocol. studies shall be in a final that the study objectives, results, strengths and limitations of the study, and interpretation of the organization and its if is shall procedures under which of the conduct, results, and interpretation of an epidemiologic study will including what individuals with the research These individuals should include the principal study and/or the This may be documented in the of a company in the study protocol, or through contractual ISPE communicating estimates of epidemiologic measures, generally by using point estimates and confidence intervals, or is useful in reporting results of safety studies to include the relative and risk Investigators should not about based on the outcome of a of (e.g., a or a statement about the confidence including or not including the There is an ethical obligation to disseminate findings of potential scientific or public health For findings that could have a impact on public may be as well as ethical to the results immediately to the appropriate regulatory shall be informed of study results in a by publication in the scientific literature and at scientific or at should not be considered as a for publication in the Authorship of study should follow the guidelines established by the International Committee of Medical Journal Editors (http://www.icmje.org/). All should meet the criteria for and all meet the criteria should be of interest, and should be to to these guidelines should be described in the protocol. research sponsors shall be informed of study results in a that with local regulatory of research including and of should be whether results are or in writing. Pharmacoepidemiologic studies are usually to the relation between certain exposures and health based on comparisons of the frequency in with and without the exposure of interest statistical analyses analytic The primary goal of these analytic studies is to whether a drug exposure the risk of an adverse or protection Therefore, assessment and reporting of if scientific to this For primary data collection studies, reporting of adverse is required by in most information on suspected adverse may be identified during the course of a study, but not as a formal part of the study objectives, procedures for and reporting of safety information in the study should be defined by the sponsor and research at the time of protocol For specific relevant regulatory should be consulted analysis of electronic healthcare may also identify an in risk with a Such studies may be as study but do not require reporting of adverse or adverse data source studies that include medical record or text review by a human for example, studies in which endpoint validation is using medical record review, are an These studies are generally required to adverse drug reactions documented in the medical text If reporting requirements the protocol should specify what data are being collected and how they will be of whether reporting requirements sponsors should findings of their analytic studies in as study be maintained for the storage and retrieval of all study related An shall be to identify the to identify their and to identify by name and any that by their nature are not in the study Access to the shall be and limited to authorized personnel procedures may be necessary to ensure that access to confidential information is limited and that the confidentiality of information about study subjects is pertaining to the study, informed consent of all relevant of IRB and other and of all quality assurance and Communication of study results to the sponsor, and scientific should be for example, questionnaires, and of relevant information and other important guidelines for pharmacoepidemiology research. This list is not to be but an of important guidelines available at the time of the GPP",
+      "venue": "Pharmacoepidemiology and Drug Safety",
+      "citation_count": 279,
+      "doi": "10.1002/pds.3891",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1002/pds.3891",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2519510391",
+      "title": "Semaglutide and Cardiovascular Outcomes in Patients with Type 2 Diabetes",
+      "authors": [
+        {
+          "name": "Steven P. Marso",
+          "affiliation": "Research Medical Center"
+        },
+        {
+          "name": "Stephen C. Bain",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Agostino Consoli",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Freddy G. Eliaschewitz",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Esteban J\u00f3dar",
+          "affiliation": "Universidad Europea de Madrid"
+        },
+        {
+          "name": "Lawrence A. Leiter",
+          "affiliation": "St. Michael's Hospital"
+        },
+        {
+          "name": "Ildiko Lingvay",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Julio Rosenstock",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Jochen Seufert",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Mark Warren",
+          "affiliation": "Physicians East"
+        },
+        {
+          "name": "Vincent Woo",
+          "affiliation": "University of Manitoba"
+        },
+        {
+          "name": "Oluf H. Hansen",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Anders G. Holst",
+          "affiliation": "Swansea University"
+        },
+        {
+          "name": "Jonas Pettersson",
+          "affiliation": "Novo Nordisk (Finland)"
+        },
+        {
+          "name": "Tina Vilsb\u00f8ll",
+          "affiliation": "University of Copenhagen"
+        }
+      ],
+      "year": 2016,
+      "abstract": "BACKGROUND: Establishing cardiovascular safety of new therapies for type 2 diabetes is important. Safety data are available for the subcutaneous form of the glucagon-like peptide-1 receptor agonist semaglutide but are needed for oral semaglutide. METHODS: We assessed cardiovascular outcomes of once-daily oral semaglutide in an event-driven, randomized, double-blind, placebo-controlled trial involving patients at high cardiovascular risk (age of \u226550 years with established cardiovascular or chronic kidney disease, or age of \u226560 years with cardiovascular risk factors only). The primary outcome in a time-to-event analysis was the first occurrence of a major adverse cardiovascular event (death from cardiovascular causes, nonfatal myocardial infarction, or nonfatal stroke). The trial was designed to rule out 80% excess cardiovascular risk as compared with placebo (noninferiority margin of 1.8 for the upper boundary of the 95% confidence interval for the hazard ratio for the primary outcome). RESULTS: A total of 3183 patients were randomly assigned to receive oral semaglutide or placebo. The mean age of the patients was 66 years; 2695 patients (84.7%) were 50 years of age or older and had cardiovascular or chronic kidney disease. The median time in the trial was 15.9 months. Major adverse cardiovascular events occurred in 61 of 1591 patients (3.8%) in the oral semaglutide group and 76 of 1592 (4.8%) in the placebo group (hazard ratio, 0.79; 95% confidence interval [CI], 0.57 to 1.11; P<0.001 for noninferiority). Results for components of the primary outcome were as follows: death from cardiovascular causes, 15 of 1591 patients (0.9%) in the oral semaglutide group and 30 of 1592 (1.9%) in the placebo group (hazard ratio, 0.49; 95% CI, 0.27 to 0.92); nonfatal myocardial infarction, 37 of 1591 patients (2.3%) and 31 of 1592 (1.9%), respectively (hazard ratio, 1.18; 95% CI, 0.73 to 1.90); and nonfatal stroke, 12 of 1591 patients (0.8%) and 16 of 1592 (1.0%), respectively (hazard ratio, 0.74; 95% CI, 0.35 to 1.57). Death from any cause occurred in 23 of 1591 patients (1.4%) in the oral semaglutide group and 45 of 1592 (2.8%) in the placebo group (hazard ratio, 0.51; 95% CI, 0.31 to 0.84). Gastrointestinal adverse events leading to discontinuation of oral semaglutide or placebo were more common with oral semaglutide. CONCLUSIONS: In this trial involving patients with type 2 diabetes, the cardiovascular risk profile of oral semaglutide was not inferior to that of placebo. (Funded by Novo Nordisk; PIONEER 6 ClinicalTrials.gov number, NCT02692716.).",
+      "venue": "New England Journal of Medicine",
+      "citation_count": 6404,
+      "doi": "10.1056/nejmoa1607141",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1056/nejmoa1607141",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2110300022",
+      "title": "Predictive functional profiling of microbial communities using 16S rRNA marker gene sequences",
+      "authors": [
+        {
+          "name": "Morgan G. I. Langille",
+          "affiliation": "Dalhousie University"
+        },
+        {
+          "name": "Jesse Zaneveld",
+          "affiliation": "Oregon State University"
+        },
+        {
+          "name": "J. Gregory Caporaso",
+          "affiliation": "Argonne National Laboratory"
+        },
+        {
+          "name": "Daniel McDonald",
+          "affiliation": "University of Colorado Boulder"
+        },
+        {
+          "name": "Dan Knights",
+          "affiliation": "Biotechnology Institute"
+        },
+        {
+          "name": "Joshua A Reyes",
+          "affiliation": "Harvard University"
+        },
+        {
+          "name": "Jos\u00e9 C. Clemente",
+          "affiliation": "University of Colorado Boulder"
+        },
+        {
+          "name": "Deron E. Burkepile",
+          "affiliation": "Florida International University"
+        },
+        {
+          "name": "Rebecca L. Vega Thurber",
+          "affiliation": "Oregon State University"
+        },
+        {
+          "name": "Rob Knight",
+          "affiliation": "University of Colorado Boulder"
+        },
+        {
+          "name": "Robert G. Beiko",
+          "affiliation": "Dalhousie University"
+        },
+        {
+          "name": "Curtis Huttenhower",
+          "affiliation": "Harvard University"
+        }
+      ],
+      "year": 2013,
+      "abstract": "",
+      "venue": "Nature Biotechnology",
+      "citation_count": 9259,
+      "doi": "10.1038/nbt.2676",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/nbt.2676",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2133416234",
+      "title": "2013 ESH/ESC Guidelines for the management of arterial hypertension",
+      "authors": [
+        {
+          "name": "Giuseppe Mancia",
+          "affiliation": "University of Milano-Bicocca"
+        },
+        {
+          "name": "Robert Fagard",
+          "affiliation": ""
+        },
+        {
+          "name": "Krzysztof Narkiewicz",
+          "affiliation": ""
+        },
+        {
+          "name": "Josep Red\u00f3n",
+          "affiliation": ""
+        },
+        {
+          "name": "Alberto Zanchetti",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael B\u00f6hm",
+          "affiliation": ""
+        },
+        {
+          "name": "Thierry Christiaens",
+          "affiliation": ""
+        },
+        {
+          "name": "Renata C\u00edfkov\u00e1",
+          "affiliation": ""
+        },
+        {
+          "name": "Guy De Backer",
+          "affiliation": ""
+        },
+        {
+          "name": "Anna F. Dominiczak",
+          "affiliation": ""
+        },
+        {
+          "name": "Maurizio Galderisi",
+          "affiliation": ""
+        },
+        {
+          "name": "Diederick E. Grobbee",
+          "affiliation": ""
+        },
+        {
+          "name": "Tiny Jaarsma",
+          "affiliation": ""
+        },
+        {
+          "name": "Paulus Kirchhof",
+          "affiliation": ""
+        },
+        {
+          "name": "Sverre E. Kjeldsen",
+          "affiliation": ""
+        },
+        {
+          "name": "St\u00e9phane Laurent",
+          "affiliation": ""
+        },
+        {
+          "name": "Athanasios J Manolis",
+          "affiliation": ""
+        },
+        {
+          "name": "Peter M. Nilsson",
+          "affiliation": ""
+        },
+        {
+          "name": "Lu\u00eds M. Ruilope",
+          "affiliation": ""
+        },
+        {
+          "name": "Roland E Schmieder",
+          "affiliation": ""
+        },
+        {
+          "name": "Per Anton Sirnes",
+          "affiliation": ""
+        },
+        {
+          "name": "Peter Sleight",
+          "affiliation": ""
+        },
+        {
+          "name": "Margus Viigimaa",
+          "affiliation": ""
+        },
+        {
+          "name": "Bernard Waeber",
+          "affiliation": ""
+        },
+        {
+          "name": "Fa\u0131\u0308ez Zannad",
+          "affiliation": ""
+        },
+        {
+          "name": "Josep Redon",
+          "affiliation": ""
+        },
+        {
+          "name": "Anna F. Dominiczak",
+          "affiliation": ""
+        },
+        {
+          "name": "Krzysztof Narkiewicz",
+          "affiliation": ""
+        },
+        {
+          "name": "Peter M. Nilsson",
+          "affiliation": ""
+        },
+        {
+          "name": "Michel Burnier",
+          "affiliation": ""
+        },
+        {
+          "name": "Margus Viigimaa",
+          "affiliation": ""
+        },
+        {
+          "name": "Ettore Ambrosioni",
+          "affiliation": ""
+        },
+        {
+          "name": "Mark Caufield",
+          "affiliation": ""
+        },
+        {
+          "name": "Ant\u00f3nio Coca",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael Hecht Olsen",
+          "affiliation": ""
+        },
+        {
+          "name": "Roland E Schmieder",
+          "affiliation": ""
+        },
+        {
+          "name": "Costas Tsioufis",
+          "affiliation": ""
+        },
+        {
+          "name": "Philippe van de Borne",
+          "affiliation": ""
+        },
+        {
+          "name": "Jose Luis Zamorano",
+          "affiliation": ""
+        },
+        {
+          "name": "Stephan Achenbach",
+          "affiliation": ""
+        },
+        {
+          "name": "Helmut Baumgartner",
+          "affiliation": ""
+        },
+        {
+          "name": "Jeroen J. Bax",
+          "affiliation": ""
+        },
+        {
+          "name": "H\u00e9ctor Bueno",
+          "affiliation": ""
+        },
+        {
+          "name": "Veronica Dean",
+          "affiliation": ""
+        },
+        {
+          "name": "Christi Deaton",
+          "affiliation": "University of Li\u00e8ge"
+        },
+        {
+          "name": "\u00c7etin Erol",
+          "affiliation": ""
+        },
+        {
+          "name": "Robert Fagard",
+          "affiliation": ""
+        },
+        {
+          "name": "Roberto Ferrari",
+          "affiliation": ""
+        },
+        {
+          "name": "David Hasdai",
+          "affiliation": ""
+        },
+        {
+          "name": "Arno W Hoes",
+          "affiliation": ""
+        },
+        {
+          "name": "Paulus Kirchhof",
+          "affiliation": ""
+        },
+        {
+          "name": "Juhani Knuuti",
+          "affiliation": ""
+        },
+        {
+          "name": "Philippe Kolh",
+          "affiliation": ""
+        },
+        {
+          "name": "Patrizio Lancellotti",
+          "affiliation": ""
+        },
+        {
+          "name": "Ale\u0161 Linhart",
+          "affiliation": ""
+        },
+        {
+          "name": "Petros Nihoyannopoulos",
+          "affiliation": ""
+        },
+        {
+          "name": "Massimo Piepoli",
+          "affiliation": ""
+        },
+        {
+          "name": "Piotr Ponikowski",
+          "affiliation": ""
+        },
+        {
+          "name": "Per Anton Sirnes",
+          "affiliation": ""
+        },
+        {
+          "name": "Juan Tamargo",
+          "affiliation": ""
+        },
+        {
+          "name": "Micha\u0142 Tendera",
+          "affiliation": ""
+        },
+        {
+          "name": "Adam Torbicki",
+          "affiliation": ""
+        },
+        {
+          "name": "William Wijns",
+          "affiliation": ""
+        },
+        {
+          "name": "Stephan Windecker",
+          "affiliation": ""
+        },
+        {
+          "name": "Denis Cl\u00e9ment",
+          "affiliation": ""
+        },
+        {
+          "name": "Ant\u00f3nio Coca",
+          "affiliation": ""
+        },
+        {
+          "name": "Thierry Gillebert",
+          "affiliation": ""
+        },
+        {
+          "name": "Micha\u0142 Tendera",
+          "affiliation": ""
+        },
+        {
+          "name": "Enrico Agabiti Rosei",
+          "affiliation": ""
+        },
+        {
+          "name": "Ettore Ambrosioni",
+          "affiliation": ""
+        },
+        {
+          "name": "Stefan D Anker",
+          "affiliation": ""
+        },
+        {
+          "name": "Johann Bauersachs",
+          "affiliation": ""
+        },
+        {
+          "name": "Jana Brguljan Hitij",
+          "affiliation": ""
+        },
+        {
+          "name": "Mark J. Caulfield",
+          "affiliation": ""
+        },
+        {
+          "name": "Marc De Buyzere",
+          "affiliation": ""
+        },
+        {
+          "name": "Sabina De Geest",
+          "affiliation": ""
+        },
+        {
+          "name": "Genevi\u00e8ve D\u00e9rumeaux",
+          "affiliation": ""
+        },
+        {
+          "name": "Serap Erdine",
+          "affiliation": ""
+        },
+        {
+          "name": "Csaba Farsang",
+          "affiliation": ""
+        },
+        {
+          "name": "Christian Funck\u2010Brentano",
+          "affiliation": ""
+        },
+        {
+          "name": "Vjekoslav Gerc",
+          "affiliation": ""
+        },
+        {
+          "name": "Giuseppe German\u00f2",
+          "affiliation": ""
+        },
+        {
+          "name": "Stephan Gielen",
+          "affiliation": ""
+        },
+        {
+          "name": "Herman Haller",
+          "affiliation": ""
+        },
+        {
+          "name": "Arno W Hoes",
+          "affiliation": ""
+        },
+        {
+          "name": "Jens Jordan",
+          "affiliation": ""
+        },
+        {
+          "name": "Thomas Kahan",
+          "affiliation": ""
+        },
+        {
+          "name": "Michel Komajda",
+          "affiliation": ""
+        },
+        {
+          "name": "Dragan Lovi\u0107",
+          "affiliation": ""
+        },
+        {
+          "name": "Heiko Mahrholdt",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael Hecht Olsen",
+          "affiliation": ""
+        },
+        {
+          "name": "Jan Ostergren",
+          "affiliation": ""
+        },
+        {
+          "name": "Gianfranco Parati",
+          "affiliation": ""
+        },
+        {
+          "name": "Joep Perk",
+          "affiliation": ""
+        },
+        {
+          "name": "Jorge Pol\u00f3nia",
+          "affiliation": ""
+        },
+        {
+          "name": "Bogdan A Popescu",
+          "affiliation": ""
+        },
+        {
+          "name": "Zeljko Reiner",
+          "affiliation": ""
+        },
+        {
+          "name": "Lars Ryd\u00e9n",
+          "affiliation": ""
+        },
+        {
+          "name": "Yu.M. S\u0456renko",
+          "affiliation": ""
+        },
+        {
+          "name": "Alice Stanton",
+          "affiliation": ""
+        }
+      ],
+      "year": 2013,
+      "abstract": "The ESH/ESC Guidelines represent the views of the ESH and ESC and were arrived at after careful consideration of the available evidence at the time they were written. Health professionals are encouraged to take them fully into account when exercising their clinical judgement. The guidelines do not, however, override the individual responsibility of health professionals to make appropriate decisions in the circumstances of the individual patients, in consultation with that patient, and where appropriate and necessary the patient's guardian or carer. It is also the health professional's responsibility to verify the rules and regulations applicable to drugs and devices at the time of prescription.",
+      "venue": "European Heart Journal",
+      "citation_count": 13663,
+      "doi": "10.1093/eurheartj/eht151",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1093/eurheartj/eht151",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2103317434",
+      "title": "EFFECTS OF BIODIVERSITY ON ECOSYSTEM FUNCTIONING: A CONSENSUS OF CURRENT KNOWLEDGE",
+      "authors": [
+        {
+          "name": "David U. Hooper",
+          "affiliation": "Western Washington University"
+        },
+        {
+          "name": "F. Stuart Chapin",
+          "affiliation": "University of Alaska Fairbanks"
+        },
+        {
+          "name": "John J. Ewel",
+          "affiliation": "US Forest Service"
+        },
+        {
+          "name": "Andy Hector",
+          "affiliation": "ZHAW Zurich University of Applied Sciences"
+        },
+        {
+          "name": "Pablo Inchausti",
+          "affiliation": "Centre d'Etudes Biologiques de Chiz\u00e9"
+        },
+        {
+          "name": "Sandra Lavorel",
+          "affiliation": "Universit\u00e9 Joseph Fourier"
+        },
+        {
+          "name": "John H. Lawton",
+          "affiliation": "Natural Environment Research Council"
+        },
+        {
+          "name": "David M. Lodge",
+          "affiliation": "University of Notre Dame"
+        },
+        {
+          "name": "Michel Loreau",
+          "affiliation": "\u00c9cole Normale Sup\u00e9rieure"
+        },
+        {
+          "name": "Shahid Naeem",
+          "affiliation": "Columbia University"
+        },
+        {
+          "name": "Bernhard Schmid",
+          "affiliation": "ZHAW Zurich University of Applied Sciences"
+        },
+        {
+          "name": "Heikki Set\u00e4l\u00e4",
+          "affiliation": "University of Helsinki"
+        },
+        {
+          "name": "Amy J. Symstad",
+          "affiliation": "United States Geological Survey"
+        },
+        {
+          "name": "John Vandermeer",
+          "affiliation": "University of Michigan"
+        },
+        {
+          "name": "David A. Wardle",
+          "affiliation": "Manaaki Whenua \u2013 Landcare Research"
+        }
+      ],
+      "year": 2005,
+      "abstract": "Humans are altering the composition of biological communities through a variety of activities that increase rates of species invasions and species extinctions, at all scales, from local to global. These changes in components of the Earth's biodiversity cause concern for ethical and aesthetic reasons, but they also have a strong potential to alter ecosystem properties and the goods and services they provide to humanity. Ecological experiments, observations, and theoretical developments show that ecosystem properties depend greatly on biodiversity in terms of the functional characteristics of organisms present in the ecosystem and the distribution and abundance of those organisms over space and time. Species effects act in concert with the effects of climate, resource availability, and disturbance regimes in influencing ecosystem properties. Human activities can modify all of the above factors; here we focus on modification of these biotic controls. The scientific community has come to a broad consensus on many aspects of the relationship between biodiversity and ecosystem functioning, including many points relevant to management of ecosystems. Further progress will require integration of knowledge about biotic and abiotic controls on ecosystem properties, how ecological communities are structured, and the forces driving species extinctions and invasions. To strengthen links to policy and management, we also need to integrate our ecological knowledge with understanding of the social and economic constraints of potential management practices. Understanding this complexity, while taking strong steps to minimize current losses of species, is necessary for responsible management of Earth's ecosystems and the diverse biota they contain. Based on our review of the scientific literature, we are certain of the following conclusions: 1) Species' functional characteristics strongly influence ecosystem properties. Functional characteristics operate in a variety of contexts, including effects of dominant species, keystone species, ecological engineers, and interactions among species (e.g., competition, facilitation, mutualism, disease, and predation). Relative abundance alone is not always a good predictor of the ecosystem-level importance of a species, as even relatively rare species (e.g., a keystone predator) can strongly influence pathways of energy and material flows. 2) Alteration of biota in ecosystems via species invasions and extinctions caused by human activities has altered ecosystem goods and services in many well-documented cases. Many of these changes are difficult, expensive, or impossible to reverse or fix with technological solutions. 3) The effects of species loss or changes in composition, and the mechanisms by which the effects manifest themselves, can differ among ecosystem properties, ecosystem types, and pathways of potential community change. 4) Some ecosystem properties are initially insensitive to species loss because (a) ecosystems may have multiple species that carry out similar functional roles, (b) some species may contribute relatively little to ecosystem properties, or (c) properties may be primarily controlled by abiotic environmental conditions. 5) More species are needed to insure a stable supply of ecosystem goods and services as spatial and temporal variability increases, which typically occurs as longer time periods and larger areas are considered. We have high confidence in the following conclusions: 1) Certain combinations of species are complementary in their patterns of resource use and can increase average rates of productivity and nutrient retention. At the same time, environmental conditions can influence the importance of complementarity in structuring communities. Identification of which and how many species act in a complementary way in complex communities is just beginning. 2) Susceptibility to invasion by exotic species is strongly influenced by species composition and, under similar environmental conditions, generally decreases with increasing species richness. However, several other factors, such as propagule pressure, disturbance regime, and resource availability also strongly influence invasion success and often override effects of species richness in comparisons across different sites or ecosystems. 3) Having a range of species that respond differently to different environmental perturbations can stabilize ecosystem process rates in response to disturbances and variation in abiotic conditions. Using practices that maintain a diversity of organisms of different functional effect and functional response types will help preserve a range of management options. Uncertainties remain and further research is necessary in the following areas: 1) Further resolution of the relationships among taxonomic diversity, functional diversity, and community structure is important for identifying mechanisms of biodiversity effects. 2) Multiple trophic levels are common to ecosystems but have been understudied in biodiversity/ecosystem functioning research. The response of ecosystem properties to varying composition and diversity of consumer organisms is much more complex than responses seen in experiments that vary only the diversity of primary producers. 3) Theoretical work on stability has outpaced experimental work, especially field research. We need long-term experiments to be able to assess temporal stability, as well as experimental perturbations to assess response to and recovery from a variety of disturbances. Design and analysis of such experiments must account for several factors that covary with species diversity. 4) Because biodiversity both responds to and influences ecosystem properties, understanding the feedbacks involved is necessary to integrate results from experimental communities with patterns seen at broader scales. Likely patterns of extinction and invasion need to be linked to different drivers of global change, the forces that structure communities, and controls on ecosystem properties for the development of effective management and conservation strategies. 5) This paper focuses primarily on terrestrial systems, with some coverage of freshwater systems, because that is where most empirical and theoretical study has focused. While the fundamental principles described here should apply to marine systems, further study of that realm is necessary. Despite some uncertainties about the mechanisms and circumstances under which diversity influences ecosystem properties, incorporating diversity effects into policy and management is essential, especially in making decisions involving large temporal and spatial scales. Sacrificing those aspects of ecosystems that are difficult or impossible to reconstruct, such as diversity, simply because we are not yet certain about the extent and mechanisms by which they affect ecosystem properties, will restrict future management options even further. It is incumbent upon ecologists to communicate this need, and the values that can derive from such a perspective, to those charged with economic and policy decision-making.",
+      "venue": "Ecological Monographs",
+      "citation_count": 7866,
+      "doi": "10.1890/04-0922",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1890/04-0922",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2162739315",
+      "title": "Guidelines for conducting and reporting case study research in software engineering",
+      "authors": [
+        {
+          "name": "Per Runeson",
+          "affiliation": "Lund University"
+        },
+        {
+          "name": "Martin H\u00f6st",
+          "affiliation": "Lund University"
+        }
+      ],
+      "year": 2008,
+      "abstract": "Case study is a suitable research methodology for software engineering research since it studies contemporary phenomena in its natural context. However, the understanding of what constitutes a case study varies, and hence the quality of the resulting studies. This paper aims at providing an introduction to case study methodology and guidelines for researchers conducting case studies and readers studying reports of such studies. The content is based on the authors\u2019 own experience from conducting and reading case studies. The terminology and guidelines are compiled from different methodology handbooks in other research domains, in particular social science and information systems, and adapted to the needs in software engineering. We present recommended practices for software engineering case studies as well as empirically derived and evaluated checklists for researchers and readers of case study research.",
+      "venue": "Empirical Software Engineering",
+      "citation_count": 3758,
+      "doi": "10.1007/s10664-008-9102-8",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1007/s10664-008-9102-8",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3194472989",
+      "title": "A new framework for developing and evaluating complex interventions: update of Medical Research Council guidance",
+      "authors": [
+        {
+          "name": "Kathryn Skivington",
+          "affiliation": "MRC/CSO Social and Public Health Sciences Unit"
+        },
+        {
+          "name": "Lynsay Matthews",
+          "affiliation": "MRC/CSO Social and Public Health Sciences Unit"
+        },
+        {
+          "name": "Sharon Simpson",
+          "affiliation": "MRC/CSO Social and Public Health Sciences Unit"
+        },
+        {
+          "name": "Peter Craig",
+          "affiliation": "MRC/CSO Social and Public Health Sciences Unit"
+        },
+        {
+          "name": "Janis Baird",
+          "affiliation": "MRC Lifecourse Epidemiology Unit"
+        },
+        {
+          "name": "Jane Blazeby",
+          "affiliation": "NIHR Bristol Biomedical Research Centre"
+        },
+        {
+          "name": "Kathleen Boyd",
+          "affiliation": "University of Glasgow"
+        },
+        {
+          "name": "Neil Craig",
+          "affiliation": "Public Health Scotland"
+        },
+        {
+          "name": "David French",
+          "affiliation": "Manchester Academic Health Science Centre"
+        },
+        {
+          "name": "Emma McIntosh",
+          "affiliation": "University of Glasgow"
+        },
+        {
+          "name": "Mark Petticrew",
+          "affiliation": "London School of Hygiene & Tropical Medicine"
+        },
+        {
+          "name": "Jo Rycroft\u2010Malone",
+          "affiliation": "Lancaster University"
+        },
+        {
+          "name": "Martin White",
+          "affiliation": "University of Cambridge"
+        },
+        {
+          "name": "Laurence Moore",
+          "affiliation": "MRC/CSO Social and Public Health Sciences Unit"
+        }
+      ],
+      "year": 2021,
+      "abstract": "The UK Medical Research Council\u2019s widely used guidance for developing and evaluating complex interventions has been replaced by a new framework, commissioned jointly by the Medical Research Council and the National Institute for Health Research, which takes account of recent developments in theory and methods and the need to maximise the efficiency, use, and impact of research.",
+      "venue": "BMJ",
+      "citation_count": 5652,
+      "doi": "10.1136/bmj.n2061",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1136/bmj.n2061",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2986633517",
+      "title": "Pembrolizumab alone or with chemotherapy versus cetuximab with chemotherapy for recurrent or metastatic squamous cell carcinoma of the head and neck (KEYNOTE-048): a randomised, open-label, phase 3 study",
+      "authors": [
+        {
+          "name": "Barbara Burtness",
+          "affiliation": "Yale Cancer Center"
+        },
+        {
+          "name": "Kevin J. Harrington",
+          "affiliation": "Royal Marsden NHS Foundation Trust"
+        },
+        {
+          "name": "Richard Greil",
+          "affiliation": "Paracelsus Medical University"
+        },
+        {
+          "name": "Denis Souli\u00e8res",
+          "affiliation": "Centre Hospitalier de l\u2019Universit\u00e9 de Montr\u00e9al"
+        },
+        {
+          "name": "Makoto Tahara",
+          "affiliation": "National Cancer Center Hospital East"
+        },
+        {
+          "name": "Gilberto de Castro",
+          "affiliation": "Instituto do C\u00e2ncer do Estado de S\u00e3o Paulo"
+        },
+        {
+          "name": "Amanda Psyrri",
+          "affiliation": "National and Kapodistrian University of Athens"
+        },
+        {
+          "name": "Neus Bast\u00e9",
+          "affiliation": "Vall d'Hebron Hospital Universitari"
+        },
+        {
+          "name": "Prakash Neupane",
+          "affiliation": "University of Kansas Medical Center"
+        },
+        {
+          "name": "\u00c5se Bratland",
+          "affiliation": "Oslo University Hospital"
+        },
+        {
+          "name": "Thorsten Fuereder",
+          "affiliation": "Medical University of Vienna"
+        },
+        {
+          "name": "Brett Hughes",
+          "affiliation": "The University of Queensland"
+        },
+        {
+          "name": "Ricard Mes\u0131\u0301a",
+          "affiliation": "Institut Catal\u00e0 d'Oncologia"
+        },
+        {
+          "name": "Nuttapong Ngamphaiboon",
+          "affiliation": "Mahidol University"
+        },
+        {
+          "name": "Tamara Rordorf",
+          "affiliation": "University Hospital of Zurich"
+        },
+        {
+          "name": "Wan Zamaniah Wan Ishak",
+          "affiliation": ""
+        },
+        {
+          "name": "Ruey\u2010Long Hong",
+          "affiliation": "National Taiwan University Hospital"
+        },
+        {
+          "name": "Ren\u00e9 Gonz\u00e1lez Mendoza",
+          "affiliation": ""
+        },
+        {
+          "name": "Ananya Roy",
+          "affiliation": "Merck & Co., Inc., Rahway, NJ, USA (United States)"
+        },
+        {
+          "name": "Yayan Zhang",
+          "affiliation": "Merck & Co., Inc., Rahway, NJ, USA (United States)"
+        },
+        {
+          "name": "Burak G\u00fcm\u00fc\u015f\u00e7\u00fc",
+          "affiliation": "Merck & Co., Inc., Rahway, NJ, USA (United States)"
+        },
+        {
+          "name": "Jonathan D. Cheng",
+          "affiliation": "Merck & Co., Inc., Rahway, NJ, USA (United States)"
+        },
+        {
+          "name": "Fan Jin",
+          "affiliation": "Merck & Co., Inc., Rahway, NJ, USA (United States)"
+        },
+        {
+          "name": "Danny Rischin",
+          "affiliation": "The University of Melbourne"
+        },
+        {
+          "name": "Guillermo Lerzo",
+          "affiliation": ""
+        },
+        {
+          "name": "Marcelo Tatangelo",
+          "affiliation": ""
+        },
+        {
+          "name": "Mirta Varela",
+          "affiliation": ""
+        },
+        {
+          "name": "Juan Jos\u00e9 Zarb\u00e1",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael Boyer",
+          "affiliation": ""
+        },
+        {
+          "name": "Hui Gan",
+          "affiliation": ""
+        },
+        {
+          "name": "Bo Gao",
+          "affiliation": "Mahidol University"
+        },
+        {
+          "name": "Brett Hughes",
+          "affiliation": "The University of Queensland"
+        },
+        {
+          "name": "Girish Mallesara",
+          "affiliation": ""
+        },
+        {
+          "name": "Danny Rischin",
+          "affiliation": "The University of Melbourne"
+        },
+        {
+          "name": "Anne L. Taylor",
+          "affiliation": ""
+        },
+        {
+          "name": "Martin Burian",
+          "affiliation": ""
+        },
+        {
+          "name": "Thorsten Fuereder",
+          "affiliation": "Medical University of Vienna"
+        },
+        {
+          "name": "Richard Greil",
+          "affiliation": "Paracelsus Medical University"
+        },
+        {
+          "name": "Carlos H. Barrios",
+          "affiliation": ""
+        },
+        {
+          "name": "Dalvaro Oliveira de Castro Junior",
+          "affiliation": ""
+        },
+        {
+          "name": "Gilberto de Castro",
+          "affiliation": "Instituto do C\u00e2ncer do Estado de S\u00e3o Paulo"
+        },
+        {
+          "name": "F\u00e1bio Franke",
+          "affiliation": ""
+        },
+        {
+          "name": "Gustavo Girotto",
+          "affiliation": ""
+        },
+        {
+          "name": "Iane Pinto Figueiredo Lima",
+          "affiliation": ""
+        },
+        {
+          "name": "Ulisses Ribaldo Nicolau",
+          "affiliation": ""
+        },
+        {
+          "name": "Gustavo Dix Junqueira Pinto",
+          "affiliation": ""
+        },
+        {
+          "name": "Lucas Vieira dos Santos",
+          "affiliation": ""
+        },
+        {
+          "name": "Ana-Paula Victorino",
+          "affiliation": ""
+        },
+        {
+          "name": "Neil Chua",
+          "affiliation": ""
+        },
+        {
+          "name": "F\u00e9lix Couture",
+          "affiliation": ""
+        },
+        {
+          "name": "Richard Gregg",
+          "affiliation": "Paracelsus Medical University"
+        },
+        {
+          "name": "Aaron R. Hansen",
+          "affiliation": ""
+        },
+        {
+          "name": "John Hilton",
+          "affiliation": ""
+        },
+        {
+          "name": "Joy McCarthy",
+          "affiliation": ""
+        },
+        {
+          "name": "Denis Souli\u00e8res",
+          "affiliation": "Centre Hospitalier de l\u2019Universit\u00e9 de Montr\u00e9al"
+        },
+        {
+          "name": "Rodrigo Ascu\u00ed",
+          "affiliation": ""
+        },
+        {
+          "name": "Pablo Gonzalez",
+          "affiliation": ""
+        },
+        {
+          "name": "Luis J. Villanueva-Rivera",
+          "affiliation": ""
+        },
+        {
+          "name": "Marco Torregroza",
+          "affiliation": ""
+        },
+        {
+          "name": "\u00c1ngela R. Zambrano",
+          "affiliation": ""
+        },
+        {
+          "name": "Petra Holeckova",
+          "affiliation": ""
+        },
+        {
+          "name": "Zden\u011bk Kr\u00e1l",
+          "affiliation": ""
+        },
+        {
+          "name": "Bohuslav Melichar",
+          "affiliation": ""
+        },
+        {
+          "name": "Prausova Jana",
+          "affiliation": ""
+        },
+        {
+          "name": "Milan Vo\u0161mik",
+          "affiliation": ""
+        },
+        {
+          "name": "Maria Andersen",
+          "affiliation": ""
+        },
+        {
+          "name": "Niels Gyldenkerne",
+          "affiliation": ""
+        },
+        {
+          "name": "Hannes J\u00fcrgens",
+          "affiliation": ""
+        },
+        {
+          "name": "Kadri Putnik",
+          "affiliation": ""
+        },
+        {
+          "name": "Petri Reinikainen",
+          "affiliation": ""
+        },
+        {
+          "name": "Viktor Gruenwald",
+          "affiliation": ""
+        },
+        {
+          "name": "Simon Laban",
+          "affiliation": ""
+        },
+        {
+          "name": "Gerasimos Aravantinos",
+          "affiliation": ""
+        },
+        {
+          "name": "Ioannis Boukovinas",
+          "affiliation": ""
+        },
+        {
+          "name": "Vassilis Georgoulias",
+          "affiliation": ""
+        },
+        {
+          "name": "Amanda Psyrri",
+          "affiliation": "National and Kapodistrian University of Athens"
+        },
+        {
+          "name": "D.L.W. Kwong",
+          "affiliation": ""
+        },
+        {
+          "name": "Yousuf Al-Farhat",
+          "affiliation": ""
+        },
+        {
+          "name": "Tibor Cs\u0151szi",
+          "affiliation": ""
+        },
+        {
+          "name": "J\u00f3zsef Erf\u00e1n",
+          "affiliation": ""
+        },
+        {
+          "name": "Geza Horvai",
+          "affiliation": ""
+        },
+        {
+          "name": "L\u00e1szl\u00f3 Landherr",
+          "affiliation": ""
+        },
+        {
+          "name": "\u00c9va Remen\u00e1r",
+          "affiliation": ""
+        },
+        {
+          "name": "\u00c1gnes Ruzsa",
+          "affiliation": ""
+        },
+        {
+          "name": "Judit Szota",
+          "affiliation": ""
+        },
+        {
+          "name": "Salem Billan",
+          "affiliation": ""
+        },
+        {
+          "name": "Iris Gluck",
+          "affiliation": ""
+        },
+        {
+          "name": "Orit Gutfeld",
+          "affiliation": ""
+        },
+        {
+          "name": "Aron Popovtzer",
+          "affiliation": ""
+        },
+        {
+          "name": "Marco Benasso",
+          "affiliation": ""
+        },
+        {
+          "name": "Simona Bui",
+          "affiliation": ""
+        },
+        {
+          "name": "Vittorio Ferrari",
+          "affiliation": ""
+        },
+        {
+          "name": "Lisa Licitra",
+          "affiliation": ""
+        },
+        {
+          "name": "Franco Nol\u00e8",
+          "affiliation": ""
+        },
+        {
+          "name": "Takashi Fujii",
+          "affiliation": ""
+        },
+        {
+          "name": "Yasushi Fujimoto",
+          "affiliation": ""
+        },
+        {
+          "name": "Nobuhiro Hanai",
+          "affiliation": ""
+        },
+        {
+          "name": "Hiroki Hara",
+          "affiliation": "National Cancer Center Hospital East"
+        },
+        {
+          "name": "Koji Matsumoto",
+          "affiliation": ""
+        },
+        {
+          "name": "Kenji Mitsugi",
+          "affiliation": ""
+        }
+      ],
+      "year": 2019,
+      "abstract": "",
+      "venue": "The Lancet",
+      "citation_count": 3119,
+      "doi": "10.1016/s0140-6736(19)32591-7",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/s0140-6736(19)32591-7",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2570760970",
+      "title": "A manifesto for reproducible science",
+      "authors": [
+        {
+          "name": "Marcus R. Munaf\u00f2",
+          "affiliation": "University of Bristol"
+        },
+        {
+          "name": "Brian A. Nosek",
+          "affiliation": "University of Virginia"
+        },
+        {
+          "name": "Dorothy Bishop",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Katherine S. Button",
+          "affiliation": "University of Bath"
+        },
+        {
+          "name": "Chris Chambers",
+          "affiliation": "Cardiff University"
+        },
+        {
+          "name": "Nathalie Percie du Sert",
+          "affiliation": "National Centre for the Replacement Refinement and Reduction of Animals in Research"
+        },
+        {
+          "name": "Uri Simonsohn",
+          "affiliation": "University of Pennsylvania"
+        },
+        {
+          "name": "Eric\u2010Jan Wagenmakers",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "Jennifer J. Ware",
+          "affiliation": "CHDI Foundation"
+        },
+        {
+          "name": "John P. A. Ioannidis",
+          "affiliation": "Stanford University"
+        }
+      ],
+      "year": 2017,
+      "abstract": "Improving the reliability and efficiency of scientific research will increase the credibility of the published scientific literature and accelerate discovery. Here we argue for the adoption of measures to optimize key elements of the scientific process: methods, reporting and dissemination, reproducibility, evaluation and incentives. There is some evidence from both simulations and empirical studies supporting the likely effectiveness of these measures, but their broad adoption by researchers, institutions, funders and journals will require iterative evaluation and improvement. We discuss the goals of these measures, and how they can be implemented, in the hope that this will facilitate action toward improving the transparency, reproducibility and efficiency of scientific research.",
+      "venue": "Nature Human Behaviour",
+      "citation_count": 3452,
+      "doi": "10.1038/s41562-016-0021",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/s41562-016-0021",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2798054687",
+      "title": "NIA\u2010AA Research Framework: Toward a biological definition of Alzheimer's disease",
+      "authors": [
+        {
+          "name": "Clifford R. Jack",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "David A. Bennett",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Kaj Blennow",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Mar\u00eda C. Carrillo",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Billy Dunn",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Samantha Budd Haeberlein",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "David M. Holtzman",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "William J. Jagust",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Frank Jessen",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Jason Karlawish",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Enchi Liu",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Jos\u00e9 Lu\u00eds Molinuevo",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Thomas J. Montine",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Creighton H. Phelps",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Katherine P. Rankin",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Christopher C. Rowe",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Philip Scheltens",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Eric Siemers",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Heather M. Snyder",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Reisa A. Sperling",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Contributors",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Cerise Elliott",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Eliezer Masliah",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Laurie Ryan",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Nina Silverberg",
+          "affiliation": "Alzheimer's Association"
+        }
+      ],
+      "year": 2018,
+      "abstract": "In 2011, the National Institute on Aging and Alzheimer's Association created separate diagnostic recommendations for the preclinical, mild cognitive impairment, and dementia stages of Alzheimer's disease. Scientific progress in the interim led to an initiative by the National Institute on Aging and Alzheimer's Association to update and unify the 2011 guidelines. This unifying update is labeled a \"research framework\" because its intended use is for observational and interventional research, not routine clinical care. In the National Institute on Aging and Alzheimer's Association Research Framework, Alzheimer's disease (AD) is defined by its underlying pathologic processes that can be documented by postmortem examination or in vivo by biomarkers. The diagnosis is not based on the clinical consequences of the disease (i.e., symptoms/signs) in this research framework, which shifts the definition of AD in living people from a syndromal to a biological construct. The research framework focuses on the diagnosis of AD with biomarkers in living persons. Biomarkers are grouped into those of \u03b2 amyloid deposition, pathologic tau, and neurodegeneration [AT(N)]. This ATN classification system groups different biomarkers (imaging and biofluids) by the pathologic process each measures. The AT(N) system is flexible in that new biomarkers can be added to the three existing AT(N) groups, and new biomarker groups beyond AT(N) can be added when they become available. We focus on AD as a continuum, and cognitive staging may be accomplished using continuous measures. However, we also outline two different categorical cognitive schemes for staging the severity of cognitive impairment: a scheme using three traditional syndromal categories and a six-stage numeric scheme. It is important to stress that this framework seeks to create a common language with which investigators can generate and test hypotheses about the interactions among different pathologic processes (denoted by biomarkers) and cognitive symptoms. We appreciate the concern that this biomarker-based research framework has the potential to be misused. Therefore, we emphasize, first, it is premature and inappropriate to use this research framework in general medical practice. Second, this research framework should not be used to restrict alternative approaches to hypothesis testing that do not use biomarkers. There will be situations where biomarkers are not available or requiring them would be counterproductive to the specific research goals (discussed in more detail later in the document). Thus, biomarker-based research should not be considered a template for all research into age-related cognitive impairment and dementia; rather, it should be applied when it is fit for the purpose of the specific research goals of a study. Importantly, this framework should be examined in diverse populations. Although it is possible that \u03b2-amyloid plaques and neurofibrillary tau deposits are not causal in AD pathogenesis, it is these abnormal protein deposits that define AD as a unique neurodegenerative disease among different disorders that can lead to dementia. We envision that defining AD as a biological construct will enable a more accurate characterization and understanding of the sequence of events that lead to cognitive impairment that is associated with AD, as well as the multifactorial etiology of dementia. This approach also will enable a more precise approach to interventional trials where specific pathways can be targeted in the disease process and in the appropriate people.",
+      "venue": "Alzheimer s & Dementia",
+      "citation_count": 10082,
+      "doi": "10.1016/j.jalz.2018.02.018",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/j.jalz.2018.02.018",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2123879591",
+      "title": "Systematic RNA interference reveals that oncogenic KRAS-driven cancers require TBK1",
+      "authors": [
+        {
+          "name": "David A. Barbie",
+          "affiliation": ""
+        },
+        {
+          "name": "Pablo Tamayo",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Jesse S. Boehm",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "So Young Kim",
+          "affiliation": "Dana-Farber Cancer Institute"
+        },
+        {
+          "name": "Susan E. Moody",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Ian F. Dunn",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Anna C. Schinzel",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "P\u00e9ter Sandy",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Etienne Meylan",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Claudia Scholl",
+          "affiliation": "Brigham and Women's Hospital"
+        },
+        {
+          "name": "Stefan Fr\u00f6hling",
+          "affiliation": "Harvard University"
+        },
+        {
+          "name": "Edmond M. Chan",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Martin L. Sos",
+          "affiliation": "Max Planck Institute for Metabolism Research"
+        },
+        {
+          "name": "Kathrin Michel",
+          "affiliation": "Max Planck Institute for Metabolism Research"
+        },
+        {
+          "name": "Craig H. Mermel",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Serena J. Silver",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Barbara A. Weir",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Jan H. Reiling",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Qing Sheng",
+          "affiliation": ""
+        },
+        {
+          "name": "Piyush B. Gupta",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Raymond Wadlow",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Hanh Le",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Sebastian Hoersch",
+          "affiliation": "Allen Institute"
+        },
+        {
+          "name": "Ben S. Wittner",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Sridhar Ramaswamy",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "David M. Livingston",
+          "affiliation": ""
+        },
+        {
+          "name": "David M. Sabatini",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Matthew Meyerson",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Roman K. Thomas",
+          "affiliation": "Max Planck Society"
+        },
+        {
+          "name": "Eric S. Lander",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Jill P. Mesirov",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "David E. Root",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "D. Gary Gilliland",
+          "affiliation": "Brigham and Women's Hospital"
+        },
+        {
+          "name": "Tyler Jacks",
+          "affiliation": "Allen Institute"
+        },
+        {
+          "name": "William C. Hahn",
+          "affiliation": "Dana-Farber Cancer Institute"
+        }
+      ],
+      "year": 2009,
+      "abstract": "",
+      "venue": "Nature",
+      "citation_count": 4145,
+      "doi": "10.1038/nature08460",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/nature08460",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W4250968058",
+      "title": "Guidance for industry: patient-reported outcome measures: use in medical product development to support labeling claims: draft guidance",
+      "authors": [
+        {
+          "name": "For some treatment effects",
+          "affiliation": "Complete Genomics (United States)"
+        },
+        {
+          "name": "the patient is the only source of data. For example",
+          "affiliation": "Complete Genomics (United States)"
+        },
+        {
+          "name": "pain intensity and pain relief are the fundamental measures used in the development of analgesic products. There are no observable or physical measures for these concepts.",
+          "affiliation": "Complete Genomics (United States)"
+        }
+      ],
+      "year": 2006,
+      "abstract": "This guidance describes how the FDA evaluates patient-reported outcome (PRO) instruments used as effectiveness endpoints in clinical trials. It also describes our current thinking on how sponsors can develop and use study results measured by PRO instruments to support claims in approved product labeling (see appendix point 1). It does not address the use of PRO instruments for purposes beyond evaluation of claims made about a drug or medical product in its labeling. By explicitly addressing the review issues identified in this guidance, sponsors can increase the efficiency of their endpoint discussions with the FDA during the product development process, streamline the FDA's review of PRO endpoint adequacy, and provide optimal information about the patient's perspective of treatment benefit at the time of product approval. A PRO is a measurement of any aspect of a patient's health status that comes directly from the patient (i.e., without the interpretation of the patient's responses by a physician or anyone else). In clinical trials, a PRO instrument can be used to measure the impact of an intervention on one or more aspects of patients' health status, hereafter referred to as PRO concepts, ranging from the purely symptomatic (response of a headache) to more complex concepts (e.g., ability to carry out activities of daily living), to extremely complex concepts such as quality of life, which is widely understood to be a multidomain concept with physical, psychological, and social components. Data generated by a PRO instrument can provide evidence of a treatment benefit from the patient perspective. For this data to be meaningful, however, there should be evidence that the PRO instrument effectively measures the particular concept that is studied. Generally, findings measured by PRO instruments may be used to support claims in approved product labeling if the claims are derived from adequate and well-controlled investigations that use PRO instruments that reliably and validly measure the specific concepts at issue. The glossary defines many of the terms used in this guidance. In particular, the term instrument refers to the actual questions or items contained in a questionnaire or interview schedule along with all the additional information and documentation that supports the use of these items in producing a PRO measure (e.g., interviewer training and instructions, scoring and interpretation manual). The term conceptual framework refers to how items are grouped according to subconcepts or domains (e.g., the item walking without help may be grouped with another item, walking with difficulty, within the domain of ambulation, and ambulation may be further grouped into the concept of physical ability). FDA's guidance documents, including this guidance, do not establish legally enforceable responsibilities. Instead, guidance documents describe the Agency's current thinking on a topic and should be viewed only as recommendations, unless specific regulatory or statutory requirements are cited. The use of the word should in Agency guidance documents means that something is suggested or recommended but not required. First publication of the Draft Guidance by the Food and Drug Administration--February 2006.",
+      "venue": "Health and Quality of Life Outcomes",
+      "citation_count": 2860,
+      "doi": "10.1186/1477-7525-4-79",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1186/1477-7525-4-79",
+      "source": "openalex",
+      "_bibtex_override": ""
+    }
+  ]
+}

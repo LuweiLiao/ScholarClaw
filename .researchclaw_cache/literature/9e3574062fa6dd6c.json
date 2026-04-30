@@ -1,0 +1,397 @@
+{
+  "query": "hypotheses increasing protocol control test-driven",
+  "source": "arxiv",
+  "limit": 15,
+  "timestamp": 1777564924.3984587,
+  "papers": [
+    {
+      "paper_id": "arxiv-2302.01021",
+      "title": "Faster Consensus via a Sparser Controller",
+      "authors": [
+        {
+          "name": "Luca Ballotta",
+          "affiliation": ""
+        },
+        {
+          "name": "Vijay Gupta",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "In this paper, we investigate the architecture of an optimal controller that maximizes the convergence speed of a consensus protocol with single-integrator dynamics. Under the assumption that communication delays increase with the number of hops from which information is allowed to reach each agent, we address the optimal control design under delayed feedback and show that the optimal controller features, in general, a sparsely connected architecture.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/LCSYS.2023.3268005",
+      "arxiv_id": "2302.01021",
+      "url": "https://arxiv.org/abs/2302.01021",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2006.11141",
+      "title": "Control of a Rigid Wing Pumping Airborne Wind Energy System in all Operational Phases",
+      "authors": [
+        {
+          "name": "Davide Todeschini",
+          "affiliation": ""
+        },
+        {
+          "name": "Lorenzo Fagiano",
+          "affiliation": ""
+        },
+        {
+          "name": "Claudio Micheli",
+          "affiliation": ""
+        },
+        {
+          "name": "Aldo Cattano",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "The control design of an airborne wind energy system with rigid aircraft, vertical take-off and landing, and pumping operation is described. A hierarchical control structure is implemented, in order to address all operational phases: take-off, transition to power generation, pumping energy generation cycles, transition to hovering, and landing. Control design at all hierarchical levels is described. The design approach is conceived and developed with real-world applicability as main driver. Aircraft design considerations in light of system maneuverability are presented, too, as well as three possible alternative strategies for the retraction phase of the pumping cycle. The automatic control approach is assessed in simulation with a realistic model of the overall system, and the results yield a comparison among the three retraction strategies, clearly indicating the most efficient one. The presented results allow one to simulate the dynamical behavior of an AWE system in all operational phases, enabling further studies on all-round system automation, towards fully autonomous and reliable operation.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1016/j.conengprac.2021.104794",
+      "arxiv_id": "2006.11141",
+      "url": "https://arxiv.org/abs/2006.11141",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2104.01704",
+      "title": "Safe Control Synthesis via Input Constrained Control Barrier Functions",
+      "authors": [
+        {
+          "name": "Devansh Agrawal",
+          "affiliation": ""
+        },
+        {
+          "name": "Dimitra Panagou",
+          "affiliation": ""
+        }
+      ],
+      "year": 2021,
+      "abstract": "This paper introduces the notion of an Input Constrained Control Barrier Function (ICCBF), as a method to synthesize safety-critical controllers for non-linear control affine systems with input constraints. The method identifies a subset of the safe set of states, and constructs a controller to render the subset forward invariant. The feedback controller is represented as the solution to a quadratic program, which can be solved efficiently for real-time implementation. Furthermore, we show that ICCBFs are a generalization of Higher Order Control Barrier Functions, and thus are applicable to systems of non-uniform relative degree. Simulation results are presented for the adaptive cruise control problem, and a spacecraft rendezvous problem.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/CDC45484.2021.9682938",
+      "arxiv_id": "2104.01704",
+      "url": "https://arxiv.org/abs/2104.01704",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2003.05711",
+      "title": "Exponential input-to-state stabilization of a class of diagonal boundary control systems with delay boundary control",
+      "authors": [
+        {
+          "name": "Hugo Lhachemi",
+          "affiliation": ""
+        },
+        {
+          "name": "Robert Shorten",
+          "affiliation": ""
+        },
+        {
+          "name": "Christophe Prieur",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "This paper deals with the exponential input-to-state stabilization with respect to boundary disturbances of a class of diagonal infinite-dimensional systems via delay boundary control. The considered input delays are uncertain and time-varying. The proposed control strategy consists of a constant-delay predictor feedback controller designed on a truncated finite-dimensional model capturing the unstable modes of the original infinite-dimensional system. We show that the resulting closed-loop system is exponentially input-to-state stable with fading memory of both additive boundary input perturbations and disturbances in the computation of the predictor feedback.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1016/j.sysconle.2020.104651",
+      "arxiv_id": "2003.05711",
+      "url": "https://arxiv.org/abs/2003.05711",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1105.3788",
+      "title": "A Control-Oriented Notion of Finite State Approximation",
+      "authors": [
+        {
+          "name": "Danielle C. Tarraf",
+          "affiliation": ""
+        }
+      ],
+      "year": 2011,
+      "abstract": "We consider the problem of approximating discrete-time plants with finite-valued sensors and actu- ators by deterministic finite memory systems for the purpose of certified-by-design controller synthesis. Building on ideas from robust control, we propose a control-oriented notion of finite state approximation for these systems, demonstrate its relevance to the control synthesis problem, and discuss its key features.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/TAC.2012.2199180",
+      "arxiv_id": "1105.3788",
+      "url": "https://arxiv.org/abs/1105.3788",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2509.00337",
+      "title": "A Quantum-Compliant Formulation for Network Epidemic Control",
+      "authors": [
+        {
+          "name": "Lorenzo Zino",
+          "affiliation": ""
+        },
+        {
+          "name": "Mattia Boggio",
+          "affiliation": ""
+        },
+        {
+          "name": "Deborah Volpe",
+          "affiliation": ""
+        },
+        {
+          "name": "Giacomo Orlandi",
+          "affiliation": ""
+        },
+        {
+          "name": "Giovanna Turvani",
+          "affiliation": ""
+        },
+        {
+          "name": "Carlo Novara",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "We deal with controlling the spread of an epidemic disease on a network by isolating one or multiple locations by banning people from leaving them. To this aim, we build on the susceptible-infected-susceptible and the susceptible-infected-removed discrete-time network models, encapsulating a control action that captures mobility bans via removing links from the network. Then, we formulate the problem of optimally devising a control policy based on mobility bans that trades-off the burden on the healthcare system and the social and economic costs associated with interventions. The binary nature of mobility bans hampers the possibility to solve the control problem with standard optimization methods, yielding a NP-hard problem. Here, this is tackled by deriving a Quadratic Unconstrained Binary Optimization (QUBO) formulation of the control problem, and leveraging the growing potentialities of quantum computing to efficiently solve it.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1109/CDC57313.2025.11312245",
+      "arxiv_id": "2509.00337",
+      "url": "https://arxiv.org/abs/2509.00337",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1002.1178",
+      "title": "Adaptation of TURN protocol to SIP protocol",
+      "authors": [
+        {
+          "name": "Mustapha Guezouri",
+          "affiliation": ""
+        },
+        {
+          "name": "Ahmed Blaha",
+          "affiliation": ""
+        },
+        {
+          "name": "Mokhtar Keche",
+          "affiliation": ""
+        }
+      ],
+      "year": 2010,
+      "abstract": "Today, SIP is a protocol par Excellence in the field of communication over Internet. But, the fact that it belongs to the application layer constitutes a weakness vis-a-vis the NAT traversal. This weakness is due to the way in which the server replies to the requests of clients on the one hand. On the other, it is caused by the dynamic allocation of UDP ports for emission and reception of packets RTP/RTCP. The TURN Protocol may face this weakness. However, its use requires a certain number of exchanges between the clients and a TURN server before establishing the multimedia sessions and this increase the latent time. In this article, we propose to adapt TURN protocol for applications based on SIP protocol such as telephony over Internet, conference video, etc. This adaptation optimises the establishment of multimedia sessions by integrating a manager of TCP connections and multimedia flow controller into SIP Proxy server.",
+      "venue": "cs.NI",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1002.1178",
+      "url": "https://arxiv.org/abs/1002.1178",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2305.07875",
+      "title": "On $\\ell_2$-performance of weakly-hard real-time control systems",
+      "authors": [
+        {
+          "name": "Marc Seidel",
+          "affiliation": ""
+        },
+        {
+          "name": "Simon Lang",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Allg\u00f6wer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "This paper considers control systems with failures in the feedback channel, that occasionally lead to loss of the control input signal. A useful approach for modeling such failures is to consider window-based constraints on possible loss sequences, for example that at least r control attempts in every window of s are successful. A powerful framework to model such constraints are weakly-hard real-time constraints. Various approaches for stability analysis and the synthesis of stabilizing controllers for such systems have been presented in the past. However, existing results are mostly limited to asymptotic stability and rarely consider performance measures such as the resulting $\\ell_2$-gain. To address this problem, we adapt a switched system description where the switching sequence is constrained by a graph that captures the loss information. We present an approach for $\\ell_2$-performance analysis involving linear matrix inequalities (LMI). Further, leveraging a system lifting method, we propose an LMI-based approach for synthesizing state-feedback controllers with guaranteed $\\ell_2$-performance. The results are illustrated by a numerical example.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1016/j.ejcon.2024.101056",
+      "arxiv_id": "2305.07875",
+      "url": "https://arxiv.org/abs/2305.07875",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2604.21989",
+      "title": "Model Predictive Control of Hybrid Dynamical Systems",
+      "authors": [
+        {
+          "name": "Ricardo G. Sanfelice",
+          "affiliation": ""
+        },
+        {
+          "name": "Berk Altin",
+          "affiliation": ""
+        }
+      ],
+      "year": 2026,
+      "abstract": "The problem of controlling hybrid dynamical systems using model predictive control (MPC) is formulated and sufficient conditions for asymptotic stability of a set are provided. Hybrid dynamical systems are modeled in terms of hybrid equations, involving a differential equation and a difference equation with inputs and constraints. The proposed hybrid MPC algorithm uses a suitable prediction and control horizon construction inspired by hybrid time domains. Structural properties of the hybrid optimization problem, its feasible set, and its value function are provided. Checkable conditions to guarantee asymptotic stability of a set are provided. These conditions are given in terms of properties on the stage cost, terminal cost, and the existence of static state-feedback laws, related through a control Lyapunov function condition. Examples illustrate the results throughout the paper.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2604.21989",
+      "url": "https://arxiv.org/abs/2604.21989",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2011.11355",
+      "title": "Data-Driven Control of Nonlinear Systems: Beyond Polynomial Dynamics",
+      "authors": [
+        {
+          "name": "Robin Str\u00e4sser",
+          "affiliation": ""
+        },
+        {
+          "name": "Julian Berberich",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Allg\u00f6wer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "In this paper, we present a data-driven controller design method for continuous-time nonlinear systems, using no model knowledge but only measured data affected by noise. While most existing approaches focus on systems with polynomial dynamics, our approach allows to design controllers for unknown systems with rational or general non-polynomial dynamics. We first derive a data-driven parametrization of unknown nonlinear systems with rational dynamics. By applying robust control techniques to this parametrization, we obtain sum-of-squares based criteria for designing controllers with closed-loop robust stability and performance guarantees for all systems which are consistent with the measured data and the assumed noise bound. We then apply this approach to control systems whose dynamics are linear in general non-polynomial basis functions by transforming them into polynomial systems. Finally, we apply the developed approaches to numerical examples.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1109/CDC45484.2021.9683211",
+      "arxiv_id": "2011.11355",
+      "url": "https://arxiv.org/abs/2011.11355",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2309.04378",
+      "title": "On the relationship between control barrier functions and projected dynamical systems",
+      "authors": [
+        {
+          "name": "Giannis Delimpaltadakis",
+          "affiliation": ""
+        },
+        {
+          "name": "W. P. M. H. Heemels",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "In this paper, we study the relationship between systems controlled via Control Barrier Function (CBF) approaches and a class of discontinuous dynamical systems, called Projected Dynamical Systems (PDSs). In particular, under appropriate assumptions, we show that the vector field of CBF-controlled systems is a Krasovskii-like perturbation of the set-valued map of a differential inclusion, that abstracts PDSs. This result provides a novel perspective to analyze and design CBF-based controllers. Specifically, we show how, in certain cases, it can be employed for designing CBF-based controllers that, while imposing safety, preserve asymptotic stability and do not introduce undesired equilibria or limit cycles. Finally, we briefly discuss about how it enables continuous implementations of certain projection-based controllers, that are gaining increasing popularity.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1109/CDC49753.2023.10383260",
+      "arxiv_id": "2309.04378",
+      "url": "https://arxiv.org/abs/2309.04378",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2307.03004",
+      "title": "Analysis and design of model predictive control frameworks for dynamic operation -- An overview",
+      "authors": [
+        {
+          "name": "Johannes K\u00f6hler",
+          "affiliation": ""
+        },
+        {
+          "name": "Matthas A. M\u00fcller",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Allg\u00f6wer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "This article provides an overview of model predictive control (MPC) frameworks for dynamic operation of nonlinear constrained systems. Dynamic operation is often an integral part of the control objective, ranging from tracking of reference signals to the general economic operation of a plant under online changing time-varying operating conditions. We focus on the particular challenges that arise when dealing with such more general control goals and present methods that have emerged in the literature to address these issues. The goal of this article is to present an overview of the state-of-the-art techniques, providing a diverse toolkit to apply and further develop MPC formulations that can handle the challenges intrinsic to dynamic operation. We also critically assess the applicability of the different research directions, discussing limitations and opportunities for further research.",
+      "venue": "eess.SY",
+      "citation_count": 0,
+      "doi": "10.1016/j.arcontrol.2023.100929",
+      "arxiv_id": "2307.03004",
+      "url": "https://arxiv.org/abs/2307.03004",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1902.06026",
+      "title": "Geometric Programming-Based Control for Nonlinear, DAE-Constrained Water Distribution Networks",
+      "authors": [
+        {
+          "name": "Shen Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "Ahmad F. Taha",
+          "affiliation": ""
+        },
+        {
+          "name": "Nikolaos Gatsis",
+          "affiliation": ""
+        },
+        {
+          "name": "Marcio Giacomoni",
+          "affiliation": ""
+        }
+      ],
+      "year": 2019,
+      "abstract": "Control of water distribution networks (WDNs) can be represented by an optimization problem with hydraulic models describing the nonlinear relationship between head loss, water flow, and demand. The problem is difficult to solve due to the non-convexity in the equations governing water flow. Previous methods used to obtain WDN controls (i.e., operational schedules for pumps and valves) have adopted simplified hydraulic models. One common assumption found in the literature is the modification of WDN topology to exclude loops and assume a known water flow direction. In this paper, we present a new geometric programming-based model predictive control approach, designed to solve the water flow equations and obtain WDN controls. The paper considers the nonlinear difference algebraic equation (DAE) form of the WDN dynamics, and the GP approach amounts to solving a series of convex optimization problems and requires neither the knowledge of water flow direction nor does it restrict the water network topology. A case study is presented to illustrate the performance of the proposed method.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1902.06026",
+      "url": "https://arxiv.org/abs/1902.06026",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1807.03475",
+      "title": "On Controller Design for Systems on Manifolds in Euclidean Space",
+      "authors": [
+        {
+          "name": "Dong Eui Chang",
+          "affiliation": ""
+        }
+      ],
+      "year": 2018,
+      "abstract": "A new method is developed to design controllers in Euclidean space for systems defined on manifolds. The idea is to embed the state-space manifold $M$ of a given control system into some Euclidean space $\\mathbb R^n$, extend the system from $M$ to the ambient space $\\mathbb R^n$, and modify it outside $M$ to add transversal stability to $M$ in the final dynamics in $\\mathbb R^n$. Controllers are designed for the final system in the ambient space $\\mathbb R^n$. Then, their restriction to $M$ produces controllers for the original system on $M$. This method has the merit that only one single global Cartesian coordinate system in the ambient space $\\mathbb R^n$ is used for controller synthesis, and any controller design method in $\\mathbb R^n$, such as the linearization method, can be globally applied for the controller synthesis. The proposed method is successfully applied to the tracking problem for the following two benchmark systems: the fully actuated rigid body system and the quadcopter drone system.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1002/rnc.4294",
+      "arxiv_id": "1807.03475",
+      "url": "https://arxiv.org/abs/1807.03475",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2204.00208",
+      "title": "Predictive Control Barrier Functions for Online Safety Critical Control",
+      "authors": [
+        {
+          "name": "Joseph Breeden",
+          "affiliation": ""
+        },
+        {
+          "name": "Dimitra Panagou",
+          "affiliation": ""
+        }
+      ],
+      "year": 2022,
+      "abstract": "This paper presents a methodology for constructing Control Barrier Functions (CBFs) that proactively consider the future safety of a system along a nominal trajectory, and effect corrective action before the trajectory leaves a designated safe set. Specifically, this paper presents a systematic approach for propagating a nominal trajectory on a receding horizon, and then encoding the future safety of this trajectory into a CBF. If the propagated trajectory is unsafe, then a controller satisfying the CBF condition will modify the nominal trajectory before the trajectory becomes unsafe. Compared to existing CBF techniques, this strategy is proactive rather than reactive and thus potentially results in smaller modifications to the nominal trajectory. The proposed strategy is shown to be provably safe, and then is demonstrated in simulated scenarios where it would otherwise be difficult to construct a traditional CBF. In simulation, the predictive CBF results in less modification to the nominal trajectory and smaller control inputs than a traditional CBF, and faster computations than a nonlinear model predictive control approach.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/CDC51059.2022.9992926",
+      "arxiv_id": "2204.00208",
+      "url": "https://arxiv.org/abs/2204.00208",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    }
+  ]
+}

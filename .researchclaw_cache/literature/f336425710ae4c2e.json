@@ -1,0 +1,2413 @@
+{
+  "query": "Increasing protocol control for test-driven science improves metric stability across random seeds.",
+  "source": "openalex",
+  "limit": 15,
+  "timestamp": 1777565199.0931637,
+  "papers": [
+    {
+      "paper_id": "oalex-W4293212596",
+      "title": "The Astropy Project: Sustaining and Growing a Community-oriented Open-source Project and the Latest Major Release (v5.0) of the Core Package",
+      "authors": [
+        {
+          "name": "Adrian M. Price-Whelan",
+          "affiliation": ""
+        },
+        {
+          "name": "LIM, Pey Lian",
+          "affiliation": "Flatiron Health (United States)"
+        },
+        {
+          "name": "A. Zonca",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "STARKMAN, Nathaniel",
+          "affiliation": "University of Illinois Urbana-Champaign"
+        },
+        {
+          "name": "BRADLEY, Larry",
+          "affiliation": "University of Toronto"
+        },
+        {
+          "name": "SHUPE, David L.",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "Aarya A. Patil",
+          "affiliation": "California Institute of Technology"
+        },
+        {
+          "name": "L\u00eda Corrales",
+          "affiliation": "University of Toronto"
+        },
+        {
+          "name": "C. E. Brasseur",
+          "affiliation": "University of Michigan"
+        },
+        {
+          "name": "Maximilian N\u00f6the",
+          "affiliation": "University of St Andrews"
+        },
+        {
+          "name": "Axel Donath",
+          "affiliation": "TU Dortmund University"
+        },
+        {
+          "name": "Erik Tollerud",
+          "affiliation": "Center for Astrophysics Harvard & Smithsonian"
+        },
+        {
+          "name": "Brett M. Morris",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "Adam Ginsburg",
+          "affiliation": "University of Bern"
+        },
+        {
+          "name": "Eero Vaher",
+          "affiliation": "University of Florida"
+        },
+        {
+          "name": "Benjamin Alan Weaver",
+          "affiliation": "Lund University"
+        },
+        {
+          "name": "James Tocknell",
+          "affiliation": "NSF NOIRLab"
+        },
+        {
+          "name": "William Brian Jamieson",
+          "affiliation": "Australian Astronomical Observatory"
+        },
+        {
+          "name": "M. H. van Kerkwijk",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "Thomas Robitaille",
+          "affiliation": "University of Toronto"
+        },
+        {
+          "name": "Bruce Merry",
+          "affiliation": ""
+        },
+        {
+          "name": "Matteo Bachetti",
+          "affiliation": "South African Radio Astronomy Observatory"
+        },
+        {
+          "name": "Hans Moritz G\u00fcnther",
+          "affiliation": "Osservatorio Astronomico di Cagliari"
+        },
+        {
+          "name": "Thomas L. Aldcroft",
+          "affiliation": "Kavli Institute for Particle Astrophysics and Cosmology"
+        },
+        {
+          "name": "Jaime A. Alvarado-Montes",
+          "affiliation": "Center for Astrophysics Harvard & Smithsonian"
+        },
+        {
+          "name": "Anne M. Archibald",
+          "affiliation": "Macquarie University"
+        },
+        {
+          "name": "Attila B\u00f3di",
+          "affiliation": "Newcastle University"
+        },
+        {
+          "name": "Shreyas Bapat",
+          "affiliation": "Konkoly Observatory"
+        },
+        {
+          "name": "Geert Barentsen",
+          "affiliation": "Indian Institute of Technology Mandi"
+        },
+        {
+          "name": "Juanjo Baz\u00e1n",
+          "affiliation": "Bay Area Environmental Research Institute"
+        },
+        {
+          "name": "Manish Biswas",
+          "affiliation": "Centro de Astrobiolog\u00eda"
+        },
+        {
+          "name": "M. Boquien",
+          "affiliation": "Savitribai Phule Pune University"
+        },
+        {
+          "name": "D. J. Burke",
+          "affiliation": "Universidad de Antofagasta"
+        },
+        {
+          "name": "Daria Cara",
+          "affiliation": "Center for Astrophysics Harvard & Smithsonian"
+        },
+        {
+          "name": "Mihai Cara",
+          "affiliation": "Wake Forest University"
+        },
+        {
+          "name": "Kyle E. Conroy",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "Simon Conseil",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "Matthew Craig",
+          "affiliation": "Centre National de la Recherche Scientifique"
+        },
+        {
+          "name": "R. Cross",
+          "affiliation": "Minnesota State University Moorhead"
+        },
+        {
+          "name": "Kelle L. Cruz",
+          "affiliation": ""
+        },
+        {
+          "name": "D'EUGENIO, Francesco",
+          "affiliation": "American Museum of Natural History"
+        },
+        {
+          "name": "Nadia Dencheva",
+          "affiliation": "University of Cambridge"
+        },
+        {
+          "name": "Hadrien A. R. Devillepoix",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "J. P. Dietrich",
+          "affiliation": "Curtin University"
+        },
+        {
+          "name": "Arthur Eigenbrot",
+          "affiliation": "Stuttgart Observatory"
+        },
+        {
+          "name": "T. Erben",
+          "affiliation": "National Solar Observatory"
+        },
+        {
+          "name": "Leonardo Ferreira",
+          "affiliation": "University of Bonn"
+        },
+        {
+          "name": "Daniel Foreman-Mackey",
+          "affiliation": "University of Nottingham"
+        },
+        {
+          "name": "Ryan Fox",
+          "affiliation": "Flatiron Health (United States)"
+        },
+        {
+          "name": "Nabil Freij",
+          "affiliation": ""
+        },
+        {
+          "name": "Suyog Garg",
+          "affiliation": "Lockheed Martin (United States)"
+        },
+        {
+          "name": "Robel Geda",
+          "affiliation": "The University of Tokyo"
+        },
+        {
+          "name": "Lauren Glattly",
+          "affiliation": "Princeton University"
+        },
+        {
+          "name": "Yash Gondhalekar",
+          "affiliation": ""
+        },
+        {
+          "name": "Karl D. Gordon",
+          "affiliation": "Birla Institute of Technology and Science, Pilani - Goa Campus"
+        },
+        {
+          "name": "David Grant",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "P. Greenfield",
+          "affiliation": "University of Bristol"
+        },
+        {
+          "name": "Austen Groener",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "S. Guest",
+          "affiliation": "Drexel University"
+        },
+        {
+          "name": "S. Gurovich",
+          "affiliation": "Rutherford Appleton Laboratory"
+        },
+        {
+          "name": "R. Handberg",
+          "affiliation": "Consejo Nacional de Investigaciones Cient\u00edficas y T\u00e9cnicas"
+        },
+        {
+          "name": "Akeem Hart",
+          "affiliation": "Aarhus University"
+        },
+        {
+          "name": "Zac Hatfield-Dodds",
+          "affiliation": ""
+        },
+        {
+          "name": "D. Homeier",
+          "affiliation": "Australian National University"
+        },
+        {
+          "name": "G. Hosseinzadeh",
+          "affiliation": ""
+        },
+        {
+          "name": "Tim Jenness",
+          "affiliation": "University of Arizona"
+        },
+        {
+          "name": "Craig Jones",
+          "affiliation": "University of Arizona"
+        },
+        {
+          "name": "P. Joseph",
+          "affiliation": "Johns Hopkins University"
+        },
+        {
+          "name": "J. Bryce Kalmbach",
+          "affiliation": "Indian Institute of Astrophysics"
+        },
+        {
+          "name": "E. Karamehmetoglu",
+          "affiliation": "University of Washington"
+        },
+        {
+          "name": "Miko\u0142aj Ka\u0142uszy\u0144ski",
+          "affiliation": "Aarhus University"
+        },
+        {
+          "name": "Michael S. P. Kelley",
+          "affiliation": "Nicolaus Copernicus Astronomical Center"
+        },
+        {
+          "name": "Nicholas S. Kern",
+          "affiliation": "University of Maryland, College Park"
+        },
+        {
+          "name": "Wolfgang Kerzendorf",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Eric W. Koch",
+          "affiliation": "Michigan State University"
+        },
+        {
+          "name": "Shankar Kulumani",
+          "affiliation": "Center for Astrophysics Harvard & Smithsonian"
+        },
+        {
+          "name": "Antony Lee",
+          "affiliation": "Johns Hopkins University Applied Physics Laboratory"
+        },
+        {
+          "name": "Chun Ly",
+          "affiliation": "Centre National de la Recherche Scientifique"
+        },
+        {
+          "name": "Zhiyuan Ma",
+          "affiliation": "University of Arizona"
+        },
+        {
+          "name": "C. D. MacBride",
+          "affiliation": "University of Massachusetts Amherst"
+        },
+        {
+          "name": "Jakob M. Maljaars",
+          "affiliation": "Queen's University Belfast"
+        },
+        {
+          "name": "Demitri Muna",
+          "affiliation": "Science and Technology Corporation (Netherlands)"
+        },
+        {
+          "name": "Nicholas A. Murphy",
+          "affiliation": "The University of Texas at San Antonio"
+        },
+        {
+          "name": "Henrik Norman",
+          "affiliation": "Center for Astrophysics Harvard & Smithsonian"
+        },
+        {
+          "name": "O'STEEN, Richard",
+          "affiliation": ""
+        },
+        {
+          "name": "Kyle A. Oman",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "Camilla Pacifici",
+          "affiliation": "Durham University"
+        },
+        {
+          "name": "S. Pascual",
+          "affiliation": "Space Telescope Science Institute"
+        },
+        {
+          "name": "J. Pascual-Granado",
+          "affiliation": "Universidad Complutense de Madrid"
+        },
+        {
+          "name": "Rohit R. Patil",
+          "affiliation": "Instituto de Astrof\u00edsica de Andaluc\u00eda"
+        },
+        {
+          "name": "G. I. Perren",
+          "affiliation": "Syracuse University"
+        },
+        {
+          "name": "T. E. Pickering",
+          "affiliation": "Consejo Nacional de Investigaciones Cient\u00edficas y T\u00e9cnicas"
+        },
+        {
+          "name": "RASTOGI, Tanuj",
+          "affiliation": "TMT Observatory"
+        },
+        {
+          "name": "Benjamin R. Roulston",
+          "affiliation": ""
+        },
+        {
+          "name": "Daniel F. Ryan",
+          "affiliation": "Boston University"
+        },
+        {
+          "name": "E. S. Rykoff",
+          "affiliation": "American University"
+        },
+        {
+          "name": "J. Sabater",
+          "affiliation": "SLAC National Accelerator Laboratory"
+        },
+        {
+          "name": "Parikshit Sakurikar",
+          "affiliation": "Royal Observatory"
+        },
+        {
+          "name": "J. Salgado",
+          "affiliation": "International Institute of Information Technology, Hyderabad"
+        },
+        {
+          "name": "Aniket Sanghi",
+          "affiliation": "SKA Observatory"
+        }
+      ],
+      "year": 2022,
+      "abstract": "Full list of authors: Price-Whelan, Adrian M.; Lim, Pey Lian; Earl, Nicholas; Starkman, Nathaniel; Bradley, Larry; Shupe, David L.; Patil, Aarya A.; Corrales, Lia; Brasseur, C. E.; Noethe, Maximilian; Donath, Axel; Tollerud, Erik; Morris, Brett M.; Ginsburg, Adam; Vaher, Eero; Weaver, Benjamin A.; Tocknell, James; Jamieson, William; van Kerkwijk, Marten H.; Robitaille, Thomas P.; Merry, Bruce; Bachetti, Matteo; Gunther, H. Moritz; Aldcroft, Thomas L.; Alvarado-Montes, Jaime A.; Archibald, Anne M.; Bodi, Attila; Bapat, Shreyas; Barentsen, Geert; Bazan, Juanjo; Biswas, Manish; Boquien, Mederic; Burke, D. J.; Cara, Daria; Cara, Mihai; Conroy, Kyle E.; Conseil, Simon; Craig, Matthew W.; Cross, Robert M.; Cruz, Kelle L.; D'Eugenio, Francesco; Dencheva, Nadia; Devillepoix, Hadrien A. R.; Dietrich, Jorg P.; Eigenbrot, Arthur Davis; Erben, Thomas; Ferreira, Leonardo; Foreman-Mackey, Daniel; Fox, Ryan; Freij, Nabil; Garg, Suyog; Geda, Robel; Glattly, Lauren; Gondhalekar, Yash; Gordon, Karl D.; Grant, David; Greenfield, Perry; Groener, Austen M.; Guest, Steve; Gurovich, Sebastian; Handberg, Rasmus; Hart, Akeem; Hatfield-Dodds, Zac; Homeier, Derek; Hosseinzadeh, Griffin; Jenness, Tim; Jones, Craig K.; Joseph, Prajwel; Kalmbach, J. Bryce; Karamehmetoglu, Emir; Kaluszynski, Mikolaj; Kelley, Michael S. P.; Kern, Nicholas; Kerzendorf, Wolfgang E.; Koch, Eric W.; Kulumani, Shankar; Lee, Antony; Ly, Chun; Ma, Zhiyuan; MacBride, Conor; Maljaars, Jakob M.; Muna, Demitri; Murphy, N. A.; Norman, Henrik; O'Steen, Richard; Oman, Kyle A.; Pacifici, Camilla; Pascual, Sergio; Pascual-Granado, J.; Patil, Rohit R.; Perren, Gabriel, I; Pickering, Timothy E.; Rastogi, Tanuj; Roulston, Benjamin R.; Ryan, Daniel F.; Rykoff, Eli S.; Sabater, Jose; Sakurikar, Parikshit; Salgado, Jesus; Sanghi, Aniket; Saunders, Nicholas; Savchenko, Volodymyr; Schwardt, Ludwig; Seifert-Eckert, Michael; Shih, Albert Y.; Jain, Anany Shrey; Shukla, Gyanendra; Sick, Jonathan; Simpson, Chris; Singanamalla, Sudheesh; Singer, Leo P.; Singhal, Jaladh; Sinha, Manodeep; Sipocz, Brigitta M.; Spitler, Lee R.; Stansby, David; Streicher, Ole; Sumak, Jani; Swinbank, John D.; Taranu, Dan S.; Tewary, Nikita; Tremblay, Grant R.; De Val-Borro, Miguel; Vasovic, Zlatan; Van Kooten, Samuel J.; Verma, Shresth; Cardoso, Jose Vinicius de Miranda; Williams, Peter K. G.; Wilson, Tom J.; Winkel, Benjamin; Wood-Vasey, W. M.; Xue, Rui; Yoachim, Peter; Zhang, Chen; Zonca, Andrea; Astropy Project Contributors; TARDIS Collaboration; Astropy Coordination Comm.--This is an Open Access article distributed under the terms of the Creative Commons Attribution License (http://creativecommons.org/licenses/by/4.0/), which permits unrestricted reuse, distribution, and reproduction in any medium, provided the original work is properly cited.",
+      "venue": "Research Portal (Queen's University Belfast)",
+      "citation_count": 4343,
+      "doi": "10.3847/1538-4357/ac7c74",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.3847/1538-4357/ac7c74",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2607804943",
+      "title": "Image processing and Quality Control for the first 10,000 brain imaging datasets from UK Biobank",
+      "authors": [
+        {
+          "name": "Fidel Alfaro\u2010Almagro",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Mark Jenkinson",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Neal K. Bangerter",
+          "affiliation": "Brigham Young University"
+        },
+        {
+          "name": "Jesper Andersson",
+          "affiliation": "Wellcome Centre for Integrative Neuroimaging"
+        },
+        {
+          "name": "Ludovica Griffanti",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Gwena\u00eblle Douaud",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Stamatios N. Sotiropoulos",
+          "affiliation": "Wellcome Centre for Integrative Neuroimaging"
+        },
+        {
+          "name": "Sa\u00e2d Jbabdi",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Mois\u00e9s Hern\u00e1ndez-Fern\u00e1ndez",
+          "affiliation": "Wellcome Centre for Integrative Neuroimaging"
+        },
+        {
+          "name": "Emmanuel Vall\u00e9e",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Diego Vidaurre",
+          "affiliation": "Wellcome Centre for Integrative Neuroimaging"
+        },
+        {
+          "name": "Matthew Webster",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Paul J. McCarthy",
+          "affiliation": "Wellcome Centre for Integrative Neuroimaging"
+        },
+        {
+          "name": "Chris Rorden",
+          "affiliation": "University of South Carolina"
+        },
+        {
+          "name": "Alessandro Daducci",
+          "affiliation": "University of Verona"
+        },
+        {
+          "name": "Daniel C. Alexander",
+          "affiliation": "University College London"
+        },
+        {
+          "name": "Hui Zhang",
+          "affiliation": "University College London"
+        },
+        {
+          "name": "Iulius Dragonu",
+          "affiliation": "Siemens (United Kingdom)"
+        },
+        {
+          "name": "Paul M. Matthews",
+          "affiliation": "Imperial College London"
+        },
+        {
+          "name": "Karla L. Miller",
+          "affiliation": "Wellcome Centre for Integrative Neuroimaging"
+        },
+        {
+          "name": "Stephen M. Smith",
+          "affiliation": "University of Oxford"
+        }
+      ],
+      "year": 2017,
+      "abstract": "UK Biobank is a large-scale prospective epidemiological study with all data accessible to researchers worldwide. It is currently in the process of bringing back 100,000 of the original participants for brain, heart and body MRI, carotid ultrasound and low-dose bone/fat x-ray. The brain imaging component covers 6 modalities (T1, T2 FLAIR, susceptibility weighted MRI, Resting fMRI, Task fMRI and Diffusion MRI). Raw and processed data from the first 10,000 imaged subjects has recently been released for general research access. To help convert this data into useful summary information we have developed an automated processing and QC (Quality Control) pipeline that is available for use by other researchers. In this paper we describe the pipeline in detail, following a brief overview of UK Biobank brain imaging and the acquisition protocol. We also describe several quantitative investigations carried out as part of the development of both the imaging protocol and the processing pipeline.",
+      "venue": "NeuroImage",
+      "citation_count": 1726,
+      "doi": "10.1016/j.neuroimage.2017.10.034",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/j.neuroimage.2017.10.034",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2018105531",
+      "title": "Crops that feed the world 6. Past successes and future challenges to the role played by maize in global food security",
+      "authors": [
+        {
+          "name": "Bekele Shiferaw",
+          "affiliation": "Centro Internacional de Mejoramiento de Ma\u00edz Y Trigo"
+        },
+        {
+          "name": "B. M. Prasanna",
+          "affiliation": "International Maize and Wheat Improvement Center"
+        },
+        {
+          "name": "Jon Hellin",
+          "affiliation": "Centro Internacional de Mejoramiento de Ma\u00edz Y Trigo"
+        },
+        {
+          "name": "Marianne B\u00e4nziger",
+          "affiliation": "Centro Internacional de Mejoramiento de Ma\u00edz Y Trigo"
+        }
+      ],
+      "year": 2011,
+      "abstract": "Maize is one of the most important food crops in the world and, together with rice and wheat, provides at least 30% of the food calories to more than 4.5 billion people in 94 developing countries. In parts of Africa and Mesoamerica, maize alone contributes over 20% of food calories. Maize is also a key ingredient in animal feed and is used extensively in industrial products, including the production of biofuels. Increasing demand and production shortfalls in global maize supplies have worsened market volatility and contributed to surging global maize prices. Climatic variability and change, and the consequent rise in abiotic and biotic stresses, further confound the problem. Unless concerted and vigorous measures are taken to address these challenges and accelerate yield growth, the outcome will be hunger and food insecurity for millions of poor consumers. We review the research challenges of ensuring global food security in maize, particularly in the context of climate change. The paper summarizes the importance of maize for food, nutrition and livelihood security and details the historical productivity of maize, consumption patterns and future trends. We show how crop breeding to overcome biotic and abiotic stresses will play a key role in meeting future maize demand. Attention needs to be directed at the generation of high yielding, stress-tolerant and widely-adapted maize varieties through judicious combination of conventional and molecular breeding approaches. The use of improved germplasm per se will not, however, be enough to raise yields and enhance adaptation to climate change, and will need to be complemented by improved crop and agronomic practices. Faced with emasculated state extension provision and imperfect markets, new extension approaches and institutional innovations are required that enhance farmers\u2019 access to information, seeds, other inputs, finance and output markets. Over the long-term, large public and private sector investment and sustained political commitment and policy support for technology generation and delivery are needed to overcome hunger, raise the incomes of smallholder farmers and meet the challenges of growing demand for maize at the global level.",
+      "venue": "Food Security",
+      "citation_count": 1544,
+      "doi": "10.1007/s12571-011-0140-5",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1007/s12571-011-0140-5",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2071608556",
+      "title": "Function in the human connectome: Task-fMRI and individual differences in behavior",
+      "authors": [
+        {
+          "name": "Deanna M. Barch",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Gregory C. Burgess",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Michael P. Harms",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Steven E. Petersen",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Bradley L. Schlaggar",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Maurizio Corbetta",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Matthew F. Glasser",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Sandra W. Curtiss",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Sachin Dixit",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Cindy Feldt",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Dan Nolan",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Edward Bryant",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Tucker Hartley",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "Owen Footer",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "James M. Bjork",
+          "affiliation": "National Institutes of Health"
+        },
+        {
+          "name": "Russell A. Poldrack",
+          "affiliation": "Advanced Imaging Research (United States)"
+        },
+        {
+          "name": "Steve Smith",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Heidi Johansen\u2010Berg",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Abraham Z. Snyder",
+          "affiliation": "Washington University in St. Louis"
+        },
+        {
+          "name": "David C. Van Essen",
+          "affiliation": "Washington University in St. Louis"
+        }
+      ],
+      "year": 2013,
+      "abstract": "",
+      "venue": "NeuroImage",
+      "citation_count": 1675,
+      "doi": "10.1016/j.neuroimage.2013.05.033",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/j.neuroimage.2013.05.033",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2989052455",
+      "title": "ff19SB: Amino-Acid-Specific Protein Backbone Parameters Trained against Quantum Mechanics Energy Surfaces in Solution",
+      "authors": [
+        {
+          "name": "Chuan Tian",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "Koushik Kasavajhala",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "Kellon Belfon",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "Lauren Raguette",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "He Huang",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "Angela N. Migues",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "John D. Bickel",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "Yuzhang Wang",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "Jorge Pincay",
+          "affiliation": "Stony Brook University"
+        },
+        {
+          "name": "Qin Wu",
+          "affiliation": "Brookhaven National Laboratory"
+        },
+        {
+          "name": "Carlos Simmerling",
+          "affiliation": "Stony Brook University"
+        }
+      ],
+      "year": 2019,
+      "abstract": "Molecular dynamics (MD) simulations have become increasingly popular in studying the motions and functions of biomolecules. The accuracy of the simulation, however, is highly determined by the molecular mechanics (MM) force field (FF), a set of functions with adjustable parameters to compute the potential energies from atomic positions. However, the overall quality of the FF, such as our previously published ff99SB and ff14SB, can be limited by assumptions that were made years ago. In the updated model presented here (ff19SB), we have significantly improved the backbone profiles for all 20 amino acids. We fit coupled \u03c6/\u03c8 parameters using 2D \u03c6/\u03c8 conformational scans for multiple amino acids, using as reference data the entire 2D quantum mechanics (QM) energy surface. We address the polarization inconsistency during dihedral parameter fitting by using both QM and MM in aqueous solution. Finally, we examine possible dependency of the backbone fitting on side chain rotamer. To extensively validate ff19SB parameters, and to compare to results using other Amber models, we have performed a total of \u223c5 ms MD simulations in explicit solvent. Our results show that after amino-acid-specific training against QM data with solvent polarization, ff19SB not only reproduces the differences in amino-acid-specific Protein Data Bank (PDB) Ramachandran maps better but also shows significantly improved capability to differentiate amino-acid-dependent properties such as helical propensities. We also conclude that an inherent underestimation of helicity is present in ff14SB, which is (inexactly) compensated for by an increase in helical content driven by the TIP3P bias toward overly compact structures. In summary, ff19SB, when combined with a more accurate water model such as OPC, should have better predictive power for modeling sequence-specific behavior, protein mutations, and also rational protein design. Of the explicit water models tested here, we recommend use of OPC with ff19SB.",
+      "venue": "Journal of Chemical Theory and Computation",
+      "citation_count": 2242,
+      "doi": "10.1021/acs.jctc.9b00591",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1021/acs.jctc.9b00591",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3046003662",
+      "title": "A large-scale binding and functional map of human RNA-binding proteins",
+      "authors": [
+        {
+          "name": "Eric L. Van Nostrand",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Peter Freese",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Henry Pratt",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Xiaofeng Wang",
+          "affiliation": "Montreal Clinical Research Institute"
+        },
+        {
+          "name": "Xintao Wei",
+          "affiliation": "Institute for Systems Biology"
+        },
+        {
+          "name": "Rui Xiao",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Steven M. Blue",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Jiayu Chen",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Neal Cody",
+          "affiliation": "Montreal Clinical Research Institute"
+        },
+        {
+          "name": "Daniel Dom\u00ednguez",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Sara Olson",
+          "affiliation": "Institute for Systems Biology"
+        },
+        {
+          "name": "Balaji Sundararaman",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Lijun Zhan",
+          "affiliation": "Institute for Systems Biology"
+        },
+        {
+          "name": "Cassandra Bazile",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Louis Philip Benoit Bouvrette",
+          "affiliation": "Montreal Clinical Research Institute"
+        },
+        {
+          "name": "Julie Bergalet",
+          "affiliation": "Montreal Clinical Research Institute"
+        },
+        {
+          "name": "Michael O. Duff",
+          "affiliation": "Institute for Systems Biology"
+        },
+        {
+          "name": "Keri E. Garcia",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Chelsea Gelboin-Burkhart",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Myles Hochman",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Nicole Lambert",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Hairi Li",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Michael P. McGurk",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Thai B. Nguyen",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Tsultrim Palden",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Ines Rabano",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Shashank Sathe",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Rebecca Stanton",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Amanda Su",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Ruth Wang",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Brian A. Yee",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Bing Zhou",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Ashley L. Louie",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Stefan Aigner",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "Xiang\u2010Dong Fu",
+          "affiliation": "University of California San Diego"
+        },
+        {
+          "name": "\u00c9ric L\u00e9cuyer",
+          "affiliation": "Montreal Clinical Research Institute"
+        },
+        {
+          "name": "Christopher B. Burge",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Brenton R. Graveley",
+          "affiliation": "Institute for Systems Biology"
+        },
+        {
+          "name": "G Yeo",
+          "affiliation": "University of California San Diego"
+        }
+      ],
+      "year": 2020,
+      "abstract": ". Here we introduce a new data set of RNA elements in the human genome that are recognized by RNA-binding proteins (RBPs), generated as part of the Encyclopedia of DNA Elements (ENCODE) project phase III. This class of regulatory elements functions only when transcribed into RNA, as they serve as the binding sites for RBPs that control post-transcriptional processes such as splicing, cleavage and polyadenylation, and the editing, localization, stability and translation of mRNAs. We describe the mapping and characterization of RNA elements recognized by a large collection of human RBPs in K562 and HepG2 cells. Integrative analyses using five assays identify RBP binding sites on RNA and chromatin in vivo, the in vitro binding preferences of RBPs, the function of RBP binding sites and the subcellular localization of RBPs, producing 1,223 replicated data sets for 356 RBPs. We describe the spectrum of RBP binding throughout the transcriptome and the connections between these interactions and various aspects of RNA biology, including RNA stability, splicing regulation and RNA localization. These data expand the catalogue of functional elements encoded in the human genome by the addition of a large set of elements that function at the RNA level by interacting with RBPs.",
+      "venue": "Nature",
+      "citation_count": 1349,
+      "doi": "10.1038/s41586-020-2077-3",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/s41586-020-2077-3",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W4396946025",
+      "title": "Global burden and strength of evidence for 88 risk factors in 204 countries and 811 subnational locations, 1990\u20132021: a systematic analysis for the Global Burden of Disease Study 2021",
+      "authors": [
+        {
+          "name": "Michael Br\u00e4uer",
+          "affiliation": ""
+        },
+        {
+          "name": "Gregory A. Roth",
+          "affiliation": ""
+        },
+        {
+          "name": "Aleksandr Y. Aravkin",
+          "affiliation": ""
+        },
+        {
+          "name": "Peng Zheng",
+          "affiliation": ""
+        },
+        {
+          "name": "Kalkidan Hassen Abate",
+          "affiliation": ""
+        },
+        {
+          "name": "Yohannes Abate",
+          "affiliation": ""
+        },
+        {
+          "name": "Cristiana Abbafati",
+          "affiliation": ""
+        },
+        {
+          "name": "Rouzbeh Abbasgholizadeh",
+          "affiliation": ""
+        },
+        {
+          "name": "Madineh Abbasi",
+          "affiliation": ""
+        },
+        {
+          "name": "Mohammadreza Abbasian",
+          "affiliation": ""
+        },
+        {
+          "name": "Mitra Abbasifard",
+          "affiliation": ""
+        },
+        {
+          "name": "Mohsen Abbasi\u2010Kangevari",
+          "affiliation": ""
+        },
+        {
+          "name": "Samar Abd ElHafeez",
+          "affiliation": ""
+        },
+        {
+          "name": "Sherief Abd\u2010Elsalam",
+          "affiliation": ""
+        },
+        {
+          "name": "Parsa Abdi",
+          "affiliation": ""
+        },
+        {
+          "name": "Mohammad Abdollah\u0131",
+          "affiliation": ""
+        },
+        {
+          "name": "Meriem Abdoun",
+          "affiliation": ""
+        },
+        {
+          "name": "Deldar Morad Abdulah",
+          "affiliation": ""
+        },
+        {
+          "name": "Auwal Abdullahi",
+          "affiliation": ""
+        },
+        {
+          "name": "Mesfin Abebe",
+          "affiliation": ""
+        },
+        {
+          "name": "Aidin Abedi",
+          "affiliation": ""
+        },
+        {
+          "name": "Armita Abedi",
+          "affiliation": ""
+        },
+        {
+          "name": "Tadesse Melaku Abegaz",
+          "affiliation": ""
+        },
+        {
+          "name": "Roberto Ariel Abelda\u00f1o Z\u00fa\u00f1iga",
+          "affiliation": ""
+        },
+        {
+          "name": "Olumide Abiodun",
+          "affiliation": ""
+        },
+        {
+          "name": "Temesgen Lera Abiso",
+          "affiliation": ""
+        },
+        {
+          "name": "Richard Gyan Aboagye",
+          "affiliation": ""
+        },
+        {
+          "name": "Hassan Abolhassani",
+          "affiliation": ""
+        },
+        {
+          "name": "Mohamed Abouzid",
+          "affiliation": ""
+        },
+        {
+          "name": "Girma Beressa Aboye",
+          "affiliation": ""
+        },
+        {
+          "name": "Lucas Guimar\u00e3es Abreu",
+          "affiliation": ""
+        },
+        {
+          "name": "Hasan Abualruz",
+          "affiliation": ""
+        },
+        {
+          "name": "Bilyaminu Abubakar",
+          "affiliation": ""
+        },
+        {
+          "name": "Eman Abu\u2010Gharbieh",
+          "affiliation": ""
+        },
+        {
+          "name": "Hana J Abukhadijah",
+          "affiliation": ""
+        },
+        {
+          "name": "Salahdein Aburuz",
+          "affiliation": ""
+        },
+        {
+          "name": "Ahmed Abu\u2010Zaid",
+          "affiliation": ""
+        },
+        {
+          "name": "Mesafint Molla Adane",
+          "affiliation": ""
+        },
+        {
+          "name": "Isaac Yeboah Addo",
+          "affiliation": ""
+        },
+        {
+          "name": "Giovanni Addolorato",
+          "affiliation": ""
+        },
+        {
+          "name": "Rufus Adesoji Adedoyin",
+          "affiliation": ""
+        },
+        {
+          "name": "Victor Adekanmbi",
+          "affiliation": ""
+        },
+        {
+          "name": "Bashir Aden",
+          "affiliation": ""
+        },
+        {
+          "name": "Juliana Bunmi Adetunji",
+          "affiliation": ""
+        },
+        {
+          "name": "Temitayo Esther Adeyeoluwa",
+          "affiliation": ""
+        },
+        {
+          "name": "Rishan Adha",
+          "affiliation": ""
+        },
+        {
+          "name": "Amin Adibi",
+          "affiliation": ""
+        },
+        {
+          "name": "Qorinah Estiningtyas Sakilah Adnani",
+          "affiliation": ""
+        },
+        {
+          "name": "Leticia Akua Adzigbli",
+          "affiliation": ""
+        },
+        {
+          "name": "Aanuoluwapo Adeyimika Afolabi",
+          "affiliation": ""
+        },
+        {
+          "name": "Rotimi Felix Afolabi",
+          "affiliation": ""
+        },
+        {
+          "name": "Ashkan Afshin",
+          "affiliation": ""
+        },
+        {
+          "name": "Shadi Afyouni",
+          "affiliation": ""
+        },
+        {
+          "name": "Muhammad Sohail Afzal",
+          "affiliation": ""
+        },
+        {
+          "name": "Saira Afzal",
+          "affiliation": ""
+        },
+        {
+          "name": "Suneth Agampodi",
+          "affiliation": ""
+        },
+        {
+          "name": "Faith Agbozo",
+          "affiliation": ""
+        },
+        {
+          "name": "Shahin Aghamiri",
+          "affiliation": ""
+        },
+        {
+          "name": "Antonella Agodi",
+          "affiliation": ""
+        },
+        {
+          "name": "Anurag Agrawal",
+          "affiliation": ""
+        },
+        {
+          "name": "Williams Agyemang\u2010Duah",
+          "affiliation": ""
+        },
+        {
+          "name": "Bright Opoku Ahinkorah",
+          "affiliation": ""
+        },
+        {
+          "name": "Aqeel Ahmad",
+          "affiliation": ""
+        },
+        {
+          "name": "Danish Ahmad",
+          "affiliation": ""
+        },
+        {
+          "name": "Firdos Ahmad",
+          "affiliation": ""
+        },
+        {
+          "name": "Noah Ahmad",
+          "affiliation": ""
+        },
+        {
+          "name": "Shahzaib Ahmad",
+          "affiliation": ""
+        },
+        {
+          "name": "Tauseef Ahmad",
+          "affiliation": ""
+        },
+        {
+          "name": "Ali Ahmed",
+          "affiliation": ""
+        },
+        {
+          "name": "Anisuddin Ahmed",
+          "affiliation": ""
+        },
+        {
+          "name": "Ayman Ahmed",
+          "affiliation": ""
+        },
+        {
+          "name": "Luai A. Ahmed",
+          "affiliation": ""
+        },
+        {
+          "name": "Muktar Beshir Ahmed",
+          "affiliation": ""
+        },
+        {
+          "name": "Safoora Ahmed",
+          "affiliation": ""
+        },
+        {
+          "name": "Syed Anees Ahmed",
+          "affiliation": ""
+        },
+        {
+          "name": "Marjan Ajami",
+          "affiliation": ""
+        },
+        {
+          "name": "Gizachew Taddesse Akalu",
+          "affiliation": ""
+        },
+        {
+          "name": "Essona Matatom Akara",
+          "affiliation": ""
+        },
+        {
+          "name": "Hossein Akbarialiabad",
+          "affiliation": ""
+        },
+        {
+          "name": "Shiva Akhlaghi",
+          "affiliation": ""
+        },
+        {
+          "name": "Karolina Akinosoglou",
+          "affiliation": ""
+        },
+        {
+          "name": "Tomi Akinyemiju",
+          "affiliation": ""
+        },
+        {
+          "name": "Mohammed Ahmed Akkaif",
+          "affiliation": ""
+        },
+        {
+          "name": "Sreelatha Akkala",
+          "affiliation": ""
+        },
+        {
+          "name": "Blessing Akombi-Inyang",
+          "affiliation": ""
+        },
+        {
+          "name": "Salah Al Awaidy",
+          "affiliation": ""
+        },
+        {
+          "name": "Syed Mahfuz Al Hasan",
+          "affiliation": ""
+        },
+        {
+          "name": "Fares Alahdab",
+          "affiliation": ""
+        },
+        {
+          "name": "Tareq Mohammed Ali AL-Ahdal",
+          "affiliation": ""
+        },
+        {
+          "name": "Samer O Alalalmeh",
+          "affiliation": ""
+        },
+        {
+          "name": "Tariq A. Alalwan",
+          "affiliation": ""
+        },
+        {
+          "name": "Ziyad Al\u2010Aly",
+          "affiliation": ""
+        },
+        {
+          "name": "Khurshid Alam",
+          "affiliation": ""
+        },
+        {
+          "name": "Nazmul Alam",
+          "affiliation": ""
+        },
+        {
+          "name": "Fahad Alanezi",
+          "affiliation": ""
+        },
+        {
+          "name": "Turki M Alanzi",
+          "affiliation": ""
+        },
+        {
+          "name": "Almaza A. Albakri",
+          "affiliation": ""
+        },
+        {
+          "name": "Mohammad T AlBataineh",
+          "affiliation": ""
+        },
+        {
+          "name": "Wafa Ali Aldhaleei",
+          "affiliation": ""
+        },
+        {
+          "name": "Robert W Aldridge",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "BACKGROUND: Understanding the health consequences associated with exposure to risk factors is necessary to inform public health policy and practice. To systematically quantify the contributions of risk factor exposures to specific health outcomes, the Global Burden of Diseases, Injuries, and Risk Factors Study (GBD) 2021 aims to provide comprehensive estimates of exposure levels, relative health risks, and attributable burden of disease for 88 risk factors in 204 countries and territories and 811 subnational locations, from 1990 to 2021. METHODS: The GBD 2021 risk factor analysis used data from 54 561 total distinct sources to produce epidemiological estimates for 88 risk factors and their associated health outcomes for a total of 631 risk-outcome pairs. Pairs were included on the basis of data-driven determination of a risk-outcome association. Age-sex-location-year-specific estimates were generated at global, regional, and national levels. Our approach followed the comparative risk assessment framework predicated on a causal web of hierarchically organised, potentially combinative, modifiable risks. Relative risks (RRs) of a given outcome occurring as a function of risk factor exposure were estimated separately for each risk-outcome pair, and summary exposure values (SEVs), representing risk-weighted exposure prevalence, and theoretical minimum risk exposure levels (TMRELs) were estimated for each risk factor. These estimates were used to calculate the population attributable fraction (PAF; ie, the proportional change in health risk that would occur if exposure to a risk factor were reduced to the TMREL). The product of PAFs and disease burden associated with a given outcome, measured in disability-adjusted life-years (DALYs), yielded measures of attributable burden (ie, the proportion of total disease burden attributable to a particular risk factor or combination of risk factors). Adjustments for mediation were applied to account for relationships involving risk factors that act indirectly on outcomes via intermediate risks. Attributable burden estimates were stratified by Socio-demographic Index (SDI) quintile and presented as counts, age-standardised rates, and rankings. To complement estimates of RR and attributable burden, newly developed burden of proof risk function (BPRF) methods were applied to yield supplementary, conservative interpretations of risk-outcome associations based on the consistency of underlying evidence, accounting for unexplained heterogeneity between input data from different studies. Estimates reported represent the mean value across 500 draws from the estimate's distribution, with 95% uncertainty intervals (UIs) calculated as the 2\u00b75th and 97\u00b75th percentile values across the draws. FINDINGS: Among the specific risk factors analysed for this study, particulate matter air pollution was the leading contributor to the global disease burden in 2021, contributing 8\u00b70% (95% UI 6\u00b77-9\u00b74) of total DALYs, followed by high systolic blood pressure (SBP; 7\u00b78% [6\u00b74-9\u00b72]), smoking (5\u00b77% [4\u00b77-6\u00b78]), low birthweight and short gestation (5\u00b76% [4\u00b78-6\u00b73]), and high fasting plasma glucose (FPG; 5\u00b74% [4\u00b78-6\u00b70]). For younger demographics (ie, those aged 0-4 years and 5-14 years), risks such as low birthweight and short gestation and unsafe water, sanitation, and handwashing (WaSH) were among the leading risk factors, while for older age groups, metabolic risks such as high SBP, high body-mass index (BMI), high FPG, and high LDL cholesterol had a greater impact. From 2000 to 2021, there was an observable shift in global health challenges, marked by a decline in the number of all-age DALYs broadly attributable to behavioural risks (decrease of 20\u00b77% [13\u00b79-27\u00b77]) and environmental and occupational risks (decrease of 22\u00b70% [15\u00b75-28\u00b78]), coupled with a 49\u00b74% (42\u00b73-56\u00b79) increase in DALYs attributable to metabolic risks, all reflecting ageing populations and changing lifestyles on a global scale. Age-standardised global DALY rates attributable to high BMI and high FPG rose considerably (15\u00b77% [9\u00b79-21\u00b77] for high BMI and 7\u00b79% [3\u00b73-12\u00b79] for high FPG) over this period, with exposure to these risks increasing annually at rates of 1\u00b78% (1\u00b76-1\u00b79) for high BMI and 1\u00b73% (1\u00b71-1\u00b75) for high FPG. By contrast, the global risk-attributable burden and exposure to many other risk factors declined, notably for risks such as child growth failure and unsafe water source, with age-standardised attributable DALYs decreasing by 71\u00b75% (64\u00b74-78\u00b78) for child growth failure and 66\u00b73% (60\u00b72-72\u00b70) for unsafe water source. We separated risk factors into three groups according to trajectory over time: those with a decreasing attributable burden, due largely to declining risk exposure (eg, diet high in trans-fat and household air pollution) but also to proportionally smaller child and youth populations (eg, child and maternal malnutrition); those for which the burden increased moderately in spite of declining risk exposure, due largely to population ageing (eg, smoking); and those for which the burden increased considerably due to both increasing risk exposure and population ageing (eg, ambient particulate matter air pollution, high BMI, high FPG, and high SBP). INTERPRETATION: Substantial progress has been made in reducing the global disease burden attributable to a range of risk factors, particularly those related to maternal and child health, WaSH, and household air pollution. Maintaining efforts to minimise the impact of these risk factors, especially in low SDI locations, is necessary to sustain progress. Successes in moderating the smoking-related burden by reducing risk exposure highlight the need to advance policies that reduce exposure to other leading risk factors such as ambient particulate matter air pollution and high SBP. Troubling increases in high FPG, high BMI, and other risk factors related to obesity and metabolic syndrome indicate an urgent need to identify and implement interventions. FUNDING: Bill & Melinda Gates Foundation.",
+      "venue": "The Lancet",
+      "citation_count": 2323,
+      "doi": "10.1016/s0140-6736(24)00933-4",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/s0140-6736(24)00933-4",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2751743037",
+      "title": "Role of Biocatalysis in Sustainable Chemistry",
+      "authors": [
+        {
+          "name": "Roger A. Sheldon",
+          "affiliation": "University of the Witwatersrand"
+        },
+        {
+          "name": "John M. Woodley",
+          "affiliation": "Technical University of Denmark"
+        }
+      ],
+      "year": 2017,
+      "abstract": "Based on the principles and metrics of green chemistry and sustainable development, biocatalysis is both a green and sustainable technology. This is largely a result of the spectacular advances in molecular biology and biotechnology achieved in the past two decades. Protein engineering has enabled the optimization of existing enzymes and the invention of entirely new biocatalytic reactions that were previously unknown in Nature. It is now eminently feasible to develop enzymatic transformations to fit predefined parameters, resulting in processes that are truly sustainable by design. This approach has successfully been applied, for example, in the industrial synthesis of active pharmaceutical ingredients. In addition to the use of protein engineering, other aspects of biocatalysis engineering, such as substrate, medium, and reactor engineering, can be utilized to improve the efficiency and cost-effectiveness and, hence, the sustainability of biocatalytic reactions. Furthermore, immobilization of an enzyme can improve its stability and enable its reuse multiple times, resulting in better performance and commercial viability. Consequently, biocatalysis is being widely applied in the production of pharmaceuticals and some commodity chemicals. Moreover, its broader application will be further stimulated in the future by the emerging biobased economy.",
+      "venue": "Chemical Reviews",
+      "citation_count": 1664,
+      "doi": "10.1021/acs.chemrev.7b00203",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1021/acs.chemrev.7b00203",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2147626801",
+      "title": "LOFAR: The LOw-Frequency ARray",
+      "authors": [
+        {
+          "name": "M. P. van Haarlem",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "M. W. Wise",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "A. W. Gunst",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "G. Heald",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J. P. McKean",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J. W. T. Hessels",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "A. G. de Bruyn",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "R. Nijboer",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J. Swinbank",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "R. A. Fallows",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "M. A. Brentjens",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. Nelles",
+          "affiliation": "Radboud University Nijmegen"
+        },
+        {
+          "name": "R. Beck",
+          "affiliation": "Max Planck Institute for Radio Astronomy"
+        },
+        {
+          "name": "H. Falcke",
+          "affiliation": "Radboud University Nijmegen"
+        },
+        {
+          "name": "R. P. Fender",
+          "affiliation": "University of Southampton"
+        },
+        {
+          "name": "J.R. H\u00f6randel",
+          "affiliation": "Radboud University Nijmegen"
+        },
+        {
+          "name": "L. V. E. Koopmans",
+          "affiliation": ""
+        },
+        {
+          "name": "G. Mann",
+          "affiliation": "Leibniz Institute for Astrophysics Potsdam"
+        },
+        {
+          "name": "G. K. Miley",
+          "affiliation": "Leiden University"
+        },
+        {
+          "name": "H. J. A. R\u00f6ttgering",
+          "affiliation": "Leiden University"
+        },
+        {
+          "name": "B. W. Stappers",
+          "affiliation": "University of Manchester"
+        },
+        {
+          "name": "R. A. M. J. Wijers",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "Saleem Zaroubi",
+          "affiliation": ""
+        },
+        {
+          "name": "M. van den Akker",
+          "affiliation": "Radboud University Nijmegen"
+        },
+        {
+          "name": "A. Alexov",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "J. M. Anderson",
+          "affiliation": "Max Planck Institute for Radio Astronomy"
+        },
+        {
+          "name": "Kevin D. Anderson",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "A. van Ardenne",
+          "affiliation": "Chalmers University of Technology"
+        },
+        {
+          "name": "M. Arts",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. Asgekar",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "I. M. Avruch",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "F. Batejat",
+          "affiliation": "Chalmers University of Technology"
+        },
+        {
+          "name": "L. B\u00e4hren",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "M. E. Bell",
+          "affiliation": "Max Planck Institute for Astrophysics"
+        },
+        {
+          "name": "M. R. Bell",
+          "affiliation": "Max Planck Institute for Astrophysics"
+        },
+        {
+          "name": "Ilse van Bemmel",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "P. Bennema",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "Mark Bentum",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "G. Bernardi",
+          "affiliation": ""
+        },
+        {
+          "name": "P. N. Best",
+          "affiliation": "Royal Observatory"
+        },
+        {
+          "name": "L. B\u0131rzan",
+          "affiliation": "Leiden University"
+        },
+        {
+          "name": "A. Bonafede",
+          "affiliation": "Constructor University"
+        },
+        {
+          "name": "Albert\u2010Jan Boonstra",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "R\u00f3bert Braun",
+          "affiliation": "Commonwealth Scientific and Industrial Research Organisation"
+        },
+        {
+          "name": "Joel N. Bregman",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "F. Breitling",
+          "affiliation": "Leibniz Institute for Astrophysics Potsdam"
+        },
+        {
+          "name": "R. H. van de Brink",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J. W. Broderick",
+          "affiliation": "University of Southampton"
+        },
+        {
+          "name": "P. Chris Broekema",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "W. N. Brouw",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "M. Br\u00fcggen",
+          "affiliation": "Universit\u00e4t Hamburg"
+        },
+        {
+          "name": "H. R. Butcher",
+          "affiliation": "Australian National University"
+        },
+        {
+          "name": "W. van Cappellen",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "B. Ciardi",
+          "affiliation": "Max Planck Institute for Astrophysics"
+        },
+        {
+          "name": "Thijs Coenen",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "J. E. Conway",
+          "affiliation": "Chalmers University of Technology"
+        },
+        {
+          "name": "A. H. W. M. Coolen",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. Corstanje",
+          "affiliation": "Radboud University Nijmegen"
+        },
+        {
+          "name": "S. Damstra",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "O.T. Davies",
+          "affiliation": "Rutherford Appleton Laboratory"
+        },
+        {
+          "name": "Adam T. Deller",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "R.\u2010J. Dettmar",
+          "affiliation": "Ruhr University Bochum"
+        },
+        {
+          "name": "Ger van Diepen",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "K. Dijkstra",
+          "affiliation": "University of Groningen"
+        },
+        {
+          "name": "P. Donker",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. Doorduin",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J. Dromer",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "M. Drost",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. van Duin",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J. Eisl\u00f6ffel",
+          "affiliation": "Th\u00fcringer Landessternwarte Tautenburg"
+        },
+        {
+          "name": "J. van Enst",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "C. Ferrari",
+          "affiliation": "Observatoire de la C\u00f4te d\u2019Azur"
+        },
+        {
+          "name": "W. Frieswijk",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "Henk S. GANKEMA",
+          "affiliation": ""
+        },
+        {
+          "name": "M. A. Garrett",
+          "affiliation": "Leiden University"
+        },
+        {
+          "name": "F. de Gasperin",
+          "affiliation": "Max Planck Institute for Astrophysics"
+        },
+        {
+          "name": "M. Gerbers",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "E. de Geus",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J.\u2010M. Grie\u00dfmeier",
+          "affiliation": "Universit\u00e9 d'Orl\u00e9ans"
+        },
+        {
+          "name": "T. Grit",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "P. Gruppen",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "J. P. Hamaker",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "T. E. Hassall",
+          "affiliation": "University of Manchester"
+        },
+        {
+          "name": "M. Hoeft",
+          "affiliation": "Th\u00fcringer Landessternwarte Tautenburg"
+        },
+        {
+          "name": "H. A. Holties",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. Horneffer",
+          "affiliation": "Radboud University Nijmegen"
+        },
+        {
+          "name": "A. J. van der Horst",
+          "affiliation": "University of Amsterdam"
+        },
+        {
+          "name": "A. van Houwelingen",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. Huijgen",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "M. Iacobelli",
+          "affiliation": "Leiden University"
+        },
+        {
+          "name": "H. T. Intema",
+          "affiliation": "Leiden University"
+        },
+        {
+          "name": "N. Jackson",
+          "affiliation": "University of Manchester"
+        },
+        {
+          "name": "Vibor Jeli\u0107",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. de Jong",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "E. Juette",
+          "affiliation": "Ruhr University Bochum"
+        },
+        {
+          "name": "D. Kant",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "A. Karastergiou",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "A. Koers",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "H. Kollen",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        },
+        {
+          "name": "V. I. Kondratiev",
+          "affiliation": "Netherlands Institute for Radio Astronomy"
+        }
+      ],
+      "year": 2013,
+      "abstract": "LOFAR, the LOw-Frequency ARray, is a new-generation radio interferometer constructed in the north of the Netherlands and across europe. Utilizing a novel phased-array design, LOFAR covers the largely unexplored low-frequency range from 10\u2013240 MHz and provides a number of unique observing capabilities. Spreading out from a core located near the village of Exloo in the northeast of the Netherlands, a total of 40 LOFAR stations are nearing completion. A further five stations have been deployed throughout Germany, and one station has been built in each of France, Sweden, and the UK. Digital beam-forming techniques make the LOFAR system agile and allow for rapid repointing of the telescope as well as the potential for multiple simultaneous observations. With its dense core array and long interferometric baselines, LOFAR achieves unparalleled sensitivity and angular resolution in the low-frequency radio regime. The LOFAR facilities are jointly operated by the International LOFAR Telescope (ILT) foundation, as an observatory open to the global astronomical community. LOFAR is one of the first radio observatories to feature automated processing pipelines to deliver fully calibrated science products to its user community. LOFAR\u2019s new capabilities, techniques and modus operandi make it an important pathfinder for the Square Kilometre Array (SKA). We give an overview of the LOFAR instrument, its major hardware and software components, and the core science objectives that have driven its design. In addition, we present a selection of new results from the commissioning phase of this new radio observatory.",
+      "venue": "Astronomy and Astrophysics",
+      "citation_count": 2649,
+      "doi": "10.1051/0004-6361/201220873",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1051/0004-6361/201220873",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2763651817",
+      "title": "Clinical recommendations for cardiovascular magnetic resonance mapping of T1, T2, T2* and extracellular volume: A consensus statement by the Society for Cardiovascular Magnetic Resonance (SCMR) endorsed by the European Association for Cardiovascular Imaging (EACVI)",
+      "authors": [
+        {
+          "name": "Daniel Messroghli",
+          "affiliation": "Deutsches Herzzentrum der Charit\u00e9"
+        },
+        {
+          "name": "James Moon",
+          "affiliation": "British Heart Foundation"
+        },
+        {
+          "name": "Vanessa M. Ferreira",
+          "affiliation": "John Radcliffe Hospital"
+        },
+        {
+          "name": "Lars Grosse\u2010Wortmann",
+          "affiliation": "SickKids Foundation"
+        },
+        {
+          "name": "Taigang He",
+          "affiliation": "St George's, University of London"
+        },
+        {
+          "name": "Peter Kellman",
+          "affiliation": "National Institutes of Health"
+        },
+        {
+          "name": "Julia Mascherbauer",
+          "affiliation": ""
+        },
+        {
+          "name": "Reza Nezafat",
+          "affiliation": "Beth Israel Deaconess Medical Center"
+        },
+        {
+          "name": "Michael Salerno",
+          "affiliation": "University of Virginia Health System"
+        },
+        {
+          "name": "Erik B. Schelbert",
+          "affiliation": "University of Pittsburgh"
+        },
+        {
+          "name": "Andrew J. Taylor",
+          "affiliation": "Baker Heart and Diabetes Institute"
+        },
+        {
+          "name": "Richard B. Thompson",
+          "affiliation": "University of Alberta"
+        },
+        {
+          "name": "Martin Ugander",
+          "affiliation": "Karolinska University Hospital"
+        },
+        {
+          "name": "Ruud B. van Heeswijk",
+          "affiliation": "University of Lausanne"
+        },
+        {
+          "name": "Matthias G. Friedrich",
+          "affiliation": "Universit\u00e9 de Montr\u00e9al"
+        }
+      ],
+      "year": 2016,
+      "abstract": "CORRECTION TO: J CARDIOVASC MAGN RESON (2017) 19: 75. DOI: 10.1186/S12968-017-0389-8: In the original publication of this article [1] the \"Competing interests\" section was incorrect. The original publication stated the following competing interests.",
+      "venue": "Journal of Cardiovascular Magnetic Resonance",
+      "citation_count": 1639,
+      "doi": "10.1186/s12968-017-0389-8",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1186/s12968-017-0389-8",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3005127469",
+      "title": "Eleven grand challenges in single-cell data science",
+      "authors": [
+        {
+          "name": "David L\u00e4hnemann",
+          "affiliation": "D\u00fcsseldorf University Hospital"
+        },
+        {
+          "name": "Johannes K\u00f6ster",
+          "affiliation": "Harvard University"
+        },
+        {
+          "name": "Ewa Szczurek",
+          "affiliation": "University of Warsaw"
+        },
+        {
+          "name": "Davis J. McCarthy",
+          "affiliation": "The University of Melbourne"
+        },
+        {
+          "name": "Stephanie C. Hicks",
+          "affiliation": "Johns Hopkins University"
+        },
+        {
+          "name": "Mark D. Robinson",
+          "affiliation": "SIB Swiss Institute of Bioinformatics"
+        },
+        {
+          "name": "Catalina A. Vallejos",
+          "affiliation": "Turing Institute"
+        },
+        {
+          "name": "Kieran R. Campbell",
+          "affiliation": "BC Cancer Agency"
+        },
+        {
+          "name": "Niko Beerenwinkel",
+          "affiliation": "SIB Swiss Institute of Bioinformatics"
+        },
+        {
+          "name": "Ahmed Mahfouz",
+          "affiliation": "Leiden University Medical Center"
+        },
+        {
+          "name": "Luca Pinello",
+          "affiliation": "Broad Institute"
+        },
+        {
+          "name": "Pavel Skums",
+          "affiliation": "Georgia State University"
+        },
+        {
+          "name": "Alexandros Stamatakis",
+          "affiliation": "Karlsruhe Institute of Technology"
+        },
+        {
+          "name": "Camille Stephan\u2010Otto Attolini",
+          "affiliation": "Institute for Research in Biomedicine"
+        },
+        {
+          "name": "Samuel Apar\u00edcio",
+          "affiliation": "BC Cancer Agency"
+        },
+        {
+          "name": "Jasmijn A. Baaijens",
+          "affiliation": "Centrum Wiskunde & Informatica"
+        },
+        {
+          "name": "Marleen Balvert",
+          "affiliation": "Centrum Wiskunde & Informatica"
+        },
+        {
+          "name": "Buys de Barbanson",
+          "affiliation": "University Medical Center Utrecht"
+        },
+        {
+          "name": "Antonio Cappuccio",
+          "affiliation": "Netherlands Institute for Advanced Study in the Humanities and Social Sciences"
+        },
+        {
+          "name": "Giacomo Corleone",
+          "affiliation": "Imperial College London"
+        },
+        {
+          "name": "Bas E. Dutilh",
+          "affiliation": "Radboud University Nijmegen"
+        },
+        {
+          "name": "Maria Florescu",
+          "affiliation": "University Medical Center Utrecht"
+        },
+        {
+          "name": "Victor Guryev",
+          "affiliation": "University Medical Center Groningen"
+        },
+        {
+          "name": "Rens Holmer",
+          "affiliation": "Wageningen University & Research"
+        },
+        {
+          "name": "Katharina Jahn",
+          "affiliation": "SIB Swiss Institute of Bioinformatics"
+        },
+        {
+          "name": "Thamar Jessurun Lobo",
+          "affiliation": "University Medical Center Groningen"
+        },
+        {
+          "name": "Emma M Keizer",
+          "affiliation": "Wageningen University & Research"
+        },
+        {
+          "name": "Indu Khatri",
+          "affiliation": "Leiden University Medical Center"
+        },
+        {
+          "name": "Szymon M. Kie\u0142basa",
+          "affiliation": "Leiden University Medical Center"
+        },
+        {
+          "name": "Jan O. Korbel",
+          "affiliation": "European Molecular Biology Laboratory"
+        },
+        {
+          "name": "Alexey M. Kozlov",
+          "affiliation": "Heidelberg Institute for Theoretical Studies"
+        },
+        {
+          "name": "Tzu-Hao Kuo",
+          "affiliation": "Helmholtz Centre for Infection Research"
+        },
+        {
+          "name": "Boudewijn P. F. Lelieveldt",
+          "affiliation": "Leiden University Medical Center"
+        },
+        {
+          "name": "Ion M\u0103ndoiu",
+          "affiliation": "University of Connecticut"
+        },
+        {
+          "name": "John C. Marioni",
+          "affiliation": "European Bioinformatics Institute"
+        },
+        {
+          "name": "Tobias Marschall",
+          "affiliation": "Max Planck Institute for Informatics"
+        },
+        {
+          "name": "Felix M\u00f6lder",
+          "affiliation": "University of Duisburg-Essen"
+        },
+        {
+          "name": "Amir Niknejad",
+          "affiliation": "Mount Saint Vincent University"
+        },
+        {
+          "name": "Alicja R\u0105czkowska",
+          "affiliation": "University of Warsaw"
+        },
+        {
+          "name": "Marcel Reinders",
+          "affiliation": "Leiden University Medical Center"
+        },
+        {
+          "name": "Jeroen de Ridder",
+          "affiliation": "University Medical Center Utrecht"
+        },
+        {
+          "name": "Antoine-Emmanuel Saliba",
+          "affiliation": "Helmholtz Institute for RNA-based Infection Research"
+        },
+        {
+          "name": "Antonios Somarakis",
+          "affiliation": "Leiden University Medical Center"
+        },
+        {
+          "name": "Oliver Stegle",
+          "affiliation": "European Bioinformatics Institute"
+        },
+        {
+          "name": "Fabian J. Theis",
+          "affiliation": "Helmholtz Zentrum M\u00fcnchen"
+        },
+        {
+          "name": "Huan Yang",
+          "affiliation": "Leiden University"
+        },
+        {
+          "name": "Alex Zelikovsky",
+          "affiliation": "Sechenov University"
+        },
+        {
+          "name": "Alice C. McHardy",
+          "affiliation": "Helmholtz Centre for Infection Research"
+        },
+        {
+          "name": "Benjamin J. Raphael",
+          "affiliation": "Princeton University"
+        },
+        {
+          "name": "Sohrab P. Shah",
+          "affiliation": "Memorial Sloan Kettering Cancer Center"
+        },
+        {
+          "name": "Alexander Sch\u00f6nhuth",
+          "affiliation": "Centrum Wiskunde & Informatica"
+        }
+      ],
+      "year": 2020,
+      "abstract": "The recent boom in microfluidics and combinatorial indexing strategies, combined with low sequencing costs, has empowered single-cell sequencing technology. Thousands-or even millions-of cells analyzed in a single experiment amount to a data revolution in single-cell biology and pose unique data science problems. Here, we outline eleven challenges that will be central to bringing this emerging field of single-cell data science forward. For each challenge, we highlight motivating research questions, review prior work, and formulate open problems. This compendium is for established researchers, newcomers, and students alike, highlighting interesting and rewarding problems for the coming years.",
+      "venue": "Genome biology",
+      "citation_count": 1393,
+      "doi": "10.1186/s13059-020-1926-6",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1186/s13059-020-1926-6",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2309442902",
+      "title": "Preclinical Alzheimer's disease: Definition, natural history, and diagnostic criteria",
+      "authors": [
+        {
+          "name": "Bruno Dubois",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Harald Hampel",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Howard Feldman",
+          "affiliation": "University of British Columbia"
+        },
+        {
+          "name": "Philip Scheltens",
+          "affiliation": "Amsterdam Neuroscience"
+        },
+        {
+          "name": "Paul Aisen",
+          "affiliation": "University of Southern California"
+        },
+        {
+          "name": "Sandrine Andrieu",
+          "affiliation": "Universit\u00e9 Toulouse III - Paul Sabatier"
+        },
+        {
+          "name": "Hovagim Bakardjian",
+          "affiliation": "Institut de Psychiatrie et Neurosciences de Paris"
+        },
+        {
+          "name": "Habib Benali",
+          "affiliation": "Centre National de la Recherche Scientifique"
+        },
+        {
+          "name": "Lars Bertram",
+          "affiliation": "Institute for Integrative and Experimental Genomics"
+        },
+        {
+          "name": "Kaj Blennow",
+          "affiliation": "Sahlgrenska University Hospital"
+        },
+        {
+          "name": "Karl Broich",
+          "affiliation": "Federal Institute for Drugs and Medical Devices"
+        },
+        {
+          "name": "Enrica Cavedo",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Sebastian J. Crutch",
+          "affiliation": "UK Dementia Research Institute"
+        },
+        {
+          "name": "Jean\u2010Fran\u00e7ois Dartigues",
+          "affiliation": "Universit\u00e9 de Bordeaux"
+        },
+        {
+          "name": "Charles Duyckaerts",
+          "affiliation": "Institut du Cerveau"
+        },
+        {
+          "name": "St\u00e9phane Epelbaum",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Giovanni B. Frisoni",
+          "affiliation": "University of Geneva"
+        },
+        {
+          "name": "Serge Gauthier",
+          "affiliation": "Douglas Mental Health University Institute"
+        },
+        {
+          "name": "R\u00e9my Genthon",
+          "affiliation": ""
+        },
+        {
+          "name": "Alida A. Gouw",
+          "affiliation": "Universit\u00e9 Toulouse III - Paul Sabatier"
+        },
+        {
+          "name": "Marie\u2010Odile Habert",
+          "affiliation": "Centre National de la Recherche Scientifique"
+        },
+        {
+          "name": "David M. Holtzman",
+          "affiliation": "Alzheimer\u2019s Disease Neuroimaging Initiative"
+        },
+        {
+          "name": "Miia Kivipelto",
+          "affiliation": "Karolinska University Hospital"
+        },
+        {
+          "name": "Simone Lista",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Jos\u00e9 Lu\u00eds Molinuevo",
+          "affiliation": "Pasqual Maragall Foundation"
+        },
+        {
+          "name": "Sid E. O\u2019Bryant",
+          "affiliation": "University of North Texas"
+        },
+        {
+          "name": "Gil D. Rabinovici",
+          "affiliation": "University of California, San Francisco"
+        },
+        {
+          "name": "Christopher C. Rowe",
+          "affiliation": "The University of Melbourne"
+        },
+        {
+          "name": "Stephen Salloway",
+          "affiliation": "Brown University"
+        },
+        {
+          "name": "Lon S. Schneider",
+          "affiliation": "University of Southern California"
+        },
+        {
+          "name": "Reisa A. Sperling",
+          "affiliation": "Boston University"
+        },
+        {
+          "name": "Marc Teichmann",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Mar\u00eda C. Carrillo",
+          "affiliation": "Alzheimer's Association"
+        },
+        {
+          "name": "Jeffrey L. Cummings",
+          "affiliation": "Cleveland Clinic"
+        },
+        {
+          "name": "Cliff R Jack",
+          "affiliation": "Mayo Clinic in Arizona"
+        }
+      ],
+      "year": 2016,
+      "abstract": "During the past decade, a conceptual shift occurred in the field of Alzheimer's disease (AD) considering the disease as a continuum. Thanks to evolving biomarker research and substantial discoveries, it is now possible to identify the disease even at the preclinical stage before the occurrence of the first clinical symptoms. This preclinical stage of AD has become a major research focus as the field postulates that early intervention may offer the best chance of therapeutic success. To date, very little evidence is established on this \"silent\" stage of the disease. A clarification is needed about the definitions and lexicon, the limits, the natural history, the markers of progression, and the ethical consequence of detecting the disease at this asymptomatic stage. This article is aimed at addressing all the different issues by providing for each of them an updated review of the literature and evidence, with practical recommendations.",
+      "venue": "Alzheimer s & Dementia",
+      "citation_count": 1882,
+      "doi": "10.1016/j.jalz.2016.02.002",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/j.jalz.2016.02.002",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2803627340",
+      "title": "Natural Products for Drug Discovery in the 21st Century: Innovations for Novel Drug Discovery",
+      "authors": [
+        {
+          "name": "Nicholas Ekow Thomford",
+          "affiliation": "University of Cape Coast"
+        },
+        {
+          "name": "Dimakatso Alice Senthebane",
+          "affiliation": "University of Cape Town"
+        },
+        {
+          "name": "Arielle Rowe",
+          "affiliation": "University of Cape Town"
+        },
+        {
+          "name": "Daniella Munro",
+          "affiliation": "University of Cape Town"
+        },
+        {
+          "name": "Palesa Pamela Seele",
+          "affiliation": "University of Cape Town"
+        },
+        {
+          "name": "Alfred Maroyi",
+          "affiliation": "University of Fort Hare"
+        },
+        {
+          "name": "Kevin Dzobo",
+          "affiliation": "University of Cape Town"
+        }
+      ],
+      "year": 2018,
+      "abstract": "The therapeutic properties of plants have been recognised since time immemorial. Many pathological conditions have been treated using plant-derived medicines. These medicines are used as concoctions or concentrated plant extracts without isolation of active compounds. Modern medicine however, requires the isolation and purification of one or two active compounds. There are however a lot of global health challenges with diseases such as cancer, degenerative diseases, HIV/AIDS and diabetes, of which modern medicine is struggling to provide cures. Many times the isolation of \"active compound\" has made the compound ineffective. Drug discovery is a multidimensional problem requiring several parameters of both natural and synthetic compounds such as safety, pharmacokinetics and efficacy to be evaluated during drug candidate selection. The advent of latest technologies that enhance drug design hypotheses such as Artificial Intelligence, the use of 'organ-on chip' and microfluidics technologies, means that automation has become part of drug discovery. This has resulted in increased speed in drug discovery and evaluation of the safety, pharmacokinetics and efficacy of candidate compounds whilst allowing novel ways of drug design and synthesis based on natural compounds. Recent advances in analytical and computational techniques have opened new avenues to process complex natural products and to use their structures to derive new and innovative drugs. Indeed, we are in the era of computational molecular design, as applied to natural products. Predictive computational softwares have contributed to the discovery of molecular targets of natural products and their derivatives. In future the use of quantum computing, computational softwares and databases in modelling molecular interactions and predicting features and parameters needed for drug development, such as pharmacokinetic and pharmacodynamics, will result in few false positive leads in drug development. This review discusses plant-based natural product drug discovery and how innovative technologies play a role in next-generation drug discovery.",
+      "venue": "International Journal of Molecular Sciences",
+      "citation_count": 1190,
+      "doi": "10.3390/ijms19061578",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.3390/ijms19061578",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2590651237",
+      "title": "Enhancing studies of the connectome in autism using the autism brain imaging data exchange II",
+      "authors": [
+        {
+          "name": "Adriana Di Martino",
+          "affiliation": "NYU Langone Health"
+        },
+        {
+          "name": "David O\u2019Connor",
+          "affiliation": "Nathan Kline Institute for Psychiatric Research"
+        },
+        {
+          "name": "Bosi Chen",
+          "affiliation": "NYU Langone Health"
+        },
+        {
+          "name": "Kaat Alaerts",
+          "affiliation": "Neuroelectronics Research Flanders"
+        },
+        {
+          "name": "Jeffrey S. Anderson",
+          "affiliation": "University of Utah"
+        },
+        {
+          "name": "Michal Assaf",
+          "affiliation": "Hartford Hospital"
+        },
+        {
+          "name": "Joshua H. Balsters",
+          "affiliation": "ETH Zurich"
+        },
+        {
+          "name": "Leslie C. Baxter",
+          "affiliation": "Barrow Neurological Institute"
+        },
+        {
+          "name": "Anita Beggiato",
+          "affiliation": "Institut Pasteur"
+        },
+        {
+          "name": "Sylvie Bernaerts",
+          "affiliation": "Neuroelectronics Research Flanders"
+        },
+        {
+          "name": "Laura M. E. Blanken",
+          "affiliation": "Erasmus MC"
+        },
+        {
+          "name": "Susan Y. Bookheimer",
+          "affiliation": "University of California, Los Angeles"
+        },
+        {
+          "name": "B. Blair Braden",
+          "affiliation": "Barrow Neurological Institute"
+        },
+        {
+          "name": "Lisa Byrge",
+          "affiliation": "Indiana University Bloomington"
+        },
+        {
+          "name": "F. Xavier Castellanos",
+          "affiliation": "NYU Langone Health"
+        },
+        {
+          "name": "Mirella Dapretto",
+          "affiliation": "University of California, Los Angeles"
+        },
+        {
+          "name": "Richard Delorme",
+          "affiliation": "Institut Pasteur"
+        },
+        {
+          "name": "Damien A. Fair",
+          "affiliation": "Oregon Health & Science University"
+        },
+        {
+          "name": "Inna Fishman",
+          "affiliation": "San Diego State University"
+        },
+        {
+          "name": "Jacqueline Fitzgerald",
+          "affiliation": "Trinity College Dublin"
+        },
+        {
+          "name": "Louise Gallagher",
+          "affiliation": "Trinity College Dublin"
+        },
+        {
+          "name": "R. Joanne Jao Keehn",
+          "affiliation": "San Diego State University"
+        },
+        {
+          "name": "Daniel P. Kennedy",
+          "affiliation": "Indiana University Bloomington"
+        },
+        {
+          "name": "Janet E. Lainhart",
+          "affiliation": "University of Wisconsin\u2013Madison"
+        },
+        {
+          "name": "Beatr\u00edz Luna",
+          "affiliation": "University of Pittsburgh"
+        },
+        {
+          "name": "Stewart H. Mostofsky",
+          "affiliation": "Kennedy Krieger Institute"
+        },
+        {
+          "name": "Ralph-Axel M\u00fcller",
+          "affiliation": "San Diego State University"
+        },
+        {
+          "name": "Mary Beth Nebel",
+          "affiliation": "Kennedy Krieger Institute"
+        },
+        {
+          "name": "Joel T. Nigg",
+          "affiliation": "Oregon Health & Science University"
+        },
+        {
+          "name": "Kirsten O\u2019Hearn",
+          "affiliation": "University of Pittsburgh"
+        },
+        {
+          "name": "Marjorie Solomon",
+          "affiliation": "University of California Davis Medical Center"
+        },
+        {
+          "name": "Roberto Toro",
+          "affiliation": "Institut Pasteur"
+        },
+        {
+          "name": "Chandan J. Vaidya",
+          "affiliation": "Children's National"
+        },
+        {
+          "name": "Nicole Wenderoth",
+          "affiliation": "ETH Zurich"
+        },
+        {
+          "name": "Tonya White",
+          "affiliation": "Erasmus MC"
+        },
+        {
+          "name": "R. Cameron Craddock",
+          "affiliation": "Nathan Kline Institute for Psychiatric Research"
+        },
+        {
+          "name": "Catherine Lord",
+          "affiliation": "Cornell University"
+        },
+        {
+          "name": "Bennett Leventhal",
+          "affiliation": "University of California, San Francisco"
+        },
+        {
+          "name": "Michael P. Milham",
+          "affiliation": "Nathan Kline Institute for Psychiatric Research"
+        }
+      ],
+      "year": 2017,
+      "abstract": "The second iteration of the Autism Brain Imaging Data Exchange (ABIDE II) aims to enhance the scope of brain connectomics research in Autism Spectrum Disorder (ASD). Consistent with the initial ABIDE effort (ABIDE I), that released 1112 datasets in 2012, this new multisite open-data resource is an aggregate of resting state functional magnetic resonance imaging (MRI) and corresponding structural MRI and phenotypic datasets. ABIDE II includes datasets from an additional 487 individuals with ASD and 557 controls previously collected across 16 international institutions. The combination of ABIDE I and ABIDE II provides investigators with 2156 unique cross-sectional datasets allowing selection of samples for discovery and/or replication. This sample size can also facilitate the identification of neurobiological subgroups, as well as preliminary examinations of sex differences in ASD. Additionally, ABIDE II includes a range of psychiatric variables to inform our understanding of the neural correlates of co-occurring psychopathology; 284 diffusion imaging datasets are also included. It is anticipated that these enhancements will contribute to unraveling key sources of ASD heterogeneity.",
+      "venue": "Scientific Data",
+      "citation_count": 718,
+      "doi": "10.1038/sdata.2017.10",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/sdata.2017.10",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W1561558283",
+      "title": "The Future of the Internet--And How to Stop It",
+      "authors": [
+        {
+          "name": "Jonathan Zittrain",
+          "affiliation": ""
+        }
+      ],
+      "year": 2008,
+      "abstract": "This extraordinary book explains the engine that has catapulted the Internet from backwater to ubiquity\u2014and reveals that it is sputtering precisely because of its runaway success. With the unwitting help of its users, the generative Internet is on a path to a lockdown, ending its cycle of innovation\u2014and facilitating unsettling new kinds of control. IPods, iPhones, Xboxes, and TiVos represent the first wave of Internet-centered products that can\u2019t be easily modified by anyone except their vendors or selected partners. These \u201ctethered appliances\u201d have already been used in remarkable but little-known ways: car GPS systems have been reconfigured at the demand of law enforcement to eavesdrop on the occupants at all times, and digital video recorders have been ordered to self-destruct thanks to a lawsuit against the manufacturer thousands of miles away. New Web 2.0 platforms like Google mash-ups and Facebook are rightly touted\u2014but their applications can be similarly monitored and eliminated from a central source. As tethered appliances and applications eclipse the PC, the very nature of the Internet\u2014its \u201cgenerativity,\u201d or innovative character\u2014is at risk. The Internet\u2019s current trajectory is one of lost opportunity. Its salvation, Zittrain argues, lies in the hands of its millions of users. Drawing on generative technologies like Wikipedia that have so far survived their own successes, this book shows how to develop new technologies and social structures that allow users to work creatively and collaboratively, participate in solutions, and become true \u201cnetizens.\u201d The author has made an online version of this work available under a Creative Commons Attribution-Noncommercial-Share Alike 3.0 License. It can be accessed through the author\u2019s Web site at http://www.jz.org.",
+      "venue": "Digital Access to Scholarship at Harvard (DASH) (Harvard University)",
+      "citation_count": 1387,
+      "doi": "",
+      "arxiv_id": "",
+      "url": "https://openalex.org/W1561558283",
+      "source": "openalex",
+      "_bibtex_override": ""
+    }
+  ]
+}

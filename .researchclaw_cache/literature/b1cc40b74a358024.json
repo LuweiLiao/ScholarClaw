@@ -1,0 +1,557 @@
+{
+  "query": "Adding robustness-aware objectives for test-driven science improves out-of-domain performance without major in-domain regression.",
+  "source": "arxiv",
+  "limit": 15,
+  "timestamp": 1777565232.1126735,
+  "papers": [
+    {
+      "paper_id": "arxiv-2512.16152",
+      "title": "Pulsar Science with the SKA Observatory",
+      "authors": [
+        {
+          "name": "Bhal Chandra Joshi",
+          "affiliation": ""
+        },
+        {
+          "name": "Aris Karastergiou",
+          "affiliation": ""
+        },
+        {
+          "name": "Marta Burgay",
+          "affiliation": ""
+        },
+        {
+          "name": "The SKA pulsar science working group",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+      "venue": "astro-ph.HE",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2512.16152",
+      "url": "https://arxiv.org/abs/2512.16152",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1211.0310",
+      "title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+      "authors": [
+        {
+          "name": "LSST Dark Energy Science Collaboration",
+          "affiliation": ""
+        }
+      ],
+      "year": 2012,
+      "abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+      "venue": "astro-ph.CO",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1211.0310",
+      "url": "https://arxiv.org/abs/1211.0310",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2406.04295",
+      "title": "Everything to the Synthetic: Diffusion-driven Test-time Adaptation via Synthetic-Domain Alignment",
+      "authors": [
+        {
+          "name": "Jiayi Guo",
+          "affiliation": ""
+        },
+        {
+          "name": "Junhao Zhao",
+          "affiliation": ""
+        },
+        {
+          "name": "Chaoqun Du",
+          "affiliation": ""
+        },
+        {
+          "name": "Yulin Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "Chunjiang Ge",
+          "affiliation": ""
+        },
+        {
+          "name": "Zanlin Ni",
+          "affiliation": ""
+        },
+        {
+          "name": "Shiji Song",
+          "affiliation": ""
+        },
+        {
+          "name": "Humphrey Shi",
+          "affiliation": ""
+        },
+        {
+          "name": "Gao Huang",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "Test-time adaptation (TTA) aims to improve the performance of source-domain pre-trained models on previously unseen, shifted target domains. Traditional TTA methods primarily adapt model weights based on target data streams, making model performance sensitive to the amount and order of target data. The recently proposed diffusion-driven TTA methods mitigate this by adapting model inputs instead of weights, where an unconditional diffusion model, trained on the source domain, transforms target-domain data into a synthetic domain that is expected to approximate the source domain. However, in this paper, we reveal that although the synthetic data in diffusion-driven TTA seems indistinguishable from the source data, it is unaligned with, or even markedly different from the latter for deep networks. To address this issue, we propose a \\textbf{S}ynthetic-\\textbf{D}omain \\textbf{A}lignment (SDA) framework. Our key insight is to fine-tune the source model with synthetic data to ensure better alignment. Specifically, we first employ a conditional diffusion model to generate labeled samples, creating a synthetic dataset. Subsequently, we use the aforementioned unconditional diffusion model to add noise to and denoise each sample before fine-tuning. This Mix of Diffusion (MoD) process mitigates the potential domain misalignment between the conditional and unconditional models. Extensive experiments across classifiers, segmenters, and multimodal large language models (MLLMs, \\eg, LLaVA) demonstrate that SDA achieves superior domain alignment and consistently outperforms existing diffusion-driven TTA methods. Our code is available at https://github.com/SHI-Labs/Diffusion-Driven-Test-Time-Adaptation-via-Synthetic-Domain-Alignment.",
+      "venue": "cs.CV",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2406.04295",
+      "url": "https://arxiv.org/abs/2406.04295",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2308.13875",
+      "title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+      "authors": [
+        {
+          "name": "Vittorio Cortellessa",
+          "affiliation": ""
+        },
+        {
+          "name": "Daniele Di Pompeo",
+          "affiliation": ""
+        },
+        {
+          "name": "Michele Tucci",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
+      "venue": "cs.SE",
+      "citation_count": 0,
+      "doi": "10.1007/978-3-031-43185-2_16",
+      "arxiv_id": "2308.13875",
+      "url": "https://arxiv.org/abs/2308.13875",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2005.13144",
+      "title": "A review of analytical performance modeling and its role in computer engineering and science",
+      "authors": [
+        {
+          "name": "Y. C. Tay",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "This article is a review of analytical performance modeling for computer systems. It discusses the motivation for this area of research, examines key issues, introduces some ideas, illustrates how it is applied, and points out a role that it can play in developing Computer Science.",
+      "venue": "cs.PF",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2005.13144",
+      "url": "https://arxiv.org/abs/2005.13144",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2304.08104",
+      "title": "GREX-PLUS Science Book",
+      "authors": [
+        {
+          "name": "GREX-PLUS Science Team",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Akio K. Inoue",
+          "affiliation": ""
+        },
+        {
+          "name": "Yuichi Harikane",
+          "affiliation": ""
+        },
+        {
+          "name": "Takashi Moriya",
+          "affiliation": ""
+        },
+        {
+          "name": "Hideko Nomura",
+          "affiliation": ""
+        },
+        {
+          "name": "Shunsuke Baba",
+          "affiliation": ""
+        },
+        {
+          "name": "Yuka Fujii",
+          "affiliation": ""
+        },
+        {
+          "name": "Naoteru Gouda",
+          "affiliation": ""
+        },
+        {
+          "name": "Yasuhiro Hirahara",
+          "affiliation": ""
+        },
+        {
+          "name": "Yui Kawashima",
+          "affiliation": ""
+        },
+        {
+          "name": "Tadayuki Kodama",
+          "affiliation": ""
+        },
+        {
+          "name": "Yusei Koyama",
+          "affiliation": ""
+        },
+        {
+          "name": "Hiroyuki Kurokawa",
+          "affiliation": ""
+        },
+        {
+          "name": "Taro Matsuo",
+          "affiliation": ""
+        },
+        {
+          "name": "Yoshiki Matsuoka",
+          "affiliation": ""
+        },
+        {
+          "name": "Shuji Matsuura",
+          "affiliation": ""
+        },
+        {
+          "name": "Ken Mawatari",
+          "affiliation": ""
+        },
+        {
+          "name": "Toru Misawa",
+          "affiliation": ""
+        },
+        {
+          "name": "Kentaro Nagamine",
+          "affiliation": ""
+        },
+        {
+          "name": "Kimihiko Nakajima",
+          "affiliation": ""
+        },
+        {
+          "name": "Shota Notsu",
+          "affiliation": ""
+        },
+        {
+          "name": "Takafumi Ootsubo",
+          "affiliation": ""
+        },
+        {
+          "name": "Kazumasa Ohno",
+          "affiliation": ""
+        },
+        {
+          "name": "Hideo Sagawa",
+          "affiliation": ""
+        },
+        {
+          "name": "Takashi Shimonishi",
+          "affiliation": ""
+        },
+        {
+          "name": "Ken-ichi Tadaki",
+          "affiliation": ""
+        },
+        {
+          "name": "Michihiro Takami",
+          "affiliation": ""
+        },
+        {
+          "name": "Tsuyoshi Terai",
+          "affiliation": ""
+        },
+        {
+          "name": "Yoshiki Toba",
+          "affiliation": ""
+        },
+        {
+          "name": "Takuji Yamashita",
+          "affiliation": ""
+        },
+        {
+          "name": "Chikako Yasui",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "GREX-PLUS (Galaxy Reionization EXplorer and PLanetary Universe Spectrometer) is a mission candidate for a JAXA's strategic L-class mission to be launched in the 2030s. Its primary sciences are two-fold: galaxy formation and evolution and planetary system formation and evolution. The GREX-PLUS spacecraft will carry a 1.2 m primary mirror aperture telescope cooled down to 50 K. The two science instruments will be onboard: a wide-field camera in the 2-8 $\u03bc$m wavelength band and a high resolution spectrometer with a wavelength resolution of 30,000 in the 10-18 $\u03bc$m band. The GREX-PLUS wide-field camera aims to detect the first generation of galaxies at redshift $z>15$. The GREX-PLUS high resolution spectrometer aims to identify the location of the water ``snow line'' in proto-planetary disks. Both instruments will provide unique data sets for a broad range of scientific topics including galaxy mass assembly, origin of supermassive blackholes, infrared background radiation, molecular spectroscopy in the interstellar medium, transit spectroscopy for exoplanet atmosphere, planetary atmosphere in the Solar system, and so on.",
+      "venue": "astro-ph.CO",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2304.08104",
+      "url": "https://arxiv.org/abs/2304.08104",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2003.04962",
+      "title": "Science with the X-ray Imaging and Spectroscopy Mission (XRISM)",
+      "authors": [
+        {
+          "name": "XRISM Science Team",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "This white paper was prepared by members of the XRISM Science Team for the benefit of the general astronomical community. This paper describes the capabilities of XRISM, offers a sampling of the many science topics that the mission will address, and discusses the synergies of XRISM with the plethora of planned and existing facilities in the 2020s and beyond.",
+      "venue": "astro-ph.HE",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2003.04962",
+      "url": "https://arxiv.org/abs/2003.04962",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2106.01227",
+      "title": "Improving low-resource ASR performance with untranscribed out-of-domain data",
+      "authors": [
+        {
+          "name": "Jayadev Billa",
+          "affiliation": ""
+        }
+      ],
+      "year": 2021,
+      "abstract": "Semi-supervised training (SST) is a common approach to leverage untranscribed/unlabeled speech data to improve automatic speech recognition performance in low-resource languages. However, if the available unlabeled speech is mismatched to the target domain, SST is not as effective, and in many cases performs worse than the original system. In this paper, we address the issue of low-resource ASR when only untranscribed out-of-domain speech data is readily available in the target language. Specifically, we look to improve performance on conversational/telephony speech (target domain) using web resources, in particular YouTube data, which more closely resembles news/topical broadcast data. Leveraging SST, we show that while in some cases simply pooling the out-of-domain data with the training data lowers word error rate (WER), in all cases, we see improvements if we train first with the out-of-domain data and then fine-tune the resulting model with the original training data. Using 2000 hours of speed perturbed YouTube audio in each target language, with semi-supervised transcripts, we show improvements on multiple languages/data sets, of up to 16.3% relative improvement in WER over the baseline systems and up to 7.4% relative improvement in WER over a system that simply pools the out-of-domain data with the training data.",
+      "venue": "cs.CL",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2106.01227",
+      "url": "https://arxiv.org/abs/2106.01227",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2505.05623",
+      "title": "Characterizing GPU Energy Usage in Exascale-Ready Portable Science Applications",
+      "authors": [
+        {
+          "name": "William F. Godoy",
+          "affiliation": ""
+        },
+        {
+          "name": "Oscar Hernandez",
+          "affiliation": ""
+        },
+        {
+          "name": "Paul R. C. Kent",
+          "affiliation": ""
+        },
+        {
+          "name": "Maria Patrou",
+          "affiliation": ""
+        },
+        {
+          "name": "Kazi Asifuzzaman",
+          "affiliation": ""
+        },
+        {
+          "name": "Narasinga Rao Miniskar",
+          "affiliation": ""
+        },
+        {
+          "name": "Pedro Valero-Lara",
+          "affiliation": ""
+        },
+        {
+          "name": "Jeffrey S. Vetter",
+          "affiliation": ""
+        },
+        {
+          "name": "Matthew D. Sinclair",
+          "affiliation": ""
+        },
+        {
+          "name": "Jason Lowe-Power",
+          "affiliation": ""
+        },
+        {
+          "name": "Bobby R. Bruce",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "We characterize the GPU energy usage of two widely adopted exascale-ready applications representing two classes of particle and mesh solvers: (i) QMCPACK, a quantum Monte Carlo package, and (ii) AMReXCastro, an adaptive mesh astrophysical code. We analyze power, temperature, utilization, and energy traces from double-/single (mixed)-precision benchmarks on NVIDIA's A100 and H100 and AMD's MI250X GPUs using queries in NVML and rocm_smi_lib, respectively. We explore application-specific metrics to provide insights on energy vs. performance trade-offs. Our results suggest that mixed-precision energy savings range between 6-25% on QMCPACK and 45% on AMReX-Castro. Also, we found gaps in the AMD tooling used on Frontier GPUs that need to be understood, while query resolutions on NVML have little variability between 1 ms-1 s. Overall, application level knowledge is crucial to define energy-cost/science-benefit opportunities for the codesign of future supercomputer architectures in the post-Moore era.",
+      "venue": "cs.PF",
+      "citation_count": 0,
+      "doi": "10.1007/978-3-032-07612-0_14",
+      "arxiv_id": "2505.05623",
+      "url": "https://arxiv.org/abs/2505.05623",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2512.15920",
+      "title": "Introduction to Symbolic Regression in the Physical Sciences",
+      "authors": [
+        {
+          "name": "Deaglan J. Bartlett",
+          "affiliation": ""
+        },
+        {
+          "name": "Harry Desmond",
+          "affiliation": ""
+        },
+        {
+          "name": "Pedro G. Ferreira",
+          "affiliation": ""
+        },
+        {
+          "name": "Gabriel Kronberger",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "Symbolic regression (SR) has emerged as a powerful method for uncovering interpretable mathematical relationships from data, offering a novel route to both scientific discovery and efficient empirical modelling. This article introduces the Special Issue on Symbolic Regression for the Physical Sciences, motivated by the Royal Society discussion meeting held in April 2025. The contributions collected here span applications from automated equation discovery and emergent-phenomena modelling to the construction of compact emulators for computationally expensive simulations.\n  The introductory review outlines the conceptual foundations of SR, contrasts it with conventional regression approaches, and surveys its main use cases in the physical sciences, including the derivation of effective theories, empirical functional forms and surrogate models. We summarise methodological considerations such as search-space design, operator selection, complexity control, feature selection, and integration with modern AI approaches. We also highlight ongoing challenges, including scalability, robustness to noise, overfitting and computational complexity. Finally we emphasise emerging directions, particularly the incorporation of symmetry constraints, asymptotic behaviour and other theoretical information. Taken together, the papers in this Special Issue illustrate the accelerating progress of SR and its growing relevance across the physical sciences.",
+      "venue": "cs.LG",
+      "citation_count": 0,
+      "doi": "10.1098/rsta.2024.0600",
+      "arxiv_id": "2512.15920",
+      "url": "https://arxiv.org/abs/2512.15920",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2209.11605",
+      "title": "The ESO Science Archive",
+      "authors": [
+        {
+          "name": "Martino Romaniello",
+          "affiliation": ""
+        },
+        {
+          "name": "the ESO Science Archive operations",
+          "affiliation": ""
+        },
+        {
+          "name": "development team",
+          "affiliation": ""
+        }
+      ],
+      "year": 2022,
+      "abstract": "The ESO Science Archive is the collection and access point of the data generated at ESO's La Silla Paranal Observatory, both raw and processed. It is a major contributor to ESO's science output, being used in about 4 out of 10 refereed articles with ESO data. In this paper, which is presented on behalf of the operations and development teams, we review its contents, policies, us interfaces and impact.",
+      "venue": "astro-ph.IM",
+      "citation_count": 0,
+      "doi": "10.1117/12.2628253",
+      "arxiv_id": "2209.11605",
+      "url": "https://arxiv.org/abs/2209.11605",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1002.1149",
+      "title": "A Performance Study of GA and LSH in Multiprocessor Job Scheduling",
+      "authors": [
+        {
+          "name": "S. R. Vijayalakshmi",
+          "affiliation": ""
+        },
+        {
+          "name": "G. Padmavathi",
+          "affiliation": ""
+        }
+      ],
+      "year": 2010,
+      "abstract": "Multiprocessor task scheduling is an important and computationally difficult problem. This paper proposes a comparison study of genetic algorithm and list scheduling algorithm. Both algorithms are naturally parallelizable but have heavy data dependencies. Based on experimental results, this paper presents a detailed analysis of the scalability, advantages and disadvantages of each algorithm. Multiprocessors have emerged as a powerful computing means for running real-time applications, especially where a uni-processor system would not be sufficient enough to execute all the tasks. The high performance and reliability of multiprocessors have made them a powerful computing resource. Such computing environment requires an efficient algorithm to determine when and on which processor a given task should execute. In multiprocessor systems, an efficient scheduling of a parallel program onto the processors that minimizes the entire execution time is vital for achieving a high performance. This scheduling problem is known to be NP- Hard. In multiprocessor scheduling problem, a given program is to be scheduled in a given multiprocessor system such that the program's execution time is minimized. The last job must be completed as early as possible. Genetic algorithm (GA) is one of the widely used techniques for constrained optimization.",
+      "venue": "cs.PF",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1002.1149",
+      "url": "https://arxiv.org/abs/1002.1149",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1108.5592",
+      "title": "A Performance Study of Data Mining Techniques: Multiple Linear Regression vs. Factor Analysis",
+      "authors": [
+        {
+          "name": "Abhishek Taneja",
+          "affiliation": ""
+        },
+        {
+          "name": "R. K. Chauhan",
+          "affiliation": ""
+        }
+      ],
+      "year": 2011,
+      "abstract": "The growing volume of data usually creates an interesting challenge for the need of data analysis tools that discover regularities in these data. Data mining has emerged as disciplines that contribute tools for data analysis, discovery of hidden knowledge, and autonomous decision making in many application domains. The purpose of this study is to compare the performance of two data mining techniques viz., factor analysis and multiple linear regression for different sample sizes on three unique sets of data. The performance of the two data mining techniques is compared on following parameters like mean square error (MSE), R-square, R-Square adjusted, condition number, root mean square error(RMSE), number of variables included in the prediction model, modified coefficient of efficiency, F-value, and test of normality. These parameters have been computed using various data mining tools like SPSS, XLstat, Stata, and MS-Excel. It is seen that for all the given dataset, factor analysis outperform multiple linear regression. But the absolute value of prediction accuracy varied between the three datasets indicating that the data distribution and data characteristics play a major role in choosing the correct prediction technique.",
+      "venue": "cs.DB",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1108.5592",
+      "url": "https://arxiv.org/abs/1108.5592",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1002.1154",
+      "title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+      "authors": [
+        {
+          "name": "Dorsaf Sebai",
+          "affiliation": ""
+        },
+        {
+          "name": "Abderrazak Jemai",
+          "affiliation": ""
+        },
+        {
+          "name": "Imed Bennour",
+          "affiliation": ""
+        }
+      ],
+      "year": 2010,
+      "abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+      "venue": "cs.PF",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1002.1154",
+      "url": "https://arxiv.org/abs/1002.1154",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2302.05118",
+      "title": "Beyond In-Domain Scenarios: Robust Density-Aware Calibration",
+      "authors": [
+        {
+          "name": "Christian Tomani",
+          "affiliation": ""
+        },
+        {
+          "name": "Futa Waseda",
+          "affiliation": ""
+        },
+        {
+          "name": "Yuesong Shen",
+          "affiliation": ""
+        },
+        {
+          "name": "Daniel Cremers",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "Calibrating deep learning models to yield uncertainty-aware predictions is crucial as deep neural networks get increasingly deployed in safety-critical applications. While existing post-hoc calibration methods achieve impressive results on in-domain test datasets, they are limited by their inability to yield reliable uncertainty estimates in domain-shift and out-of-domain (OOD) scenarios. We aim to bridge this gap by proposing DAC, an accuracy-preserving as well as Density-Aware Calibration method based on k-nearest-neighbors (KNN). In contrast to existing post-hoc methods, we utilize hidden layers of classifiers as a source for uncertainty-related information and study their importance. We show that DAC is a generic method that can readily be combined with state-of-the-art post-hoc methods. DAC boosts the robustness of calibration performance in domain-shift and OOD, while maintaining excellent in-domain predictive uncertainty estimates. We demonstrate that DAC leads to consistently better calibration across a large number of model architectures, datasets, and metrics. Additionally, we show that DAC improves calibration substantially on recent large-scale neural networks pre-trained on vast amounts of data.",
+      "venue": "cs.LG",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2302.05118",
+      "url": "https://arxiv.org/abs/2302.05118",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    }
+  ]
+}

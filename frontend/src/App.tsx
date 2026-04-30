@@ -609,6 +609,7 @@ export default function App() {
             }}
             scanResult={scanResult}
             coordSessions={coordSessions}
+            stageSessions={state.stageSessions}
             onScanProject={(workspaceDir, mainTexFile) => {
               const ws = agentWsRef.current;
               if (ws && ws.readyState === WebSocket.OPEN) {

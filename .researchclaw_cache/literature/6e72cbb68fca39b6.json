@@ -1,0 +1,1265 @@
+{
+  "query": "test-driven science",
+  "source": "arxiv",
+  "limit": 15,
+  "timestamp": 1777565744.6074183,
+  "papers": [
+    {
+      "paper_id": "arxiv-2512.16152",
+      "title": "Pulsar Science with the SKA Observatory",
+      "authors": [
+        {
+          "name": "Bhal Chandra Joshi",
+          "affiliation": ""
+        },
+        {
+          "name": "Aris Karastergiou",
+          "affiliation": ""
+        },
+        {
+          "name": "Marta Burgay",
+          "affiliation": ""
+        },
+        {
+          "name": "The SKA pulsar science working group",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+      "venue": "astro-ph.HE",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2512.16152",
+      "url": "https://arxiv.org/abs/2512.16152",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1211.0310",
+      "title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+      "authors": [
+        {
+          "name": "LSST Dark Energy Science Collaboration",
+          "affiliation": ""
+        }
+      ],
+      "year": 2012,
+      "abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+      "venue": "astro-ph.CO",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1211.0310",
+      "url": "https://arxiv.org/abs/1211.0310",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2304.08104",
+      "title": "GREX-PLUS Science Book",
+      "authors": [
+        {
+          "name": "GREX-PLUS Science Team",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Akio K. Inoue",
+          "affiliation": ""
+        },
+        {
+          "name": "Yuichi Harikane",
+          "affiliation": ""
+        },
+        {
+          "name": "Takashi Moriya",
+          "affiliation": ""
+        },
+        {
+          "name": "Hideko Nomura",
+          "affiliation": ""
+        },
+        {
+          "name": "Shunsuke Baba",
+          "affiliation": ""
+        },
+        {
+          "name": "Yuka Fujii",
+          "affiliation": ""
+        },
+        {
+          "name": "Naoteru Gouda",
+          "affiliation": ""
+        },
+        {
+          "name": "Yasuhiro Hirahara",
+          "affiliation": ""
+        },
+        {
+          "name": "Yui Kawashima",
+          "affiliation": ""
+        },
+        {
+          "name": "Tadayuki Kodama",
+          "affiliation": ""
+        },
+        {
+          "name": "Yusei Koyama",
+          "affiliation": ""
+        },
+        {
+          "name": "Hiroyuki Kurokawa",
+          "affiliation": ""
+        },
+        {
+          "name": "Taro Matsuo",
+          "affiliation": ""
+        },
+        {
+          "name": "Yoshiki Matsuoka",
+          "affiliation": ""
+        },
+        {
+          "name": "Shuji Matsuura",
+          "affiliation": ""
+        },
+        {
+          "name": "Ken Mawatari",
+          "affiliation": ""
+        },
+        {
+          "name": "Toru Misawa",
+          "affiliation": ""
+        },
+        {
+          "name": "Kentaro Nagamine",
+          "affiliation": ""
+        },
+        {
+          "name": "Kimihiko Nakajima",
+          "affiliation": ""
+        },
+        {
+          "name": "Shota Notsu",
+          "affiliation": ""
+        },
+        {
+          "name": "Takafumi Ootsubo",
+          "affiliation": ""
+        },
+        {
+          "name": "Kazumasa Ohno",
+          "affiliation": ""
+        },
+        {
+          "name": "Hideo Sagawa",
+          "affiliation": ""
+        },
+        {
+          "name": "Takashi Shimonishi",
+          "affiliation": ""
+        },
+        {
+          "name": "Ken-ichi Tadaki",
+          "affiliation": ""
+        },
+        {
+          "name": "Michihiro Takami",
+          "affiliation": ""
+        },
+        {
+          "name": "Tsuyoshi Terai",
+          "affiliation": ""
+        },
+        {
+          "name": "Yoshiki Toba",
+          "affiliation": ""
+        },
+        {
+          "name": "Takuji Yamashita",
+          "affiliation": ""
+        },
+        {
+          "name": "Chikako Yasui",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "GREX-PLUS (Galaxy Reionization EXplorer and PLanetary Universe Spectrometer) is a mission candidate for a JAXA's strategic L-class mission to be launched in the 2030s. Its primary sciences are two-fold: galaxy formation and evolution and planetary system formation and evolution. The GREX-PLUS spacecraft will carry a 1.2 m primary mirror aperture telescope cooled down to 50 K. The two science instruments will be onboard: a wide-field camera in the 2-8 $\u03bc$m wavelength band and a high resolution spectrometer with a wavelength resolution of 30,000 in the 10-18 $\u03bc$m band. The GREX-PLUS wide-field camera aims to detect the first generation of galaxies at redshift $z>15$. The GREX-PLUS high resolution spectrometer aims to identify the location of the water ``snow line'' in proto-planetary disks. Both instruments will provide unique data sets for a broad range of scientific topics including galaxy mass assembly, origin of supermassive blackholes, infrared background radiation, molecular spectroscopy in the interstellar medium, transit spectroscopy for exoplanet atmosphere, planetary atmosphere in the Solar system, and so on.",
+      "venue": "astro-ph.CO",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2304.08104",
+      "url": "https://arxiv.org/abs/2304.08104",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2003.04962",
+      "title": "Science with the X-ray Imaging and Spectroscopy Mission (XRISM)",
+      "authors": [
+        {
+          "name": "XRISM Science Team",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "This white paper was prepared by members of the XRISM Science Team for the benefit of the general astronomical community. This paper describes the capabilities of XRISM, offers a sampling of the many science topics that the mission will address, and discusses the synergies of XRISM with the plethora of planned and existing facilities in the 2020s and beyond.",
+      "venue": "astro-ph.HE",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2003.04962",
+      "url": "https://arxiv.org/abs/2003.04962",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2209.11605",
+      "title": "The ESO Science Archive",
+      "authors": [
+        {
+          "name": "Martino Romaniello",
+          "affiliation": ""
+        },
+        {
+          "name": "the ESO Science Archive operations",
+          "affiliation": ""
+        },
+        {
+          "name": "development team",
+          "affiliation": ""
+        }
+      ],
+      "year": 2022,
+      "abstract": "The ESO Science Archive is the collection and access point of the data generated at ESO's La Silla Paranal Observatory, both raw and processed. It is a major contributor to ESO's science output, being used in about 4 out of 10 refereed articles with ESO data. In this paper, which is presented on behalf of the operations and development teams, we review its contents, policies, us interfaces and impact.",
+      "venue": "astro-ph.IM",
+      "citation_count": 0,
+      "doi": "10.1117/12.2628253",
+      "arxiv_id": "2209.11605",
+      "url": "https://arxiv.org/abs/2209.11605",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-0809.3137",
+      "title": "The Frontiers of Nuclear Science, A Long Range Plan",
+      "authors": [
+        {
+          "name": "The DOE/NSF Nuclear Science Advisory Committee",
+          "affiliation": ""
+        }
+      ],
+      "year": 2008,
+      "abstract": "This is a copy of the 2007 report prepared by the DOE/NSF Nuclear Science Advisory Committee in response to the charge from DOE and NSF to \"conduct a study of the opportunities and priorities for U.S. nuclear physics research and recommend a long range plan that will provide a framework for coordinated advancement of the nation's nuclear science research programs over the next decade.\"",
+      "venue": "nucl-ex",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "0809.3137",
+      "url": "https://arxiv.org/abs/0809.3137",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-0904.3950",
+      "title": "New Science on the Open Science Grid",
+      "authors": [
+        {
+          "name": "The Open Science Grid Executive Board",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Ruth Pordes",
+          "affiliation": ""
+        },
+        {
+          "name": "Mine Altunay",
+          "affiliation": ""
+        },
+        {
+          "name": "Paul Avery",
+          "affiliation": ""
+        },
+        {
+          "name": "Alina Bejan",
+          "affiliation": ""
+        },
+        {
+          "name": "Kent Blackburn",
+          "affiliation": ""
+        },
+        {
+          "name": "Alan Blatecky",
+          "affiliation": ""
+        },
+        {
+          "name": "Rob Gardner",
+          "affiliation": ""
+        },
+        {
+          "name": "Bill Kramer",
+          "affiliation": ""
+        },
+        {
+          "name": "Miron Livny",
+          "affiliation": ""
+        },
+        {
+          "name": "John McGee",
+          "affiliation": ""
+        },
+        {
+          "name": "Maxim Potekhin",
+          "affiliation": ""
+        },
+        {
+          "name": "Rob Quick",
+          "affiliation": ""
+        },
+        {
+          "name": "Doug Olson",
+          "affiliation": ""
+        },
+        {
+          "name": "Alain Roy",
+          "affiliation": ""
+        },
+        {
+          "name": "Chander Sehgal",
+          "affiliation": ""
+        },
+        {
+          "name": "Torre Wenaus",
+          "affiliation": ""
+        },
+        {
+          "name": "Mike Wilde",
+          "affiliation": ""
+        },
+        {
+          "name": "Frank Wuerthwein",
+          "affiliation": ""
+        }
+      ],
+      "year": 2009,
+      "abstract": "The Open Science Grid (OSG) includes work to enable new science, new scientists, and new modalities in support of computationally based research. There are frequently significant sociological and organizational changes required in transformation from the existing to the new. OSG leverages its deliverables to the large scale physics experiment member communities to benefit new communities at all scales through activities in education, engagement and the distributed facility. As a partner to the poster and tutorial at SciDAC 2008, this paper gives both a brief general description and some specific examples of new science enabled on the OSG. More information is available at the OSG web site: (http://www.opensciencegrid.org).",
+      "venue": "physics.comp-ph",
+      "citation_count": 0,
+      "doi": "10.1088/1742-6596/125/1/012070",
+      "arxiv_id": "0904.3950",
+      "url": "https://arxiv.org/abs/0904.3950",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1404.0191",
+      "title": "A quantitative perspective on ethics in large team science",
+      "authors": [
+        {
+          "name": "Alexander M. Petersen",
+          "affiliation": ""
+        },
+        {
+          "name": "Ioannis Pavlidis",
+          "affiliation": ""
+        },
+        {
+          "name": "Ioanna Semendeferi",
+          "affiliation": ""
+        }
+      ],
+      "year": 2014,
+      "abstract": "The gradual crowding out of singleton and small team science by large team endeavors is challenging key features of research culture. It is therefore important for the future of scientific practice to reflect upon the individual scientist's ethical responsibilities within teams. To facilitate this reflection we show labor force trends in the US revealing a skewed growth in academic ranks and increased levels of competition for promotion within the system; we analyze teaming trends across disciplines and national borders demonstrating why it is becoming difficult to distribute credit and to avoid conflicts of interest; and we use more than a century of Nobel prize data to show how science is outgrowing its old institutions of singleton awards. Of particular concern within the large team environment is the weakening of the mentor-mentee relation, which undermines the cultivation of virtue ethics across scientific generations. These trends and emerging organizational complexities call for a universal set of behavioral norms that transcend team heterogeneity and hierarchy. To this end, our expository analysis provides a survey of ethical issues in team settings to inform science ethics education and science policy.",
+      "venue": "physics.soc-ph",
+      "citation_count": 0,
+      "doi": "10.1007/s11948-014-9562-8",
+      "arxiv_id": "1404.0191",
+      "url": "https://arxiv.org/abs/1404.0191",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2512.16675",
+      "title": "The Preliminary Mauve Science Programme: Science themes identified for the first year of operations",
+      "authors": [
+        {
+          "name": "Mauve Science Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "Marcel Agueros",
+          "affiliation": ""
+        },
+        {
+          "name": "Don Dixon",
+          "affiliation": ""
+        },
+        {
+          "name": "Chuanfei Dong",
+          "affiliation": ""
+        },
+        {
+          "name": "Girish M. Duvvuri",
+          "affiliation": ""
+        },
+        {
+          "name": "Patrick Flanagan",
+          "affiliation": ""
+        },
+        {
+          "name": "Christopher Johns-Krull",
+          "affiliation": ""
+        },
+        {
+          "name": "Hongpeng Lu",
+          "affiliation": ""
+        },
+        {
+          "name": "Hiroyuki Maehara",
+          "affiliation": ""
+        },
+        {
+          "name": "Kosuke Namekata",
+          "affiliation": ""
+        },
+        {
+          "name": "Alejandro Nunez",
+          "affiliation": ""
+        },
+        {
+          "name": "Elena Pancino",
+          "affiliation": ""
+        },
+        {
+          "name": "Sharmila Rani",
+          "affiliation": ""
+        },
+        {
+          "name": "Anusha Ravikumar",
+          "affiliation": ""
+        },
+        {
+          "name": "T. A. A. Sigut",
+          "affiliation": ""
+        },
+        {
+          "name": "Keivan Stassun",
+          "affiliation": ""
+        },
+        {
+          "name": "Jamie Stewart",
+          "affiliation": ""
+        },
+        {
+          "name": "Kriszti\u00e1n Vida",
+          "affiliation": ""
+        },
+        {
+          "name": "Emma Whelan",
+          "affiliation": ""
+        },
+        {
+          "name": "Benjamin Wilcock",
+          "affiliation": ""
+        },
+        {
+          "name": "Sharafina Razin",
+          "affiliation": ""
+        },
+        {
+          "name": "Arianna Saba",
+          "affiliation": ""
+        },
+        {
+          "name": "Giovanna Tinetti",
+          "affiliation": ""
+        },
+        {
+          "name": "Marcell Tessenyi",
+          "affiliation": ""
+        },
+        {
+          "name": "Jonathan Tennyson",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "Mauve is a low-cost small satellite developed and operated by Blue Skies Space Ltd. The payload features a 13 cm telescope connected with a fibre that feeds into a UV-Vis spectrometer. The detector covers the 200-700 nm range in a single shot, obtaining low resolution spectra at R~20-65. Mauve has launched on 28th November 2025, reaching a 510 km Low-Earth Sun-synchronous orbit. The satellite will enable UV and visible observations of a variety of stellar objects in our Galaxy, filling the gaps in the ultraviolet space-based data. The researchers that have already joined the mission have defined the science themes, observational strategy and targets that Mauve will observe in the first year of operations. To date 10 science themes have been developed by the Mauve science collaboration for year 1, with observational strategies that include both long duration monitoring and short cadence snapshots. Here, we describe these themes and the science that Mauve will undertake in its first year of operations.",
+      "venue": "astro-ph.SR",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2512.16675",
+      "url": "https://arxiv.org/abs/2512.16675",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1803.07525",
+      "title": "Dimensions: A Competitor to Scopus and the Web of Science?",
+      "authors": [
+        {
+          "name": "Mike Thelwall",
+          "affiliation": ""
+        }
+      ],
+      "year": 2018,
+      "abstract": "Dimensions is a partly free scholarly database launched by Digital Science in January 2018. Dimensions includes journal articles and citation counts, making it a potential new source of impact data. This article explores the value of Dimensions from an impact assessment perspective with an examination of Food Science research 2008-2018 and a random sample of 10,000 Scopus articles from 2012. The results include high correlations between citation counts from Scopus and Dimensions (0.96 by narrow field in 2012) as well as similar average counts. Almost all Scopus articles with DOIs were found in Dimensions (97% in 2012). Thus, the scholarly database component of Dimensions seems to be a plausible alternative to Scopus and the Web of Science for general citation analyses and for citation data in support of some types of research evaluations.",
+      "venue": "cs.DL",
+      "citation_count": 0,
+      "doi": "10.1016/j.joi.2018.03.006",
+      "arxiv_id": "1803.07525",
+      "url": "https://arxiv.org/abs/1803.07525",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2406.04295",
+      "title": "Everything to the Synthetic: Diffusion-driven Test-time Adaptation via Synthetic-Domain Alignment",
+      "authors": [
+        {
+          "name": "Jiayi Guo",
+          "affiliation": ""
+        },
+        {
+          "name": "Junhao Zhao",
+          "affiliation": ""
+        },
+        {
+          "name": "Chaoqun Du",
+          "affiliation": ""
+        },
+        {
+          "name": "Yulin Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "Chunjiang Ge",
+          "affiliation": ""
+        },
+        {
+          "name": "Zanlin Ni",
+          "affiliation": ""
+        },
+        {
+          "name": "Shiji Song",
+          "affiliation": ""
+        },
+        {
+          "name": "Humphrey Shi",
+          "affiliation": ""
+        },
+        {
+          "name": "Gao Huang",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "Test-time adaptation (TTA) aims to improve the performance of source-domain pre-trained models on previously unseen, shifted target domains. Traditional TTA methods primarily adapt model weights based on target data streams, making model performance sensitive to the amount and order of target data. The recently proposed diffusion-driven TTA methods mitigate this by adapting model inputs instead of weights, where an unconditional diffusion model, trained on the source domain, transforms target-domain data into a synthetic domain that is expected to approximate the source domain. However, in this paper, we reveal that although the synthetic data in diffusion-driven TTA seems indistinguishable from the source data, it is unaligned with, or even markedly different from the latter for deep networks. To address this issue, we propose a \\textbf{S}ynthetic-\\textbf{D}omain \\textbf{A}lignment (SDA) framework. Our key insight is to fine-tune the source model with synthetic data to ensure better alignment. Specifically, we first employ a conditional diffusion model to generate labeled samples, creating a synthetic dataset. Subsequently, we use the aforementioned unconditional diffusion model to add noise to and denoise each sample before fine-tuning. This Mix of Diffusion (MoD) process mitigates the potential domain misalignment between the conditional and unconditional models. Extensive experiments across classifiers, segmenters, and multimodal large language models (MLLMs, \\eg, LLaVA) demonstrate that SDA achieves superior domain alignment and consistently outperforms existing diffusion-driven TTA methods. Our code is available at https://github.com/SHI-Labs/Diffusion-Driven-Test-Time-Adaptation-via-Synthetic-Domain-Alignment.",
+      "venue": "cs.CV",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2406.04295",
+      "url": "https://arxiv.org/abs/2406.04295",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2009.06819",
+      "title": "MatScIE: An automated tool for the generation of databases of methods and parameters used in the computational materials science literature",
+      "authors": [
+        {
+          "name": "Souradip Guha",
+          "affiliation": ""
+        },
+        {
+          "name": "Ankan Mullick",
+          "affiliation": ""
+        },
+        {
+          "name": "Jatin Agrawal",
+          "affiliation": ""
+        },
+        {
+          "name": "Swetarekha Ram",
+          "affiliation": ""
+        },
+        {
+          "name": "Samir Ghui",
+          "affiliation": ""
+        },
+        {
+          "name": "Seung-Cheol Lee",
+          "affiliation": ""
+        },
+        {
+          "name": "Satadeep Bhattacharjee",
+          "affiliation": ""
+        },
+        {
+          "name": "Pawan Goyal",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "The number of published articles in the field of materials science is growing rapidly every year. This comparatively unstructured data source, which contains a large amount of information, has a restriction on its re-usability, as the information needed to carry out further calculations using the data in it must be extracted manually. It is very important to obtain valid and contextually correct information from the online (offline) data, as it can be useful not only to generate inputs for further calculations, but also to incorporate them into a querying framework. Retaining this context as a priority, we have developed an automated tool, MatScIE (Material Scince Information Extractor) that can extract relevant information from material science literature and make a structured database that is much easier to use for material simulations. Specifically, we extract the material details, methods, code, parameters, and structure from the various research articles. Finally, we created a web application where users can upload published articles and view/download the information obtained from this tool and can create their own databases for their personal uses.",
+      "venue": "cs.CL",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2009.06819",
+      "url": "https://arxiv.org/abs/2009.06819",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1809.11145",
+      "title": "The Photometric LSST Astronomical Time-series Classification Challenge (PLAsTiCC): Selection of a performance metric for classification probabilities balancing diverse science goals",
+      "authors": [
+        {
+          "name": "A. I. Malz",
+          "affiliation": ""
+        },
+        {
+          "name": "R. Hlo\u017eek",
+          "affiliation": ""
+        },
+        {
+          "name": "T. Allam",
+          "affiliation": ""
+        },
+        {
+          "name": "A. Bahmanyar",
+          "affiliation": ""
+        },
+        {
+          "name": "R. Biswas",
+          "affiliation": ""
+        },
+        {
+          "name": "M. Dai",
+          "affiliation": ""
+        },
+        {
+          "name": "L. Galbany",
+          "affiliation": ""
+        },
+        {
+          "name": "E. E. O. Ishida",
+          "affiliation": ""
+        },
+        {
+          "name": "S. W. Jha",
+          "affiliation": ""
+        },
+        {
+          "name": "D. O. Jones",
+          "affiliation": ""
+        },
+        {
+          "name": "R. Kessler",
+          "affiliation": ""
+        },
+        {
+          "name": "M. Lochner",
+          "affiliation": ""
+        },
+        {
+          "name": "A. A. Mahabal",
+          "affiliation": ""
+        },
+        {
+          "name": "K. S. Mandel",
+          "affiliation": ""
+        },
+        {
+          "name": "J. R. Mart\u00ednez-Galarza",
+          "affiliation": ""
+        },
+        {
+          "name": "J. D. McEwen",
+          "affiliation": ""
+        },
+        {
+          "name": "D. Muthukrishna",
+          "affiliation": ""
+        },
+        {
+          "name": "G. Narayan",
+          "affiliation": ""
+        },
+        {
+          "name": "H. Peiris",
+          "affiliation": ""
+        },
+        {
+          "name": "C. M. Peters",
+          "affiliation": ""
+        },
+        {
+          "name": "K. A. Ponder",
+          "affiliation": ""
+        },
+        {
+          "name": "C. N. Setzer",
+          "affiliation": ""
+        },
+        {
+          "name": "The LSST Dark Energy Science Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "The LSST Transients",
+          "affiliation": ""
+        },
+        {
+          "name": "Variable Stars Science Collaboration",
+          "affiliation": ""
+        }
+      ],
+      "year": 2018,
+      "abstract": "Classification of transient and variable light curves is an essential step in using astronomical observations to develop an understanding of their underlying physical processes. However, upcoming deep photometric surveys, including the Large Synoptic Survey Telescope (LSST), will produce a deluge of low signal-to-noise data for which traditional labeling procedures are inappropriate. Probabilistic classification is more appropriate for the data but are incompatible with the traditional metrics used on deterministic classifications. Furthermore, large survey collaborations intend to use these classification probabilities for diverse science objectives, indicating a need for a metric that balances a variety of goals. We describe the process used to develop an optimal performance metric for an open classification challenge that seeks probabilistic classifications and must serve many scientific interests. The Photometric LSST Astronomical Time-series Classification Challenge (PLAsTiCC) is an open competition aiming to identify promising techniques for obtaining classification probabilities of transient and variable objects by engaging a broader community both within and outside astronomy. Using mock classification probability submissions emulating archetypes of those anticipated of PLAsTiCC, we compare the sensitivity of metrics of classification probabilities under various weighting schemes, finding that they yield qualitatively consistent results. We choose as a metric for PLAsTiCC a weighted modification of the cross-entropy because it can be meaningfully interpreted. Finally, we propose extensions of our methodology to ever more complex challenge goals and suggest some guiding principles for approaching the choice of a metric of probabilistic classifications.",
+      "venue": "astro-ph.IM",
+      "citation_count": 0,
+      "doi": "10.3847/1538-3881/ab3a2f",
+      "arxiv_id": "1809.11145",
+      "url": "https://arxiv.org/abs/1809.11145",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2008.08203",
+      "title": "Critical Science Plan for the Daniel K. Inouye Solar Telescope (DKIST)",
+      "authors": [
+        {
+          "name": "Mark P. Rast",
+          "affiliation": ""
+        },
+        {
+          "name": "Nazaret Bello Gonz\u00e1lez",
+          "affiliation": ""
+        },
+        {
+          "name": "Luis Bellot Rubio",
+          "affiliation": ""
+        },
+        {
+          "name": "Wenda Cao",
+          "affiliation": ""
+        },
+        {
+          "name": "Gianna Cauzzi",
+          "affiliation": ""
+        },
+        {
+          "name": "Edward DeLuca",
+          "affiliation": ""
+        },
+        {
+          "name": "Bart De Pontieu",
+          "affiliation": ""
+        },
+        {
+          "name": "Lyndsay Fletcher",
+          "affiliation": ""
+        },
+        {
+          "name": "Sarah E. Gibson",
+          "affiliation": ""
+        },
+        {
+          "name": "Philip G. Judge",
+          "affiliation": ""
+        },
+        {
+          "name": "Yukio Katsukawa",
+          "affiliation": ""
+        },
+        {
+          "name": "Maria D. Kazachenko",
+          "affiliation": ""
+        },
+        {
+          "name": "Elena Khomenko",
+          "affiliation": ""
+        },
+        {
+          "name": "Enrico Landi",
+          "affiliation": ""
+        },
+        {
+          "name": "Valentin Mart\u00ednez Pillet",
+          "affiliation": ""
+        },
+        {
+          "name": "Gordon J. D. Petrie",
+          "affiliation": ""
+        },
+        {
+          "name": "Jiong Qiu",
+          "affiliation": ""
+        },
+        {
+          "name": "Laurel A. Rachmeler",
+          "affiliation": ""
+        },
+        {
+          "name": "Matthias Rempel",
+          "affiliation": ""
+        },
+        {
+          "name": "Wolfgang Schmidt",
+          "affiliation": ""
+        },
+        {
+          "name": "Eamon Scullion",
+          "affiliation": ""
+        },
+        {
+          "name": "Xudong Sun",
+          "affiliation": ""
+        },
+        {
+          "name": "Brian T. Welsch",
+          "affiliation": ""
+        },
+        {
+          "name": "Vincenzo Andretta",
+          "affiliation": ""
+        },
+        {
+          "name": "Patrick Antolin",
+          "affiliation": ""
+        },
+        {
+          "name": "Thomas R. Ayres",
+          "affiliation": ""
+        },
+        {
+          "name": "K. S. Balasubramaniam",
+          "affiliation": ""
+        },
+        {
+          "name": "Istvan Ballai",
+          "affiliation": ""
+        },
+        {
+          "name": "Thomas E. Berger",
+          "affiliation": ""
+        },
+        {
+          "name": "Stephen J. Bradshaw",
+          "affiliation": ""
+        },
+        {
+          "name": "Mats Carlsson",
+          "affiliation": ""
+        },
+        {
+          "name": "Roberto Casini",
+          "affiliation": ""
+        },
+        {
+          "name": "Rebecca Centeno",
+          "affiliation": ""
+        },
+        {
+          "name": "Steven R. Cranmer",
+          "affiliation": ""
+        },
+        {
+          "name": "Craig DeForest",
+          "affiliation": ""
+        },
+        {
+          "name": "Yuanyong Deng",
+          "affiliation": ""
+        },
+        {
+          "name": "Robertus Erd\u00e9lyi",
+          "affiliation": ""
+        },
+        {
+          "name": "Viktor Fedun",
+          "affiliation": ""
+        },
+        {
+          "name": "Catherine E. Fischer",
+          "affiliation": ""
+        },
+        {
+          "name": "Sergio J. Gonz\u00e1lez Manrique",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael Hahn",
+          "affiliation": ""
+        },
+        {
+          "name": "Louise Harra",
+          "affiliation": ""
+        },
+        {
+          "name": "Vasco M. J. Henriques",
+          "affiliation": ""
+        },
+        {
+          "name": "Neal E. Hurlburt",
+          "affiliation": ""
+        },
+        {
+          "name": "Sarah Jaeggli",
+          "affiliation": ""
+        },
+        {
+          "name": "Shahin Jafarzadeh",
+          "affiliation": ""
+        },
+        {
+          "name": "Rekha Jain",
+          "affiliation": ""
+        },
+        {
+          "name": "Stuart M. Jefferies",
+          "affiliation": ""
+        },
+        {
+          "name": "Peter H. Keys",
+          "affiliation": ""
+        },
+        {
+          "name": "Adam F. Kowalski",
+          "affiliation": ""
+        },
+        {
+          "name": "Christoph Kuckein",
+          "affiliation": ""
+        },
+        {
+          "name": "Jeffrey R. Kuhn",
+          "affiliation": ""
+        },
+        {
+          "name": "Jiajia Liu",
+          "affiliation": ""
+        },
+        {
+          "name": "Wei Liu",
+          "affiliation": ""
+        },
+        {
+          "name": "Dana Longcope",
+          "affiliation": ""
+        },
+        {
+          "name": "R. T. James McAteer",
+          "affiliation": ""
+        },
+        {
+          "name": "Scott W. McIntosh",
+          "affiliation": ""
+        },
+        {
+          "name": "David E. McKenzie",
+          "affiliation": ""
+        },
+        {
+          "name": "Mari Paz Miralles",
+          "affiliation": ""
+        },
+        {
+          "name": "Richard J. Morton",
+          "affiliation": ""
+        },
+        {
+          "name": "Karin Muglach",
+          "affiliation": ""
+        },
+        {
+          "name": "Chris J. Nelson",
+          "affiliation": ""
+        },
+        {
+          "name": "Navdeep K. Panesar",
+          "affiliation": ""
+        },
+        {
+          "name": "Susanna Parenti",
+          "affiliation": ""
+        },
+        {
+          "name": "Clare E. Parnell",
+          "affiliation": ""
+        },
+        {
+          "name": "Bala Poduval",
+          "affiliation": ""
+        },
+        {
+          "name": "Kevin P. Reardon",
+          "affiliation": ""
+        },
+        {
+          "name": "Jeffrey W. Reep",
+          "affiliation": ""
+        },
+        {
+          "name": "Thomas A. Schad",
+          "affiliation": ""
+        },
+        {
+          "name": "Donald Schmit",
+          "affiliation": ""
+        },
+        {
+          "name": "Rahul Sharma",
+          "affiliation": ""
+        },
+        {
+          "name": "Hector Socas-Navarro",
+          "affiliation": ""
+        },
+        {
+          "name": "Abhishek K. Srivastava",
+          "affiliation": ""
+        },
+        {
+          "name": "Alphonse C. Sterling",
+          "affiliation": ""
+        },
+        {
+          "name": "Yoshinori Suematsu",
+          "affiliation": ""
+        },
+        {
+          "name": "Lucas A. Tarr",
+          "affiliation": ""
+        },
+        {
+          "name": "Sanjiv Tiwari",
+          "affiliation": ""
+        },
+        {
+          "name": "Alexandra Tritschler",
+          "affiliation": ""
+        },
+        {
+          "name": "Gary Verth",
+          "affiliation": ""
+        },
+        {
+          "name": "Angelos Vourlidas",
+          "affiliation": ""
+        },
+        {
+          "name": "Haimin Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "Yi-Ming Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "NSO",
+          "affiliation": ""
+        },
+        {
+          "name": "DKIST project",
+          "affiliation": ""
+        },
+        {
+          "name": "DKIST instrument scientists",
+          "affiliation": ""
+        },
+        {
+          "name": "the DKIST Science Working Group",
+          "affiliation": ""
+        },
+        {
+          "name": "the DKIST Critical Science Plan Community",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "The Daniel K. Inouye Solar Telescope (DKIST) will revolutionize our ability to measure, understand and model the basic physical processes that control the structure and dynamics of the Sun and its atmosphere. The first-light DKIST images, released publicly on 29 January 2020, only hint at the extraordinary capabilities which will accompany full commissioning of the five facility instruments. With this Critical Science Plan (CSP) we attempt to anticipate some of what those capabilities will enable, providing a snapshot of some of the scientific pursuits that the Daniel K. Inouye Solar Telescope hopes to engage as start-of-operations nears. The work builds on the combined contributions of the DKIST Science Working Group (SWG) and CSP Community members, who generously shared their experiences, plans, knowledge and dreams. Discussion is primarily focused on those issues to which DKIST will uniquely contribute.",
+      "venue": "astro-ph.SR",
+      "citation_count": 0,
+      "doi": "10.1007/s11207-021-01789-2",
+      "arxiv_id": "2008.08203",
+      "url": "https://arxiv.org/abs/2008.08203",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2201.08443",
+      "title": "Diversifying the Genomic Data Science Research Community",
+      "authors": [
+        {
+          "name": "The Genomic Data Science Community Network",
+          "affiliation": ""
+        },
+        {
+          "name": "Rosa Alcazar",
+          "affiliation": ""
+        },
+        {
+          "name": "Maria Alvarez",
+          "affiliation": ""
+        },
+        {
+          "name": "Rachel Arnold",
+          "affiliation": ""
+        },
+        {
+          "name": "Mentewab Ayalew",
+          "affiliation": ""
+        },
+        {
+          "name": "Lyle G. Best",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael C. Campbell",
+          "affiliation": ""
+        },
+        {
+          "name": "Kamal Chowdhury",
+          "affiliation": ""
+        },
+        {
+          "name": "Katherine E. L. Cox",
+          "affiliation": ""
+        },
+        {
+          "name": "Christina Daulton",
+          "affiliation": ""
+        },
+        {
+          "name": "Youping Deng",
+          "affiliation": ""
+        },
+        {
+          "name": "Carla Easter",
+          "affiliation": ""
+        },
+        {
+          "name": "Karla Fuller",
+          "affiliation": ""
+        },
+        {
+          "name": "Shazia Tabassum Hakim",
+          "affiliation": ""
+        },
+        {
+          "name": "Ava M. Hoffman",
+          "affiliation": ""
+        },
+        {
+          "name": "Natalie Kucher",
+          "affiliation": ""
+        },
+        {
+          "name": "Andrew Lee",
+          "affiliation": ""
+        },
+        {
+          "name": "Joslynn Lee",
+          "affiliation": ""
+        },
+        {
+          "name": "Jeffrey T. Leek",
+          "affiliation": ""
+        },
+        {
+          "name": "Robert Meller",
+          "affiliation": ""
+        },
+        {
+          "name": "Loyda B. M\u00e9ndez",
+          "affiliation": ""
+        },
+        {
+          "name": "Miguel P. M\u00e9ndez-Gonz\u00e1lez",
+          "affiliation": ""
+        },
+        {
+          "name": "Stephen Mosher",
+          "affiliation": ""
+        },
+        {
+          "name": "Michele Nishiguchi",
+          "affiliation": ""
+        },
+        {
+          "name": "Siddharth Pratap",
+          "affiliation": ""
+        },
+        {
+          "name": "Tiffany Rolle",
+          "affiliation": ""
+        },
+        {
+          "name": "Sourav Roy",
+          "affiliation": ""
+        },
+        {
+          "name": "Rachel Saidi",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael C. Schatz",
+          "affiliation": ""
+        },
+        {
+          "name": "Shurjo Sen",
+          "affiliation": ""
+        },
+        {
+          "name": "James Sniezek",
+          "affiliation": ""
+        },
+        {
+          "name": "Edu Suarez Martinez",
+          "affiliation": ""
+        },
+        {
+          "name": "Frederick Tan",
+          "affiliation": ""
+        },
+        {
+          "name": "Jennifer Vessio",
+          "affiliation": ""
+        },
+        {
+          "name": "Karriem Watson",
+          "affiliation": ""
+        },
+        {
+          "name": "Wendy Westbroek",
+          "affiliation": ""
+        },
+        {
+          "name": "Joseph Wilcox",
+          "affiliation": ""
+        },
+        {
+          "name": "Xianfa Xie",
+          "affiliation": ""
+        }
+      ],
+      "year": 2022,
+      "abstract": "Over the last 20 years, there has been an explosion of genomic data collected for disease association, functional analyses, and other large-scale discoveries. At the same time, there have been revolutions in cloud computing that enable computational and data science research, while making data accessible to anyone with a web browser and an internet connection. However, students at institutions with limited resources have received relatively little exposure to curricula or professional development opportunities that lead to careers in genomic data science. To broaden participation in genomics research, the scientific community needs to support students, faculty, and administrators at Underserved Institutions (UIs) including Community Colleges, Historically Black Colleges and Universities, Hispanic-Serving Institutions, and Tribal Colleges and Universities in taking advantage of these tools in local educational and research programs. We have formed the Genomic Data Science Community Network (http://www.gdscn.org/) to identify opportunities and support broadening access to cloud-enabled genomic data science. Here, we provide a summary of the priorities for faculty members at UIs, as well as administrators, funders, and R1 researchers to consider as we create a more diverse genomic data science community.",
+      "venue": "q-bio.OT",
+      "citation_count": 0,
+      "doi": "10.1101/gr.276496.121",
+      "arxiv_id": "2201.08443",
+      "url": "https://arxiv.org/abs/2201.08443",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    }
+  ]
+}

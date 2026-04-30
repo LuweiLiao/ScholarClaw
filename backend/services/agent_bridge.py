@@ -6825,8 +6825,10 @@ async def ws_handler(state: BridgeState, websocket: websockets.ServerConnection)
 
 
 async def poll_loop(state: BridgeState, interval: float):
+    _adaptive_interval = interval
+    _idle_ticks = 0
     while True:
-        await asyncio.sleep(interval)
+        await asyncio.sleep(_adaptive_interval)
         all_messages: list[dict] = []
 
         # Drain EventBus events (real-time streaming from turn loops)
@@ -7025,8 +7027,23 @@ async def poll_loop(state: BridgeState, interval: float):
         if state._project_list_counter >= 10:  # type: ignore[attr-defined]
             state._project_list_counter = 0  # type: ignore[attr-defined]
             all_messages.append(msg_project_list(list_all_projects(state)))
+        if all_messages:
+            await broadcast(state, all_messages)
 
-        await broadcast(state, all_messages)
+        # Adaptive interval: back off when watchdog/EventBus are actively pushing
+        watchdog_active = any(
+            len(getattr(a, "_watchdog_messages", [])) > 0 for a in state.agents.values()
+        )
+        if watchdog_active or (_HAS_EVENT_BUS and any(
+            get_event_bus(a.project_id).poll(timeout=0) is not None
+            for a in state.agents.values() if a.project_id
+        )):
+            _idle_ticks = 0
+            _adaptive_interval = interval
+        else:
+            _idle_ticks += 1
+            if _idle_ticks >= 3:
+                _adaptive_interval = min(interval * 2, 300.0)
 
 
 # ── Startup ─────────────────────────────────────────────────────────────────
@@ -7229,7 +7246,7 @@ async def main(args: argparse.Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Agent Bridge v2")
     parser.add_argument("--port", type=int, default=8766)
-    parser.add_argument("--interval", type=float, default=30.0)
+    parser.add_argument("--interval", type=float, default=60.0)
     parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--agent-dir",
                         default=str(Path(__file__).resolve().parent.parent / "agent"))

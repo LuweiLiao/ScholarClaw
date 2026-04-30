@@ -5247,3 +5247,29 @@
 .supervisor-status .ss-pending { color: #d29922; }
 .supervisor-status .ss-active { color: #3fb950; }
 .supervisor-status .ss-error { color: #f85149; }
+
+/* Phase 3: StageSession real-time badge in project list */
+.project-stage-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.project-stage-badge.status-running {
+  background: #dcfce7;
+  color: #166534;
+}
+.project-stage-badge.status-completed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.project-stage-badge.status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.project-stage-badge.status-skipped {
+  background: #f3f4f6;
+  color: #4b5563;
+}

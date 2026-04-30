@@ -1,0 +1,27 @@
+{
+  "query": "test",
+  "source": "semantic_scholar",
+  "limit": 20,
+  "timestamp": 1777564187.5894713,
+  "papers": [
+    {
+      "paper_id": "s2-ok",
+      "title": "S2 Paper",
+      "authors": [
+        {
+          "name": "Ashish Vaswani",
+          "affiliation": ""
+        }
+      ],
+      "year": 2017,
+      "abstract": "",
+      "venue": "NeurIPS",
+      "citation_count": 80000,
+      "doi": "10.1/s2",
+      "arxiv_id": "2402.99999",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "source": "semantic_scholar",
+      "_bibtex_override": ""
+    }
+  ]
+}

@@ -1,0 +1,689 @@
+{
+  "query": "The combined approach outperforms either component under fixed compute budget.",
+  "source": "arxiv",
+  "limit": 15,
+  "timestamp": 1777564917.1433694,
+  "papers": [
+    {
+      "paper_id": "arxiv-2504.03001",
+      "title": "Autonomy Architectures for Safe Planning in Unknown Environments Under Budget Constraints",
+      "authors": [
+        {
+          "name": "Daniel M. Cherenson",
+          "affiliation": ""
+        },
+        {
+          "name": "Devansh R. Agrawal",
+          "affiliation": ""
+        },
+        {
+          "name": "Dimitra Panagou",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "Mission planning can often be formulated as a constrained control problem under multiple path constraints (i.e., safety constraints) and budget constraints (i.e., resource expenditure constraints). In a priori unknown environments, verifying that an offline solution will satisfy the constraints for all time can be difficult, if not impossible. We present ReRoot, a novel sampling-based framework that enforces safety and budget constraints for nonlinear systems in unknown environments. The main idea is that ReRoot grows multiple reverse RRT* trees online, starting from renewal sets, i.e., sets where the budget constraints are renewed. The dynamically feasible backup trajectories guarantee safety and reduce resource expenditure, which provides a principled backup policy when integrated into the gatekeeper safety verification architecture. We demonstrate our approach in simulation with a fixed-wing UAV in a GNSS-denied environment with a budget constraint on localization error that can be renewed at visual landmarks.",
+      "venue": "cs.RO",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2504.03001",
+      "url": "https://arxiv.org/abs/2504.03001",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2404.19319",
+      "title": "Knowledge Distillation vs. Pretraining from Scratch under a Fixed (Computation) Budget",
+      "authors": [
+        {
+          "name": "Minh Duc Bui",
+          "affiliation": ""
+        },
+        {
+          "name": "Fabian David Schmidt",
+          "affiliation": ""
+        },
+        {
+          "name": "Goran Glava\u0161",
+          "affiliation": ""
+        },
+        {
+          "name": "Katharina von der Wense",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "Compared to standard language model (LM) pretraining (i.e., from scratch), Knowledge Distillation (KD) entails an additional forward pass through a teacher model that is typically substantially larger than the target student model. As such, KD in LM pretraining materially slows down throughput of pretraining instances vis-a-vis pretraining from scratch. Scaling laws of LM pretraining suggest that smaller models can close the gap to larger counterparts if trained on more data (i.e., processing more tokens)-and under a fixed computation budget, smaller models are able be process more data than larger models. We thus hypothesize that KD might, in fact, be suboptimal to pretraining from scratch for obtaining smaller LMs, when appropriately accounting for the compute budget. To test this, we compare pretraining from scratch against several KD strategies for masked language modeling (MLM) in a fair experimental setup, with respect to amount of computation as well as pretraining data. Downstream results on GLUE, however, do not confirm our hypothesis: while pretraining from scratch performs comparably to ordinary KD under a fixed computation budget, more sophisticated KD strategies, namely TinyBERT (Jiao et al., 2020) and MiniLM (Wang et al., 2023), outperform it by a notable margin. We further find that KD yields larger gains over pretraining from scratch when the data must be repeated under the fixed computation budget.",
+      "venue": "cs.CL",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2404.19319",
+      "url": "https://arxiv.org/abs/2404.19319",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2011.14281",
+      "title": "A Q-values Sharing Framework for Multiagent Reinforcement Learning under Budget Constraint",
+      "authors": [
+        {
+          "name": "Changxi Zhu",
+          "affiliation": ""
+        },
+        {
+          "name": "Ho-fung Leung",
+          "affiliation": ""
+        },
+        {
+          "name": "Shuyue Hu",
+          "affiliation": ""
+        },
+        {
+          "name": "Yi Cai",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "In teacher-student framework, a more experienced agent (teacher) helps accelerate the learning of another agent (student) by suggesting actions to take in certain states. In cooperative multiagent reinforcement learning (MARL), where agents need to cooperate with one another, a student may fail to cooperate well with others even by following the teachers' suggested actions, as the polices of all agents are ever changing before convergence. When the number of times that agents communicate with one another is limited (i.e., there is budget constraint), the advising strategy that uses actions as advices may not be good enough. We propose a partaker-sharer advising framework (PSAF) for cooperative MARL agents learning with budget constraint. In PSAF, each Q-learner can decide when to ask for Q-values and share its Q-values. We perform experiments in three typical multiagent learning problems. Evaluation results show that our approach PSAF outperforms existing advising methods under both unlimited and limited budget, and we give an analysis of the impact of advising actions and sharing Q-values on agents' learning.",
+      "venue": "cs.MA",
+      "citation_count": 0,
+      "doi": "10.1145/3447268",
+      "arxiv_id": "2011.14281",
+      "url": "https://arxiv.org/abs/2011.14281",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1407.8325",
+      "title": "Improved Efficiency Guarantees in Auctions with Budgets",
+      "authors": [
+        {
+          "name": "Pinyan Lu",
+          "affiliation": ""
+        },
+        {
+          "name": "Tao Xiao",
+          "affiliation": ""
+        }
+      ],
+      "year": 2014,
+      "abstract": "We study the efficiency guarantees in the simple auction environment where the auctioneer has one unit of divisible good to be distributed among a number of budget constrained agents. With budget constraints, the social welfare cannot be approximated by a better factor than the number of agents by any truthful mechanism. Thus, we follow a recent work by Dobzinski and Leme (ICALP 2014) to approximate the liquid welfare, which is the welfare of the agents each capped by her/his own budget. We design a new truthful auction with an approximation ratio of $\\frac{\\sqrt{5}+1}{2} \\approx 1.618$, improving the best previous ratio of $2$ when the budgets for agents are public knowledge and their valuation is linear (additive). In private budget setting, we propose the first constant approximation auction with approximation ratio of $34$. Moreover, this auction works for any valuation function. Previously, only $O(\\log n)$ approximation was known for linear and decreasing marginal (concave) valuations, and $O(\\log^2 n)$ approximation was known for sub-additive valuations.",
+      "venue": "cs.GT",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1407.8325",
+      "url": "https://arxiv.org/abs/1407.8325",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1710.05833",
+      "title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+      "authors": [
+        {
+          "name": "LIGO Scientific Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "Virgo Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "Fermi GBM",
+          "affiliation": ""
+        },
+        {
+          "name": "INTEGRAL",
+          "affiliation": ""
+        },
+        {
+          "name": "IceCube Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "AstroSat Cadmium Zinc Telluride Imager Team",
+          "affiliation": ""
+        },
+        {
+          "name": "IPN Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "The Insight-Hxmt Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "ANTARES Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "The Swift Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "AGILE Team",
+          "affiliation": ""
+        },
+        {
+          "name": "The 1M2H Team",
+          "affiliation": ""
+        },
+        {
+          "name": "The Dark Energy Camera GW-EM Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "the DES Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "The DLT40 Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "GRAWITA",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "GRAvitational Wave Inaf TeAm",
+          "affiliation": ""
+        },
+        {
+          "name": "The Fermi Large Area Telescope Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "ATCA",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Australia Telescope Compact Array",
+          "affiliation": ""
+        },
+        {
+          "name": "ASKAP",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Australian SKA Pathfinder",
+          "affiliation": ""
+        },
+        {
+          "name": "Las Cumbres Observatory Group",
+          "affiliation": ""
+        },
+        {
+          "name": "OzGrav",
+          "affiliation": ""
+        },
+        {
+          "name": "DWF",
+          "affiliation": ""
+        },
+        {
+          "name": "AST3",
+          "affiliation": ""
+        },
+        {
+          "name": "CAASTRO Collaborations",
+          "affiliation": ""
+        },
+        {
+          "name": "The VINROUGE Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "MASTER Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "J-GEM",
+          "affiliation": ""
+        },
+        {
+          "name": "GROWTH",
+          "affiliation": ""
+        },
+        {
+          "name": "JAGWAR",
+          "affiliation": ""
+        },
+        {
+          "name": "Caltech- NRAO",
+          "affiliation": ""
+        },
+        {
+          "name": "TTU-NRAO",
+          "affiliation": ""
+        },
+        {
+          "name": "NuSTAR Collaborations",
+          "affiliation": ""
+        },
+        {
+          "name": "Pan-STARRS",
+          "affiliation": ""
+        },
+        {
+          "name": "The MAXI Team",
+          "affiliation": ""
+        },
+        {
+          "name": "TZAC Consortium",
+          "affiliation": ""
+        },
+        {
+          "name": "KU Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "Nordic Optical Telescope",
+          "affiliation": ""
+        },
+        {
+          "name": "ePESSTO",
+          "affiliation": ""
+        },
+        {
+          "name": "GROND",
+          "affiliation": ""
+        },
+        {
+          "name": "Texas Tech University",
+          "affiliation": ""
+        },
+        {
+          "name": "SALT Group",
+          "affiliation": ""
+        },
+        {
+          "name": "TOROS",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Transient Robotic Observatory of the South Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "The BOOTES Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "MWA",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Murchison Widefield Array",
+          "affiliation": ""
+        },
+        {
+          "name": "The CALET Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "IKI-GW Follow-up Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "H. E. S. S. Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "LOFAR Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "LWA",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Long Wavelength Array",
+          "affiliation": ""
+        },
+        {
+          "name": "HAWC Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "The Pierre Auger Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "ALMA Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "Euro VLBI Team",
+          "affiliation": ""
+        },
+        {
+          "name": "Pi of the Sky Collaboration",
+          "affiliation": ""
+        },
+        {
+          "name": "The Chandra Team at McGill University",
+          "affiliation": ""
+        },
+        {
+          "name": "DFN",
+          "affiliation": ""
+        },
+        {
+          "name": ":",
+          "affiliation": ""
+        },
+        {
+          "name": "Desert Fireball Network",
+          "affiliation": ""
+        },
+        {
+          "name": "ATLAS",
+          "affiliation": ""
+        },
+        {
+          "name": "High Time Resolution Universe Survey",
+          "affiliation": ""
+        },
+        {
+          "name": "RIMAS",
+          "affiliation": ""
+        },
+        {
+          "name": "RATIR",
+          "affiliation": ""
+        },
+        {
+          "name": "SKA South Africa/MeerKAT",
+          "affiliation": ""
+        }
+      ],
+      "year": 2017,
+      "abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+      "venue": "astro-ph.HE",
+      "citation_count": 0,
+      "doi": "10.3847/2041-8213/aa91c9",
+      "arxiv_id": "1710.05833",
+      "url": "https://arxiv.org/abs/1710.05833",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2505.06150",
+      "title": "A Scaling Law for Token Efficiency in LLM Fine-Tuning Under Fixed Compute Budgets",
+      "authors": [
+        {
+          "name": "Ryan Lagasse",
+          "affiliation": ""
+        },
+        {
+          "name": "Aidan Kierans",
+          "affiliation": ""
+        },
+        {
+          "name": "Avijit Ghosh",
+          "affiliation": ""
+        },
+        {
+          "name": "Shiri Dori-Hacohen",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "We introduce a scaling law for fine-tuning large language models (LLMs) under fixed compute budgets that explicitly accounts for data composition. Conventional approaches measure training data solely by total tokens, yet the number of examples and their average token length -- what we term \\emph{dataset volume} -- play a decisive role in model performance. Our formulation is tuned following established procedures. Experiments on the BRICC dataset \\cite{salavati2024reducing} and subsets of the MMLU dataset \\cite{hendrycks2021measuringmassivemultitasklanguage}, evaluated under multiple subsampling strategies, reveal that data composition significantly affects token efficiency. These results motivate refined scaling laws for practical LLM fine-tuning in resource-constrained settings.",
+      "venue": "cs.CL",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2505.06150",
+      "url": "https://arxiv.org/abs/2505.06150",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2512.01423",
+      "title": "Active Hypothesis Testing under Computational Budgets with Applications to GWAS and LLM",
+      "authors": [
+        {
+          "name": "Qi Kuang",
+          "affiliation": ""
+        },
+        {
+          "name": "Bowen Gang",
+          "affiliation": ""
+        },
+        {
+          "name": "Yin Xia",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "In large-scale hypothesis testing, computing exact $p$-values or $e$-values is often resource-intensive, creating a need for budget-aware inferential methods. We propose a general framework for active hypothesis testing that leverages inexpensive auxiliary statistics to allocate a global computational budget. For each hypothesis, our data-adaptive procedure probabilistically decides whether to compute the exact test statistic or a transformed proxy, guaranteeing a valid $p$-value or $e$-value while satisfying the exact budget constraint. Theoretical guarantees are established for our constructions, showing that the procedure achieves optimality for $e$-values and for $p$-values under independence, and admissibility for $p$-values under general dependence. Empirical results from simulations and two real-world applications, including a large-scale genome-wide association study (GWAS) and a clinical prediction task leveraging large language models (LLM), demonstrate that our framework improves statistical efficiency under fixed resource limits.",
+      "venue": "stat.ME",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2512.01423",
+      "url": "https://arxiv.org/abs/2512.01423",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1511.04069",
+      "title": "Applications of uniform asymptotic regularity to fixed point theorems",
+      "authors": [
+        {
+          "name": "S\u0142awomir Borzdy\u0144ski",
+          "affiliation": ""
+        },
+        {
+          "name": "Andrzej Wi\u015bnicki",
+          "affiliation": ""
+        }
+      ],
+      "year": 2015,
+      "abstract": "We show that there are no nontrivial surjective uniformly asymptotically regular mappings acting on a metric space and derive some consequences of this fact. In particular, we prove that a jointly continuous left amenable or left reversible semigroup generated by firmly nonexpansive mappings on a bounded $\u03c4$-compact subset of a Banach space has a common fixed point, and give a qualitative complement to the Markov-Kakutani theorem.",
+      "venue": "math.FA",
+      "citation_count": 0,
+      "doi": "10.1007/s11784-016-0300-5",
+      "arxiv_id": "1511.04069",
+      "url": "https://arxiv.org/abs/1511.04069",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1401.2781",
+      "title": "When and why are principal component scores a good tool for visualizing high-dimensional data?",
+      "authors": [
+        {
+          "name": "Kristoffer Hellton",
+          "affiliation": ""
+        },
+        {
+          "name": "Magne Thoresen",
+          "affiliation": ""
+        }
+      ],
+      "year": 2014,
+      "abstract": "Principal component analysis (PCA) is a popular dimension reduction technique often used to visualize high-dimensional data structures. In genomics, this can involve millions of variables, but only tens to hundreds of observations. Theoretically, such extreme high-dimensionality will cause biased or inconsistent eigenvector estimates, but in practice the principal component scores are used for visualization with great success. In this paper, we explore when and why the classical principal component scores can be used to visualize structures in high-dimensional data, even when there are few observations compared to the number of variables. Our argument is two-fold: First, we argue that eigenvectors related to pervasive signals will have eigenvalues scaling linearly with the number of variables. Second, we prove that for linearly increasing eigenvalues, the sample component scores will be scaled and rotated versions of the population scores, asymptotically. Thus the visual information of the sample scores will be unchanged, even though the sample eigenvectors are biased. In the case of pervasive signals, the principal component scores can be used to visualize the population structures, even in extreme high-dimensional situations.",
+      "venue": "math.ST",
+      "citation_count": 0,
+      "doi": "10.1111/sjos.12264",
+      "arxiv_id": "1401.2781",
+      "url": "https://arxiv.org/abs/1401.2781",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2303.11507",
+      "title": "Optimal Individualized Treatment Rule for Combination Treatments Under Budget Constraints",
+      "authors": [
+        {
+          "name": "Qi Xu",
+          "affiliation": ""
+        },
+        {
+          "name": "Haoda Fu",
+          "affiliation": ""
+        },
+        {
+          "name": "Annie Qu",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "The individualized treatment rule (ITR), which recommends an optimal treatment based on individual characteristics, has drawn considerable interest from many areas such as precision medicine, personalized education, and personalized marketing. Existing ITR estimation methods mainly adopt one of two or more treatments. However, a combination of multiple treatments could be more powerful in various areas. In this paper, we propose a novel Double Encoder Model (DEM) to estimate the individualized treatment rule for combination treatments. The proposed double encoder model is a nonparametric model which not only flexibly incorporates complex treatment effects and interaction effects among treatments, but also improves estimation efficiency via the parameter-sharing feature. In addition, we tailor the estimated ITR to budget constraints through a multi-choice knapsack formulation, which enhances our proposed method under restricted-resource scenarios. In theory, we provide the value reduction bound with or without budget constraints, and an improved convergence rate with respect to the number of treatments under the DEM. Our simulation studies show that the proposed method outperforms the existing ITR estimation in various settings. We also demonstrate the superior performance of the proposed method in PDX data that recommends optimal combination treatments to shrink the tumor size of the colorectal cancer.",
+      "venue": "stat.ME",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2303.11507",
+      "url": "https://arxiv.org/abs/2303.11507",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2604.02460",
+      "title": "Single-Agent LLMs Outperform Multi-Agent Systems on Multi-Hop Reasoning Under Equal Thinking Token Budgets",
+      "authors": [
+        {
+          "name": "Dat Tran",
+          "affiliation": ""
+        },
+        {
+          "name": "Douwe Kiela",
+          "affiliation": ""
+        }
+      ],
+      "year": 2026,
+      "abstract": "Recent work reports strong performance from multi-agent LLM systems (MAS), but these gains are often confounded by increased test-time computation. When computation is normalized, single-agent systems (SAS) can match or outperform MAS, yet the theoretical basis and evaluation methodology behind this comparison remain unclear. We present an information-theoretic argument, grounded in the Data Processing Inequality, suggesting that under a fixed reasoning-token budget and with perfect context utilization, single-agent systems are more information-efficient. This perspective further predicts that multi-agent systems become competitive when a single agent's effective context utilization is degraded, or when more compute is expended. We test these predictions in a controlled empirical study across three model families (Qwen3, DeepSeek-R1-Distill-Llama, and Gemini 2.5), comparing SAS with multiple MAS architectures under matched budgets. We find that SAS consistently match or outperform MAS on multi-hop reasoning tasks when reasoning tokens are held constant. Beyond aggregate performance, we conduct a detailed diagnostic analysis of system behavior and evaluation methodology. We identify significant artifacts in API-based budget control (particularly in Gemini 2.5) and in standard benchmarks, both of which can inflate apparent gains from MAS. Overall, our results suggest that, for multi-hop reasoning tasks, many reported advantages of multi-agent systems are better explained by unaccounted computation and context effects rather than inherent architectural benefits, and highlight the importance of understanding and explicitly controlling the trade-offs between compute, context, and coordination in agentic systems.",
+      "venue": "cs.CL",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2604.02460",
+      "url": "https://arxiv.org/abs/2604.02460",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2408.04869",
+      "title": "UCB Exploration for Fixed-Budget Bayesian Best Arm Identification",
+      "authors": [
+        {
+          "name": "Rong J. B. Zhu",
+          "affiliation": ""
+        },
+        {
+          "name": "Yanqi Qiu",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "We study best-arm identification (BAI) in the fixed-budget setting. Adaptive allocations based on upper confidence bounds (UCBs), such as UCBE, are known to work well in BAI. However, it is well-known that its optimal regret is theoretically dependent on instances, which we show to be an artifact in many fixed-budget BAI problems. In this paper we propose an UCB exploration algorithm that is both theoretically and empirically efficient for the fixed budget BAI problem under a Bayesian setting. The key idea is to learn prior information, which can enhance the performance of UCB-based BAI algorithm as it has done in the cumulative regret minimization problem. We establish bounds on the failure probability and the simple regret for the Bayesian BAI problem, providing upper bounds of order $\\tilde{O}(\\sqrt{K/n})$, up to logarithmic factors, where $n$ represents the budget and $K$ denotes the number of arms. Furthermore, we demonstrate through empirical results that our approach consistently outperforms state-of-the-art baselines.",
+      "venue": "cs.LG",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2408.04869",
+      "url": "https://arxiv.org/abs/2408.04869",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1504.04986",
+      "title": "On the Origin of Risk Sensitivity: the Energy Budget Rule Revisited",
+      "authors": [
+        {
+          "name": "Ik Soo Lim",
+          "affiliation": ""
+        },
+        {
+          "name": "Peter Wittek",
+          "affiliation": ""
+        },
+        {
+          "name": "John Parkinson",
+          "affiliation": ""
+        }
+      ],
+      "year": 2015,
+      "abstract": "The risk-sensitive foraging theory formulated in terms of the (daily) energy budget rule has been influential in behavioural ecology as well as other disciplines. Predicting risk-aversion on positive budgets and risk-proneness on negative budgets, however, the budget rule has recently been challenged both empirically and theoretically. In this paper, we critically review these challenges as well as the original derivation of the budget rule and propose a `gradual' budget rule, which is normatively derived from a gradual nature of risk sensitivity and encompasses the conventional budget rule as a special case. The gradual budget rule shows that the conventional budget rule holds when the expected reserve is close enough to a threshold for overnight survival, selection pressure being significant. The gradual view also reveals that the conventional budget rule does not need to hold when the expected reserve is not close enough to the threshold, selection pressure being insignificant. The proposed gradual budget rule better fits the empirical findings including those that used to challenge the conventional budget rule.",
+      "venue": "q-bio.PE",
+      "citation_count": 0,
+      "doi": "10.1016/j.anbehav.2015.09.007",
+      "arxiv_id": "1504.04986",
+      "url": "https://arxiv.org/abs/1504.04986",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2303.10302",
+      "title": "Welfare Maximization Algorithm for Solving Budget-Constrained Multi-Component POMDPs",
+      "authors": [
+        {
+          "name": "Manav Vora",
+          "affiliation": ""
+        },
+        {
+          "name": "Pranay Thangeda",
+          "affiliation": ""
+        },
+        {
+          "name": "Michael N. Grussing",
+          "affiliation": ""
+        },
+        {
+          "name": "Melkior Ornik",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "Partially Observable Markov Decision Processes (POMDPs) provide an efficient way to model real-world sequential decision making processes. Motivated by the problem of maintenance and inspection of a group of infrastructure components with independent dynamics, this paper presents an algorithm to find the optimal policy for a multi-component budget-constrained POMDP. We first introduce a budgeted-POMDP model (b-POMDP) which enables us to find the optimal policy for a POMDP while adhering to budget constraints. Next, we prove that the value function or maximal collected reward for a b-POMDP is a concave function of the budget for the finite horizon case. Our second contribution is an algorithm to calculate the optimal policy for a multi-component budget-constrained POMDP by finding the optimal budget split among the individual component POMDPs. The optimal budget split is posed as a welfare maximization problem and the solution is computed by exploiting the concave nature of the value function. We illustrate the effectiveness of the proposed algorithm by proposing a maintenance and inspection policy for a group of real-world infrastructure components with different deterioration dynamics, inspection and maintenance costs. We show that the proposed algorithm vastly outperforms the policy currently used in practice.",
+      "venue": "math.OC",
+      "citation_count": 0,
+      "doi": "10.1109/LCSYS.2023.3280080",
+      "arxiv_id": "2303.10302",
+      "url": "https://arxiv.org/abs/2303.10302",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2303.09468",
+      "title": "On the Existence of a Complexity in Fixed Budget Bandit Identification",
+      "authors": [
+        {
+          "name": "R\u00e9my Degenne",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "In fixed budget bandit identification, an algorithm sequentially observes samples from several distributions up to a given final time. It then answers a query about the set of distributions. A good algorithm will have a small probability of error. While that probability decreases exponentially with the final time, the best attainable rate is not known precisely for most identification tasks. We show that if a fixed budget task admits a complexity, defined as a lower bound on the probability of error which is attained by the same algorithm on all bandit problems, then that complexity is determined by the best non-adaptive sampling procedure for that problem. We show that there is no such complexity for several fixed budget identification tasks including Bernoulli best arm identification with two arms: there is no single algorithm that attains everywhere the best possible rate.",
+      "venue": "stat.ML",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2303.09468",
+      "url": "https://arxiv.org/abs/2303.09468",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    }
+  ]
+}

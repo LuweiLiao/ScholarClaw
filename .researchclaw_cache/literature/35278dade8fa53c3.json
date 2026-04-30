@@ -1,0 +1,393 @@
+{
+  "query": "test hypothesis",
+  "source": "arxiv",
+  "limit": 15,
+  "timestamp": 1777565769.1099524,
+  "papers": [
+    {
+      "paper_id": "arxiv-2403.16981",
+      "title": "The Sample Complexity of Simple Binary Hypothesis Testing",
+      "authors": [
+        {
+          "name": "Ankit Pensia",
+          "affiliation": ""
+        },
+        {
+          "name": "Varun Jog",
+          "affiliation": ""
+        },
+        {
+          "name": "Po-Ling Loh",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "The sample complexity of simple binary hypothesis testing is the smallest number of i.i.d.\\ samples required to distinguish between two distributions $p$ and $q$ in either: (i) the prior-free setting, with type-I error at most $\u03b1$ and type-II error at most $\u03b2$; or (ii) the Bayesian setting, with Bayes error at most $\u03b4$ and prior distribution $(\u03c0, 1-\u03c0)$. This problem has only been studied when $\u03b1= \u03b2$ (prior-free) or $\u03c0= 1/2$ (Bayesian), and the sample complexity is known to be characterized by the Hellinger divergence between $p$ and $q$, up to multiplicative constants. In this paper, we derive a formula that characterizes the sample complexity (up to multiplicative constants that are independent of $p$, $q$, and all error parameters) for: (i) all $0 \\le \u03b1, \u03b2\\le 1/8$ in the prior-free setting; and (ii) all $\u03b4\\le \u03c0/4$ in the Bayesian setting. In particular, the formula admits equivalent expressions in terms of certain divergences from the Jensen--Shannon and Hellinger families. The main technical result concerns an $f$-divergence inequality between members of the Jensen--Shannon and Hellinger families, which is proved by a combination of information-theoretic tools and case-by-case analyses. We explore applications of our results to (i) robust hypothesis testing, (ii) distributed (locally-private and communication-constrained) hypothesis testing, (iii) sequential hypothesis testing, and (iv) hypothesis testing with erasures.",
+      "venue": "math.ST",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2403.16981",
+      "url": "https://arxiv.org/abs/2403.16981",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1101.4081",
+      "title": "A simple way to speedup Gauss Elimination",
+      "authors": [
+        {
+          "name": "Sivaram Ambikasaran",
+          "affiliation": ""
+        }
+      ],
+      "year": 2011,
+      "abstract": "This article looks at a simple modification to speedup the conventional Gauss Elimination. The proposed modification speeds up the conventional Gauss Elimination by a factor of nearly 9/7 (in the asymptotic limit).",
+      "venue": "math.NA",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1101.4081",
+      "url": "https://arxiv.org/abs/1101.4081",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1801.00973",
+      "title": "A New Wald Test for Hypothesis Testing Based on MCMC outputs",
+      "authors": [
+        {
+          "name": "Yong Li",
+          "affiliation": ""
+        },
+        {
+          "name": "Xiaobin Liu",
+          "affiliation": ""
+        },
+        {
+          "name": "Jun Yu",
+          "affiliation": ""
+        },
+        {
+          "name": "Tao Zeng",
+          "affiliation": ""
+        }
+      ],
+      "year": 2018,
+      "abstract": "In this paper, a new and convenient $\u03c7^2$ wald test based on MCMC outputs is proposed for hypothesis testing. The new statistic can be explained as MCMC version of Wald test and has several important advantages that make it very convenient in practical applications. First, it is well-defined under improper prior distributions and avoids Jeffrey-Lindley's paradox. Second, it's asymptotic distribution can be proved to follow the $\u03c7^2$ distribution so that the threshold values can be easily calibrated from this distribution. Third, it's statistical error can be derived using the Markov chain Monte Carlo (MCMC) approach. Fourth, most importantly, it is only based on the posterior MCMC random samples drawn from the posterior distribution. Hence, it is only the by-product of the posterior outputs and very easy to compute. In addition, when the prior information is available, the finite sample theory is derived for the proposed test statistic. At last, the usefulness of the test is illustrated with several applications to latent variable models widely used in economics and finance.",
+      "venue": "econ.EM",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1801.00973",
+      "url": "https://arxiv.org/abs/1801.00973",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1609.07528",
+      "title": "Compressed Hypothesis Testing: To Mix or Not to Mix?",
+      "authors": [
+        {
+          "name": "Myung Cho",
+          "affiliation": ""
+        },
+        {
+          "name": "Weiyu Xu",
+          "affiliation": ""
+        },
+        {
+          "name": "Lifeng Lai",
+          "affiliation": ""
+        }
+      ],
+      "year": 2016,
+      "abstract": "In this paper, we study the problem of determining $k$ anomalous random variables that have different probability distributions from the rest $(n-k)$ random variables. Instead of sampling each individual random variable separately as in the conventional hypothesis testing, we propose to perform hypothesis testing using mixed observations that are functions of multiple random variables. We characterize the error exponents for correctly identifying the $k$ anomalous random variables under fixed time-invariant mixed observations, random time-varying mixed observations, and deterministic time-varying mixed observations. For our error exponent characterization, we introduce the notions of inner conditional Chernoff information and outer conditional Chernoff information. It is demonstrated that mixed observations can strictly improve the error exponents of hypothesis testing, over separate observations of individual random variables. We further characterize the optimal sensing vector maximizing the error exponents, which leads to explicit constructions of the optimal mixed observations in special cases of hypothesis testing for Gaussian random variables. These results show that mixed observations of random variables can reduce the number of required samples in hypothesis testing applications. In order to solve large-scale hypothesis testing problems, we also propose efficient algorithms - LASSO based and message passing based hypothesis testing algorithms.",
+      "venue": "cs.IT",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1609.07528",
+      "url": "https://arxiv.org/abs/1609.07528",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1704.08347",
+      "title": "Hypothesis Testing under Mutual Information Privacy Constraints in the High Privacy Regime",
+      "authors": [
+        {
+          "name": "Jiachun Liao",
+          "affiliation": ""
+        },
+        {
+          "name": "Lalitha Sankar",
+          "affiliation": ""
+        },
+        {
+          "name": "Vincent Y. F. Tan",
+          "affiliation": ""
+        },
+        {
+          "name": "Flavio P. Calmon",
+          "affiliation": ""
+        }
+      ],
+      "year": 2017,
+      "abstract": "Hypothesis testing is a statistical inference framework for determining the true distribution among a set of possible distributions for a given dataset. Privacy restrictions may require the curator of the data or the respondents themselves to share data with the test only after applying a randomizing privacy mechanism. This work considers mutual information (MI) as the privacy metric for measuring leakage. In addition, motivated by the Chernoff-Stein lemma, the relative entropy between pairs of distributions of the output (generated by the privacy mechanism) is chosen as the utility metric. For these metrics, the goal is to find the optimal privacy-utility trade-off (PUT) and the corresponding optimal privacy mechanism for both binary and m-ary hypothesis testing. Focusing on the high privacy regime, Euclidean information-theoretic approximations of the binary and m-ary PUT problems are developed. The solutions for the approximation problems clarify that an MI-based privacy metric preserves the privacy of the source symbols in inverse proportion to their likelihoods.",
+      "venue": "cs.IT",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1704.08347",
+      "url": "https://arxiv.org/abs/1704.08347",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1707.07821",
+      "title": "Concept Drift Detection and Adaptation with Hierarchical Hypothesis Testing",
+      "authors": [
+        {
+          "name": "Shujian Yu",
+          "affiliation": ""
+        },
+        {
+          "name": "Zubin Abraham",
+          "affiliation": ""
+        },
+        {
+          "name": "Heng Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "Mohak Shah",
+          "affiliation": ""
+        },
+        {
+          "name": "Yantao Wei",
+          "affiliation": ""
+        },
+        {
+          "name": "Jos\u00e9 C. Pr\u00edncipe",
+          "affiliation": ""
+        }
+      ],
+      "year": 2017,
+      "abstract": "A fundamental issue for statistical classification models in a streaming environment is that the joint distribution between predictor and response variables changes over time (a phenomenon also known as concept drifts), such that their classification performance deteriorates dramatically. In this paper, we first present a hierarchical hypothesis testing (HHT) framework that can detect and also adapt to various concept drift types (e.g., recurrent or irregular, gradual or abrupt), even in the presence of imbalanced data labels. A novel concept drift detector, namely Hierarchical Linear Four Rates (HLFR), is implemented under the HHT framework thereafter. By substituting a widely-acknowledged retraining scheme with an adaptive training strategy, we further demonstrate that the concept drift adaptation capability of HLFR can be significantly boosted. The theoretical analysis on the Type-I and Type-II errors of HLFR is also performed. Experiments on both simulated and real-world datasets illustrate that our methods outperform state-of-the-art methods in terms of detection precision, detection delay as well as the adaptability across different concept drift types.",
+      "venue": "stat.ML",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1707.07821",
+      "url": "https://arxiv.org/abs/1707.07821",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2409.06296",
+      "title": "Many-sample tests for the equality and the proportionality hypotheses between large covariance matrices",
+      "authors": [
+        {
+          "name": "Tianxing Mei",
+          "affiliation": ""
+        },
+        {
+          "name": "Chen Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "Jianfeng Yao",
+          "affiliation": ""
+        }
+      ],
+      "year": 2024,
+      "abstract": "This paper proposes procedures for testing the equality hypothesis and the proportionality hypothesis involving a large number of $q$ covariance matrices of dimension $p\\times p$. Under a limiting scheme where $p$, $q$ and the sample sizes from the $q$ populations grow to infinity in a proper manner, the proposed test statistics are shown to be asymptotically normal. Simulation results show that finite sample properties of the test procedures are satisfactory under both the null and alternatives. As an application, we derive a test procedure for the Kronecker product covariance specification for transposable data. Empirical analysis of datasets from the Mouse Aging Project and the 1000 Genomes Project (phase 3) is also conducted.",
+      "venue": "math.ST",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2409.06296",
+      "url": "https://arxiv.org/abs/2409.06296",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-0906.4155",
+      "title": "On an arithmetical approach to the Riemann hypothesis",
+      "authors": [
+        {
+          "name": "Hisanobu Shinya",
+          "affiliation": ""
+        }
+      ],
+      "year": 2009,
+      "abstract": "In the paper, we first prove a sufficient condition for the Riemann hypothesis which involves the order of magnitude of the partial sum of the Liouville function. Then we show a formula which is curiously related to the proved sufficient condition.",
+      "venue": "math.GM",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "0906.4155",
+      "url": "https://arxiv.org/abs/0906.4155",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2602.24165",
+      "title": "Hypothesis Testing over Observable Regimes in Singular Models",
+      "authors": [
+        {
+          "name": "Sean Plummer",
+          "affiliation": ""
+        }
+      ],
+      "year": 2026,
+      "abstract": "Hypothesis testing in singular statistical models is often regarded as inherently problematic due to non-identifiability and degeneracy of the Fisher information. We show that the fundamental obstruction to testing in such models is not singularity itself, but the formulation of hypotheses on non-identifiable parameter quantities. Testing is inherently a problem in distribution space: if two hypotheses induce overlapping subsets of the model class, then no uniformly consistent test exists. We formalize this overlap obstruction and show that hypotheses depending on non-identifiable parameter functions necessarily fail in this sense. In contrast, hypotheses formulated over identifiable observables-quantities that are determined by the induced distribution-reduce entirely to classical testing theory. When the corresponding distributional regimes are separated in Hellinger distance, uniformly consistent tests exist and posterior contraction follows from standard testing-based arguments. Near singular boundaries, separation may collapse locally, leading to scale-dependent detectability governed jointly by sample size and distance to the singular stratum. We illustrate these phenomena in Gaussian mixture models and reduced-rank regression, exhibiting both untestable non-identifiable hypotheses and classically testable identifiable ones. The results provide a structural classification of which hypotheses in singular models are statistically meaningful.",
+      "venue": "math.ST",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2602.24165",
+      "url": "https://arxiv.org/abs/2602.24165",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-http://arxiv.org/abs/math/0111262v5",
+      "title": "A Strategy for Proving Riemann Hypothesis",
+      "authors": [
+        {
+          "name": "Matti Pitkanen",
+          "affiliation": ""
+        }
+      ],
+      "year": 2001,
+      "abstract": "A strategy for proving Riemann hypothesis is suggested. The vanishing of the Rieman Zeta reduces to an orthogonality condition for the eigenfunctions of a non-Hermitian operator $D^+$ having the zeros of Riemann Zeta as its eigenvalues. The construction of $D^+$ is inspired by the conviction that Riemann Zeta is associated with a physical system allowing conformal transformations as its symmetries. The eigenfunctions of $D^+$ are analogous to the so called coherent states and in general not orthogonal to each other. The states orthogonal to a vacuum state (which has a negative norm squared) correspond to the zeros of the Riemann Zeta. The induced metric in the space ${\\cal{V}}$ of states which correspond to the zeros of the Riemann Zeta at the critical line $Re[s]=1/2$ is hermitian and both hermiticity and positive definiteness properties imply Riemann hypothesis. Conformal invariance in the sense of gauge invariance allows only the states belonging to ${\\cal{V}}$. Riemann hypothesis follows also from a restricted form of a dynamical conformal invariance in ${\\cal{V}}$ and one can reduce the proof to a standard analytic argument used in Lie group theory.",
+      "venue": "math.GM",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "",
+      "url": "http://arxiv.org/abs/math/0111262v5",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-http://arxiv.org/abs/math/0102031v10",
+      "title": "Riemann hypothesis and super-conformal invariance",
+      "authors": [
+        {
+          "name": "Matti Pitkanen",
+          "affiliation": ""
+        }
+      ],
+      "year": 2001,
+      "abstract": "A strategy for proving (not a proof of, as was the first over-optimistic belief) the Riemann hypothesis is suggested. The vanishing of Riemann Zeta reduces to an orthogonality condition for the eigenfunctions of a non-Hermitian operator D^+ having the zeros of Riemann Zeta as its eigenvalues. The construction of D^+ is inspired by the conviction that Riemann Zeta is associated with a physical system allowing superconformal transformations as its symmetries and second quantization in terms of the representations of superconformal algebra. The eigenfunctions of D^+ are analogous to the so called coherent states and in general not orthogonal to each other. The states orthogonal to a vacuum state (having a negative norm squared) correspond to the zeros of Riemann Zeta. The physical states having a positive norm squared correspond to the zeros of Riemann Zeta at the critical line. Riemann hypothesis follows by reductio ad absurdum from the hypothesis that ordinary superconformal algebra acts as gauge symmetries for all coherent states orthogonal to the vacuum state, including also the non-physical coherent states that might exist off from the critical line.",
+      "venue": "math.GM",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "",
+      "url": "http://arxiv.org/abs/math/0102031v10",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2501.10152",
+      "title": "Quantum Advantage in Locally Differentially Private Hypothesis Testing",
+      "authors": [
+        {
+          "name": "Seung-Hyun Nam",
+          "affiliation": ""
+        },
+        {
+          "name": "Hyun-Young Park",
+          "affiliation": ""
+        },
+        {
+          "name": "Si-Hyeon Lee",
+          "affiliation": ""
+        },
+        {
+          "name": "Joonwoo Bae",
+          "affiliation": ""
+        }
+      ],
+      "year": 2025,
+      "abstract": "We consider a private hypothesis testing scenario, including both symmetric and asymmetric testing, based on classical data samples. The utility is measured by the error exponents, namely the Chernoff information and the relative entropy, while privacy is measured in terms of classical or quantum local differential privacy. In this scenario, we show a quantum advantage with respect to the optimal privacy-utility trade-off (PUT) in certain cases. Specifically, we focus on distributions referred to as smoothed point mass distributions, along with the uniform distribution, as hypotheses. We then derive upper bounds on the optimal PUTs achievable by classical privacy mechanisms, which are tight in specific instances. To show the quantum advantage, we propose a particular quantum privacy mechanism that achieves better PUTs than these upper bounds in both symmetric and asymmetric testing. The proposed mechanism consists of a classical-quantum channel that prepares symmetric, informationally complete (SIC) states, followed by a depolarizing channel.",
+      "venue": "quant-ph",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "2501.10152",
+      "url": "https://arxiv.org/abs/2501.10152",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1706.08286",
+      "title": "A hypothesis testing approach for communication over entanglement assisted compound quantum channel",
+      "authors": [
+        {
+          "name": "Anurag Anshu",
+          "affiliation": ""
+        },
+        {
+          "name": "Rahul Jain",
+          "affiliation": ""
+        },
+        {
+          "name": "Naqueeb Ahmad Warsi",
+          "affiliation": ""
+        }
+      ],
+      "year": 2017,
+      "abstract": "We study the problem of communication over a compound quantum channel in the presence of entanglement. Classically such channels are modeled as a collection of conditional probability distributions wherein neither the sender nor the receiver is aware of the channel being used for transmission, except for the fact that it belongs to this collection. We provide near optimal achievability and converse bounds for this problem in the one-shot quantum setting in terms of quantum hypothesis testing divergence. We also consider the case of informed sender, showing a one-shot achievability result that converges appropriately in the asymptotic and i.i.d. setting. Our achievability proof is similar in spirit to its classical counterpart. To arrive at our result, we use the technique of position-based decoding along with a new approach for constructing a union of two projectors, which can be of independent interest. We give another application of the union of projectors to the problem of testing composite quantum hypotheses.",
+      "venue": "quant-ph",
+      "citation_count": 0,
+      "doi": "10.1109/TIT.2018.2876280",
+      "arxiv_id": "1706.08286",
+      "url": "https://arxiv.org/abs/1706.08286",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-2005.08334",
+      "title": "Marginal likelihood computation for model selection and hypothesis testing: an extensive review",
+      "authors": [
+        {
+          "name": "Fernando Llorente",
+          "affiliation": ""
+        },
+        {
+          "name": "Luca Martino",
+          "affiliation": ""
+        },
+        {
+          "name": "David Delgado",
+          "affiliation": ""
+        },
+        {
+          "name": "Javier Lopez-Santiago",
+          "affiliation": ""
+        }
+      ],
+      "year": 2020,
+      "abstract": "This is an up-to-date introduction to, and overview of, marginal likelihood computation for model selection and hypothesis testing. Computing normalizing constants of probability models (or ratio of constants) is a fundamental issue in many applications in statistics, applied mathematics, signal processing and machine learning. This article provides a comprehensive study of the state-of-the-art of the topic. We highlight limitations, benefits, connections and differences among the different techniques. Problems and possible solutions with the use of improper priors are also described. Some of the most relevant methodologies are compared through theoretical comparisons and numerical experiments.",
+      "venue": "stat.CO",
+      "citation_count": 0,
+      "doi": "10.1137/20M1310849",
+      "arxiv_id": "2005.08334",
+      "url": "https://arxiv.org/abs/2005.08334",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "arxiv-1312.7037",
+      "title": "Variations of Kurepa's left factorial hypothesis",
+      "authors": [
+        {
+          "name": "Romeo Me\u0161trovi\u0107",
+          "affiliation": ""
+        }
+      ],
+      "year": 2013,
+      "abstract": "Kurepa's hypothesis asserts that for each integer $n\\ge 2$ the greatest common divisor of $!n:=\\sum_{k=0}^{n-1}k!$ and $n!$ is $2$. Motivated by an equivalent formulation of this hypothesis involving derangement numbers, here we give a formulation of Kurepa's hypothesis in terms of divisibility of any Kurepa's determinant $K_p$ of order $p-4$\n  by a prime $p\\ge 7$. In the previous version of this article we have proposed the strong Kurepa's hypothesis involving a general Kurepa's determinant $K_n$ with any integer $n\\ge 7$. We prove the ``even part'' of this hypothesis which can be considered as a generalization of Kurepa's hypothesis. However, by using a congruence for $K_n$ involving the derangement number $S_{n-1}$ with an odd integer $n\\ge 9$, we find that the integer $11563=31\\times 373$ is a counterexample to the ``odd composite part'' of strong Kurepa's hypothesis.\n  We also present some remarks, divisibility properties and computational results closely related to the questions on Kurepa's hypothesis involving derangement numbers and Bell numbers.",
+      "venue": "math.NT",
+      "citation_count": 0,
+      "doi": "",
+      "arxiv_id": "1312.7037",
+      "url": "https://arxiv.org/abs/1312.7037",
+      "source": "arxiv",
+      "_bibtex_override": ""
+    }
+  ]
+}
