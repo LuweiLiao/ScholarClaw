@@ -60,18 +60,29 @@ class StageSession:
     def elapsed_sec(self) -> float:
         return time.monotonic() - self._start_time
 
+    def _infer_status(self) -> str:
+        """Infer runtime status from current state."""
+        if self.errors:
+            return "failed"
+        if self.current_phase in ("FINALIZE", "COMPLETE", "DONE"):
+            return "completed"
+        if self.current_phase:
+            return "running"
+        return "pending"
+
     def persist(self) -> Path:
         log_path = self.stage_dir / f"{self.stage_name or 'stage'}_session.json"
         payload: dict[str, Any] = {
             "stage_name": self.stage_name,
             "current_phase": self.current_phase,
+            "status": self._infer_status(),
+            "elapsed_sec": round(self.elapsed_sec(), 1),
             "llm_calls": self.llm_calls,
             "sandbox_runs": self.sandbox_runs,
-            "elapsed_sec": round(self.elapsed_sec(), 1),
+            "phase_log": self.phase_log,
             "artifacts": self.artifacts,
             "errors": self.errors,
             "metadata": self.metadata,
-            "phase_log": self.phase_log,
         }
         log_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         return log_path

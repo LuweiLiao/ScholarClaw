@@ -60,7 +60,7 @@ function _start {
             " --pool-idea 3 --pool-exp 2 --pool-code 3 --pool-exec 4 --pool-write 2" +
             " --total-gpus 8 --gpus-per-project 1" +
             " --discussion-mode --discussion-rounds 2" +
-            " --discussion-models `"claude-sonnet-4-6,claude-sonnet-4-5-20241022`""
+            " --discussion-models `"glm-5-turbo,glm-5-turbo`"" 
         $env:PYTHONUTF8 = "1"
         $proc = Start-Process -FilePath $PY `
             -ArgumentList $bargs `

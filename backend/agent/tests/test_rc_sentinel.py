@@ -37,8 +37,8 @@ class TestHeartbeatWriting:
         data1 = json.loads((tmp_path / "heartbeat.json").read_text())
         rc_runner._write_heartbeat(tmp_path, Stage.PAPER_DRAFT, "run-1")
         data2 = json.loads((tmp_path / "heartbeat.json").read_text())
-        assert data2["last_stage"] == 17
-        assert data1["last_stage"] == 1
+        assert data2["last_stage"] == Stage.PAPER_DRAFT.value
+        assert data1["last_stage"] == Stage.TOPIC_INIT.value
 
 
 class TestHeartbeatInPipeline:

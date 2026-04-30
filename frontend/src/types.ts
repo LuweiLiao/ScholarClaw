@@ -627,6 +627,7 @@ export type WSMessage =
   | { type: 'stage_detail'; payload: StageDetailInfo }
   | { type: 'stage_artifacts'; payload: StageArtifactsInfo }
   | { type: 'artifact_preview'; payload: ArtifactPreviewInfo }
+  | { type: 'stage_session_update'; payload: StageSessionInfo }
   | { type: 'agent_activity'; payload: ActivityEvent }
   | { type: 'approval_request'; payload: ApprovalRequest }
   | { type: 'system'; payload: { message: string } };
@@ -638,6 +639,28 @@ export interface StageFileInfo {
   size: number;
   modified?: number;
   dir?: string;
+}
+
+export interface PhaseLogEntry {
+  timestamp: string;
+  phase: string;
+  message: string;
+  level?: 'info' | 'warn' | 'error';
+}
+
+export interface StageSessionInfo {
+  projectId: string;
+  agentId: string;
+  stage: number;
+  stageName: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  elapsedSec: number;
+  llmCalls: number;
+  sandboxRuns: number;
+  phaseLog: PhaseLogEntry[];
+  artifacts: string[];
+  errors: string[];
+  metadata: Record<string, unknown>;
 }
 
 export interface StageDetailInfo {
@@ -688,4 +711,5 @@ export interface AppState {
   approvalRequests: ApprovalRequest[];
   taskGraph: TaskGraphInfo | null;
   approvalMode: ApprovalMode;
+  stageSessions: Record<string, StageSessionInfo>; // key: "{projectId}:{stage}"
 }

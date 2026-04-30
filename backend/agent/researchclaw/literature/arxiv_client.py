@@ -94,6 +94,8 @@ def _cb_on_failure() -> bool:
     with _cb_lock:
         _cb_consecutive_429s += 1
         if _cb_state == _CB_HALF_OPEN or _cb_consecutive_429s >= _CB_THRESHOLD:
+            if _cb_state == _CB_OPEN:
+                return True
             if _cb_state == _CB_HALF_OPEN:
                 _cb_cooldown_sec = min(_cb_cooldown_sec * 2, _CB_MAX_COOLDOWN)
             _cb_state = _CB_OPEN

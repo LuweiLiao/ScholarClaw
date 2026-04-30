@@ -587,7 +587,7 @@ class TestStage23Integration:
         from researchclaw.pipeline.stages import Stage
 
         assert hasattr(Stage, "CITATION_VERIFY")
-        assert Stage.CITATION_VERIFY == 23
+        assert Stage.CITATION_VERIFY == 26
 
     def test_stage_in_sequence(self) -> None:
         from researchclaw.pipeline.stages import Stage, STAGE_SEQUENCE, NEXT_STAGE
@@ -617,7 +617,7 @@ class TestStage23Integration:
         finalization_stages = PHASE_MAP["H: Finalization"]
         assert Stage.CITATION_VERIFY in finalization_stages
 
-    def test_total_stages_is_23(self) -> None:
+    def test_total_stages_is_26(self) -> None:
         from researchclaw.pipeline.stages import STAGE_SEQUENCE
 
-        assert len(STAGE_SEQUENCE) == 23
+        assert len(STAGE_SEQUENCE) == 26

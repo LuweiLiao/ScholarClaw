@@ -565,15 +565,15 @@ class TestExportConfig:
 
 
 class TestHitlStageValidation:
-    """Test that hitl_required_stages now accepts up to stage 23."""
+    """Test that hitl_required_stages now accepts up to stage 26."""
 
-    def test_stage_23_valid(self) -> None:
+    def test_stage_26_valid(self) -> None:
         from researchclaw.config import validate_config
         import yaml
         from pathlib import Path
 
         data = yaml.safe_load(Path("config.researchclaw.example.yaml").read_text())
-        data.setdefault("security", {})["hitl_required_stages"] = [1, 22, 23]
+        data.setdefault("security", {})["hitl_required_stages"] = [1, 22, 26]
         result = validate_config(data, check_paths=False)
         assert result.ok, f"Errors: {result.errors}"
 
@@ -594,16 +594,16 @@ class TestHitlStageValidation:
             bst_names = [f.name for f in files if f.suffix == ".bst"]
             assert len(bst_names) >= 1, f"No .bst file for {name}"
 
-    def test_stage_24_invalid(self) -> None:
+    def test_stage_27_invalid(self) -> None:
         from researchclaw.config import validate_config
         import yaml
         from pathlib import Path
 
         data = yaml.safe_load(Path("config.researchclaw.example.yaml").read_text())
-        data.setdefault("security", {})["hitl_required_stages"] = [24]
+        data.setdefault("security", {})["hitl_required_stages"] = [27]
         result = validate_config(data, check_paths=False)
         assert not result.ok
-        assert any("24" in e for e in result.errors)
+        assert any("27" in e for e in result.errors)
 
 
 # =====================================================================

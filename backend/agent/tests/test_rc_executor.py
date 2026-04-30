@@ -92,7 +92,7 @@ def _write_prior_artifact(
 
 def test_executor_map_has_23_entries() -> None:
     executor_map = getattr(rc_executor, "EXECUTOR_MAP", rc_executor._STAGE_EXECUTORS)
-    assert len(executor_map) == 23
+    assert len(executor_map) == 26
 
 
 def test_every_stage_member_has_matching_executor() -> None:

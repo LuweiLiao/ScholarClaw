@@ -7,6 +7,7 @@ const agentPort = process.env.AGENT_BRIDGE_PORT || '8906'
 export default defineConfig({
   plugins: [react()],
   server: {
+    allowedHosts: true,
     proxy: {
       '/ws/resources': {
         target: `ws://localhost:${resourcePort}`,

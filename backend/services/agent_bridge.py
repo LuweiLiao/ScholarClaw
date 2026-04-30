@@ -976,6 +976,7 @@ class LobsterAgent:
     _known_artifacts: set[str] = field(default_factory=set, repr=False)
     _activity_offset: int = 0
     _log_activity_offset: int = 0
+    _prev_session_checksums: dict[str, str] = field(default_factory=dict, repr=False)
 
     def to_frontend(self) -> dict:
         return {
@@ -1047,7 +1048,7 @@ class BridgeState:
     discussion_mode: bool = True
     discussion_groups: dict[str, DiscussionGroup] = field(default_factory=dict)
     discussion_rounds: int = 3
-    discussion_models: list[str] = field(default_factory=lambda: ["gpt-5.3-codex-spark", "claude-opus-4-6"])
+    discussion_models: list[str] = field(default_factory=lambda: ["glm-5-turbo", "glm-5-turbo"])
     # Cross-project discussion: agents waiting for a peer to discuss with
     discussion_waiting: dict[str, "LobsterAgent"] = field(default_factory=dict)
     # Idea factory: L1 idle → produce ideas via S7+S8
@@ -1513,6 +1514,55 @@ def _check_approval_requests(agent: LobsterAgent, run_dir: Path) -> list[dict]:
     return messages
 
 
+def msg_stage_session_update(agent: LobsterAgent, stage: int, session_data: dict) -> dict:
+    """Construct a stage_session_update WebSocket message."""
+    return {
+        "type": "stage_session_update",
+        "payload": {
+            "projectId": agent.project_id,
+            "agentId": agent.id,
+            "stage": stage,
+            "stageName": session_data.get("stage_name", ""),
+            "status": session_data.get("status", "pending"),
+            "elapsedSec": session_data.get("elapsed_sec", 0),
+            "llmCalls": session_data.get("llm_calls", 0),
+            "sandboxRuns": session_data.get("sandbox_runs", 0),
+            "phaseLog": session_data.get("phase_log", []),
+            "artifacts": session_data.get("artifacts", []),
+            "errors": session_data.get("errors", []),
+            "metadata": session_data.get("metadata", {}),
+        },
+    }
+
+
+def _read_session_updates(agent: LobsterAgent, run_dir: Path) -> list[dict]:
+    """Read *_session.json files under stage-* directories and emit stage_session_update messages when changed."""
+    messages: list[dict] = []
+    if not run_dir.exists():
+        return messages
+    for sd in sorted(run_dir.glob("stage-*")):
+        if not sd.is_dir():
+            continue
+        session_files = list(sd.glob("*_session.json"))
+        if not session_files:
+            continue
+        sf = session_files[0]
+        try:
+            raw = sf.read_text(encoding="utf-8")
+            checksum = hashlib.md5(raw.encode()).hexdigest()
+            key = str(sf.relative_to(run_dir))
+            prev = agent._prev_session_checksums.get(key)
+            if prev == checksum:
+                continue
+            agent._prev_session_checksums[key] = checksum
+            data = json.loads(raw)
+            stage_num = int(sd.name.replace("stage-", ""))
+            messages.append(msg_stage_session_update(agent, stage_num, data))
+        except (OSError, json.JSONDecodeError, ValueError):
+            pass
+    return messages
+
+
 def _save_steering(project_id: str, layer: str, instruction: str, state: "BridgeState") -> int:
     """Write steering instruction to all matching agent run_dirs. Returns count of agents steered."""
     count = 0
@@ -1618,6 +1668,9 @@ def poll_agent(agent: LobsterAgent, state: "BridgeState | None" = None) -> list[
 
         # P0: Check for pending approval requests
         messages.extend(_check_approval_requests(agent, run_dir))
+
+        # Phase 1: Read stage session.json for detailed per-stage progress
+        messages.extend(_read_session_updates(agent, run_dir))
 
     if agent.process is not None:
         retcode = agent.process.poll()

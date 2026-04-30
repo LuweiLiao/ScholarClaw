@@ -566,7 +566,7 @@ def validate_config(
             errors.append("security.hitl_required_stages must be a list")
         else:
             for stage in hitl_required_stages:
-                if not isinstance(stage, int) or not 1 <= stage <= 23:
+                if not isinstance(stage, int) or not 1 <= stage <= 26:
                     errors.append(
                         f"Invalid security.hitl_required_stages entry: {stage}"
                     )

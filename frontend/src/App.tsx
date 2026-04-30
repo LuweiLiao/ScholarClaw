@@ -129,6 +129,11 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, activeTab: action.payload };
     case 'set_approval_mode':
       return { ...state, approvalMode: action.payload };
+    case 'stage_session_update': {
+      const p = action.payload;
+      const key = `${p.projectId}:${p.stage}`;
+      return { ...state, stageSessions: { ...state.stageSessions, [key]: p } };
+    }
     case 'system':
       return state;
     default:
@@ -155,6 +160,7 @@ const INITIAL_STATE: AppState = {
   approvalRequests: [],
   taskGraph: null,
   approvalMode: 'auto',
+  stageSessions: {},
 };
 
 export default function App() {
@@ -781,6 +787,7 @@ export default function App() {
           projectId={activeStageDetail.projectId}
           stage={activeStageDetail.stage}
           ws={agentWsRef.current}
+          stageSession={state.stageSessions[`${activeStageDetail.projectId}:${activeStageDetail.stage}`] || null}
           onClose={() => setActiveStageDetail(null)}
         />
       )}

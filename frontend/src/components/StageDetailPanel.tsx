@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import type { StageDetailInfo, ArtifactPreviewInfo } from '../types';
+import type { StageDetailInfo, ArtifactPreviewInfo, StageSessionInfo } from '../types';
 import { STAGE_META } from '../types';
 
 interface Props {
   projectId: string;
   stage: number;
   ws: WebSocket | null;
+  stageSession?: StageSessionInfo | null;
   onClose: () => void;
 }
 
@@ -15,7 +16,13 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-const StageDetailPanel: React.FC<Props> = ({ projectId, stage, ws, onClose }) => {
+function formatDuration(sec: number): string {
+  if (sec < 60) return `${sec.toFixed(1)}s`;
+  if (sec < 3600) return `${(sec / 60).toFixed(1)}m`;
+  return `${(sec / 3600).toFixed(2)}h`;
+}
+
+const StageDetailPanel: React.FC<Props> = ({ projectId, stage, ws, stageSession, onClose }) => {
   const [detail, setDetail] = useState<StageDetailInfo | null>(null);
   const [preview, setPreview] = useState<ArtifactPreviewInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,6 +85,52 @@ const StageDetailPanel: React.FC<Props> = ({ projectId, stage, ws, onClose }) =>
         </div>
 
         {loading && <div className="stage-detail-loading">加载中...</div>}
+
+        {stageSession && (
+          <div className="stage-session-info">
+            <div className="session-stats">
+              <span className={`session-status status-${stageSession.status}`}>
+                {stageSession.status === 'running' ? '🔄 运行中' :
+                 stageSession.status === 'completed' ? '✅ 已完成' :
+                 stageSession.status === 'failed' ? '❌ 失败' :
+                 stageSession.status === 'skipped' ? '⏭️ 跳过' : '⏳ 未开始'}
+              </span>
+              <span className="session-stat">⏱️ {formatDuration(stageSession.elapsedSec)}</span>
+              <span className="session-stat">🤖 {stageSession.llmCalls} 次 LLM 调用</span>
+              <span className="session-stat">📦 {stageSession.sandboxRuns} 次沙盒执行</span>
+            </div>
+            {stageSession.errors.length > 0 && (
+              <div className="session-errors">
+                <h4>⚠️ 错误 ({stageSession.errors.length})</h4>
+                {stageSession.errors.map((e, i) => (
+                  <div key={i} className="session-error">{e}</div>
+                ))}
+              </div>
+            )}
+            {stageSession.phaseLog.length > 0 && (
+              <div className="session-phase-log">
+                <h4>📋 执行日志 ({stageSession.phaseLog.length})</h4>
+                <div className="phase-log-list">
+                  {stageSession.phaseLog.map((log, i) => (
+                    <div key={i} className={`phase-log-item level-${log.level || 'info'}`}>
+                      <span className="phase-log-time">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                      <span className="phase-log-phase">[{log.phase}]</span>
+                      <span className="phase-log-msg">{log.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {stageSession.artifacts.length > 0 && (
+              <div className="session-artifacts">
+                <h4>📎 产物 ({stageSession.artifacts.length})</h4>
+                {stageSession.artifacts.map((a, i) => (
+                  <span key={i} className="session-artifact-tag">{a}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {detail && (
           <>

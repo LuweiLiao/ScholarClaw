@@ -572,7 +572,7 @@ def test_run_doctor_acp_includes_agent_check(tmp_path: Path) -> None:
     check_names = [c.name for c in report.checks]
     assert "acp_agent" in check_names
     assert report.overall == "pass"
-    assert len(report.checks) == 7
+    assert len(report.checks) == 8
 
 
 def test_print_doctor_report_ascii_fallback(monkeypatch: pytest.MonkeyPatch) -> None:

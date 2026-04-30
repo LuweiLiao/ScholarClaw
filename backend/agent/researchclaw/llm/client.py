@@ -493,6 +493,9 @@ class LLMClient:
                     delta = choice.get("delta", {})
                     if delta.get("content"):
                         chunks.append(delta["content"])
+                    # GLM-5-Turbo streams reasoning_content instead of content
+                    if delta.get("reasoning_content"):
+                        chunks.append(delta["reasoning_content"])
                     if choice.get("finish_reason"):
                         finish_reason = choice["finish_reason"]
             content = "".join(chunks)
@@ -647,6 +650,9 @@ class LLMClient:
 
         message = choice.get("message", {})
         content = message.get("content") or ""
+        # GLM-5-Turbo and other reasoning models return content in reasoning_content
+        if not content and message.get("reasoning_content"):
+            content = message.get("reasoning_content")
 
         prompt_tok = usage.get("prompt_tokens", 0)
         completion_tok = usage.get("completion_tokens", 0)

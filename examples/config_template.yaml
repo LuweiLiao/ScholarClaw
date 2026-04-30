@@ -32,13 +32,12 @@ scholar_bridge:
 
 llm:
   provider: "openai-compatible"
-  # 示例/模板请勿填写真实密钥。优先使用环境变量，或在本地副本中设置 api_key。
-  base_url: "https://api.openai.com/v1"
+  base_url: "https://open.bigmodel.cn/api/paas/v4"
   api_key: ""   # 若留空，运行时从下方 api_key_env 对应的环境变量读取
-  api_key_env: "RESEARCHCLAW_API_KEY"
-  primary_model: "MiniMax-M2.7"
-  coding_model: "MiniMax-M2.7"
-  image_model: "MiniMax-M2.7"
+  api_key_env: "ZAI_API_KEY"
+  primary_model: "glm-5-turbo"
+  coding_model: "glm-5-turbo"
+  image_model: "glm-5-turbo"
   fallback_models: []
 
 security:
@@ -56,7 +55,7 @@ experiment:
   shared_results_dir: "runs/shared_results"
   paper_length: "long"
   sandbox:
-    python_path: "D:/GitRepo/Claw-AI-Lab/claw-ai-env/Scripts/python.exe"
+    python_path: ""
     # 如果本机安装了 MATLAB，取消下面注释，让 Agent 可以调用 matlab.engine
     # allowed_imports:
     #   - "math"
@@ -69,4 +68,4 @@ experiment:
   sanity_check_max_iterations: 100
 
 prompts:
-  custom_file: "D:/GitRepo/Claw-AI-Lab/examples/my_prompts.yaml"
+  custom_file: ""

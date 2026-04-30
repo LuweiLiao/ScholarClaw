@@ -20,8 +20,8 @@ from researchclaw.pipeline.stages import (
 )
 
 
-def test_stage_enum_has_exactly_23_members():
-    assert len(Stage) == 23
+def test_stage_enum_has_exactly_26_members():
+    assert len(Stage) == 26
 
 
 @pytest.mark.parametrize(
@@ -31,8 +31,8 @@ def test_stage_values_follow_sequence_order(index: int, stage: Stage):
     assert int(stage) == index
 
 
-def test_stage_sequence_contains_all_23_stages_in_order():
-    assert len(STAGE_SEQUENCE) == 23
+def test_stage_sequence_contains_all_26_stages_in_order():
+    assert len(STAGE_SEQUENCE) == 26
     assert STAGE_SEQUENCE[0] is Stage.TOPIC_INIT
     assert STAGE_SEQUENCE[-1] is Stage.CITATION_VERIFY
     assert tuple(Stage) == STAGE_SEQUENCE
@@ -80,7 +80,9 @@ def test_phase_map_has_8_phases_with_expected_membership():
     )
     assert PHASE_MAP["D: Experiment Design"] == (
         Stage.EXPERIMENT_DESIGN,
+        Stage.CODEBASE_SEARCH,
         Stage.CODE_GENERATION,
+        Stage.SANITY_CHECK,
         Stage.RESOURCE_PLANNING,
     )
     assert PHASE_MAP["E: Experiment Execution"] == (
@@ -90,6 +92,7 @@ def test_phase_map_has_8_phases_with_expected_membership():
     assert PHASE_MAP["F: Analysis & Decision"] == (
         Stage.RESULT_ANALYSIS,
         Stage.RESEARCH_DECISION,
+        Stage.KNOWLEDGE_SUMMARY,
     )
     assert PHASE_MAP["G: Paper Writing"] == (
         Stage.PAPER_OUTLINE,
@@ -107,7 +110,7 @@ def test_phase_map_has_8_phases_with_expected_membership():
 
 def test_phase_map_covers_all_stages_exactly_once():
     flattened = tuple(stage for stages in PHASE_MAP.values() for stage in stages)
-    assert len(flattened) == 23
+    assert len(flattened) == 26
     assert set(flattened) == set(Stage)
 
 
@@ -159,7 +162,7 @@ def test_approve_event_transitions_blocked_stage_to_done():
     )
 
     assert outcome.status is StageStatus.DONE
-    assert outcome.next_stage is Stage.CODE_GENERATION
+    assert outcome.next_stage is Stage.CODEBASE_SEARCH
     assert outcome.checkpoint_required is True
 
 
@@ -334,5 +337,5 @@ def test_decision_rollback_refine_targets_iterative_refine():
     assert DECISION_ROLLBACK["refine"] is Stage.ITERATIVE_REFINE
 
 
-def test_max_decision_pivots_is_positive():
-    assert MAX_DECISION_PIVOTS >= 1
+def test_max_decision_pivots_is_disabled():
+    assert MAX_DECISION_PIVOTS == 0
