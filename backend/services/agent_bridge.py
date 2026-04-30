@@ -41,6 +41,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import websockets
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler, FileModifiedEvent, FileCreatedEvent
 
 _this_dir = Path(__file__).resolve().parent
 if str(_this_dir) not in sys.path:
@@ -977,6 +979,8 @@ class LobsterAgent:
     _activity_offset: int = 0
     _log_activity_offset: int = 0
     _prev_session_checksums: dict[str, str] = field(default_factory=dict, repr=False)
+    _watchdog_messages: list[dict] = field(default_factory=list, repr=False)
+    _observer: "Observer | None" = field(default=None, repr=False)
 
     def to_frontend(self) -> dict:
         return {
@@ -1541,6 +1545,64 @@ def _check_approval_requests(agent: LobsterAgent, run_dir: Path) -> list[dict]:
     return messages
 
 
+class _AgentFileHandler(FileSystemEventHandler):
+    """Watchdog handler that pushes file changes into an agent's message queue."""
+
+    def __init__(self, agent: LobsterAgent) -> None:
+        self.agent = agent
+
+    def on_modified(self, event) -> None:
+        if event.is_directory:
+            return
+        self._process_event(event)
+
+    def on_created(self, event) -> None:
+        if event.is_directory:
+            return
+        self._process_event(event)
+
+    def _process_event(self, event) -> None:
+        path = Path(event.src_path)
+        if path.name.endswith("_session.json"):
+            self._handle_session_update(path)
+        elif path.name == "pending_approval.json":
+            self._handle_approval_request(path)
+
+    def _handle_session_update(self, path: Path) -> None:
+        try:
+            raw = path.read_text(encoding="utf-8")
+            data = json.loads(raw)
+            stage_dir = path.parent
+            stage_num = 0
+            try:
+                stage_num = int(stage_dir.name.replace("stage-", ""))
+            except ValueError:
+                pass
+            msg = msg_stage_session_update(self.agent, stage_num, data)
+            self.agent._watchdog_messages.append(msg)
+        except Exception:
+            pass
+
+    def _handle_approval_request(self, path: Path) -> None:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if data.get("_handled"):
+                return
+            req_id = data.get("request_id", _uid())
+            msg = msg_approval_request(
+                self.agent,
+                req_id,
+                data.get("action_type", "file_write"),
+                data.get("description", "Action requires approval"),
+                data.get("detail", ""),
+            )
+            self.agent._watchdog_messages.append(msg)
+            self.agent.status = "awaiting_approval"
+            self.agent._watchdog_messages.append(msg_agent_update(self.agent))
+        except Exception:
+            pass
+
+
 def msg_stage_session_update(agent: LobsterAgent, stage: int, session_data: dict) -> dict:
     """Construct a stage_session_update WebSocket message."""
     return {
@@ -1698,6 +1760,11 @@ def poll_agent(agent: LobsterAgent, state: "BridgeState | None" = None) -> list[
 
         # Phase 1: Read stage session.json for detailed per-stage progress
         messages.extend(_read_session_updates(agent, run_dir))
+
+        # Phase 2: Drain watchdog real-time messages (file event driven)
+        if agent._watchdog_messages:
+            messages.extend(agent._watchdog_messages)
+            agent._watchdog_messages.clear()
 
     if agent.process is not None:
         retcode = agent.process.poll()
@@ -2190,6 +2257,18 @@ def launch_agent_for_task(state: BridgeState, agent: LobsterAgent, task: Task) -
         )
         agent.process = proc
         agent.current_task = f"项目 {task.project_id} · PID={proc.pid}"
+        # Start watchdog observer for real-time file push
+        if task.run_dir:
+            _rd = Path(task.run_dir)
+            if _rd.exists():
+                try:
+                    handler = _AgentFileHandler(agent)
+                    observer = Observer()
+                    observer.schedule(handler, str(_rd), recursive=True)
+                    observer.start()
+                    agent._observer = observer
+                except Exception:
+                    pass
         messages.append(msg_agent_update(agent))
         messages.append(msg_log(agent, f"领取任务 [{task.project_id}] 启动 S{fs}→S{ts} (PID={proc.pid})", "info"))
         messages.append(msg_activity(
@@ -2214,6 +2293,14 @@ def stop_agent(agent: LobsterAgent) -> list[dict]:
             agent.process.wait(timeout=5)
         except subprocess.TimeoutExpired:
             agent.process.kill()
+    # Stop watchdog observer
+    if agent._observer is not None:
+        try:
+            agent._observer.stop()
+            agent._observer.join(timeout=2)
+        except Exception:
+            pass
+        agent._observer = None
     agent.process = None
     agent.status = "idle"
     agent.current_task = ""
@@ -7024,7 +7111,7 @@ async def main(args: argparse.Namespace):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Agent Bridge v2")
     parser.add_argument("--port", type=int, default=8766)
-    parser.add_argument("--interval", type=float, default=2.0)
+    parser.add_argument("--interval", type=float, default=30.0)
     parser.add_argument("--python", default=sys.executable)
     parser.add_argument("--agent-dir",
                         default=str(Path(__file__).resolve().parent.parent / "agent"))
