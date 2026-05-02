@@ -7143,8 +7143,9 @@ async def poll_loop(state: BridgeState, interval: float):
 
 async def main(args: argparse.Namespace):
     _ct = (args.control_token or os.environ.get("AGENT_BRIDGE_CONTROL_TOKEN") or "").strip()
+    _py = str(Path(args.python).resolve()) if args.python else args.python
     state = BridgeState(
-        python_path=args.python,
+        python_path=_py,
         agent_package_dir=args.agent_dir,
         runs_base_dir=args.runs_dir,
         gpu_allocator=GpuAllocator(args.total_gpus, args.gpus_per_project),
