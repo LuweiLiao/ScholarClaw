@@ -2,7 +2,7 @@
   "query": "Increasing protocol control for test-driven science improves metric stability across random seeds.",
   "source": "openalex",
   "limit": 15,
-  "timestamp": 1777565199.0931637,
+  "timestamp": 1777703931.639763,
   "papers": [
     {
       "paper_id": "oalex-W4293212596",
@@ -696,7 +696,7 @@
       "year": 2019,
       "abstract": "Molecular dynamics (MD) simulations have become increasingly popular in studying the motions and functions of biomolecules. The accuracy of the simulation, however, is highly determined by the molecular mechanics (MM) force field (FF), a set of functions with adjustable parameters to compute the potential energies from atomic positions. However, the overall quality of the FF, such as our previously published ff99SB and ff14SB, can be limited by assumptions that were made years ago. In the updated model presented here (ff19SB), we have significantly improved the backbone profiles for all 20 amino acids. We fit coupled \u03c6/\u03c8 parameters using 2D \u03c6/\u03c8 conformational scans for multiple amino acids, using as reference data the entire 2D quantum mechanics (QM) energy surface. We address the polarization inconsistency during dihedral parameter fitting by using both QM and MM in aqueous solution. Finally, we examine possible dependency of the backbone fitting on side chain rotamer. To extensively validate ff19SB parameters, and to compare to results using other Amber models, we have performed a total of \u223c5 ms MD simulations in explicit solvent. Our results show that after amino-acid-specific training against QM data with solvent polarization, ff19SB not only reproduces the differences in amino-acid-specific Protein Data Bank (PDB) Ramachandran maps better but also shows significantly improved capability to differentiate amino-acid-dependent properties such as helical propensities. We also conclude that an inherent underestimation of helicity is present in ff14SB, which is (inexactly) compensated for by an increase in helical content driven by the TIP3P bias toward overly compact structures. In summary, ff19SB, when combined with a more accurate water model such as OPC, should have better predictive power for modeling sequence-specific behavior, protein mutations, and also rational protein design. Of the explicit water models tested here, we recommend use of OPC with ff19SB.",
       "venue": "Journal of Chemical Theory and Computation",
-      "citation_count": 2242,
+      "citation_count": 2243,
       "doi": "10.1021/acs.jctc.9b00591",
       "arxiv_id": "",
       "url": "https://doi.org/10.1021/acs.jctc.9b00591",

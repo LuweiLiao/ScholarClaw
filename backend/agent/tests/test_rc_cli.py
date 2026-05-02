@@ -57,7 +57,7 @@ def test_help_subcommands_exit_zero(argv: list[str]) -> None:
 def test_generate_run_id_format() -> None:
     run_id = rc_cli._generate_run_id("my topic")
     assert run_id.startswith("rc-")
-    assert re.fullmatch(r"rc-\d{8}-\d{6}-[0-9a-f]{6}", run_id)
+    assert re.fullmatch(r"rc-\d{8}-\d{6}-[0-9a-f]{6}-[0-9a-f]{6}", run_id)
 
 
 def test_cmd_run_missing_config_returns_one(

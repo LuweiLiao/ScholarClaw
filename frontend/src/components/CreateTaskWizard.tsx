@@ -123,6 +123,19 @@ export default function CreateTaskWizard({
     setGlobalLLMTest({ status: 'idle' });
   };
 
+  const applyGlobalToLayers = () => {
+    if (!hasLM(globalLLM)) return;
+    setLayerModels(prev => {
+      const next = { ...prev };
+      for (const key of LAYER_KEYS) {
+        if (!hasLM(prev[key])) {
+          next[key] = { ...globalLLM };
+        }
+      }
+      return next;
+    });
+  };
+
   const testModelConfig = useCallback((requestId: string, cfg: LayerModelCfg) => {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     ws.send(JSON.stringify({
@@ -199,8 +212,15 @@ export default function CreateTaskWizard({
   };
 
   const submit = () => {
+    let effectiveLayerModels = layerModels;
+    // If no layers configured but global LLM is set, auto-apply global to all layers
+    if (!Object.values(layerModels).some(hasLM) && hasLM(globalLLM)) {
+      effectiveLayerModels = Object.fromEntries(
+        LAYER_KEYS.map(key => [key, { ...globalLLM }]),
+      );
+    }
     const cleanLayerModels = Object.fromEntries(
-      Object.entries(layerModels)
+      Object.entries(effectiveLayerModels)
         .filter(([, cfg]) => hasLM(cfg))
         .map(([key, cfg]) => [key, {
           base_url: cfg.base_url.trim(),
@@ -357,6 +377,15 @@ export default function CreateTaskWizard({
                       : t('layer_models.test_fail')}
                   </button>
                 </div>
+                <button
+                  type="button"
+                  className="wizard-apply-global-btn"
+                  onClick={applyGlobalToLayers}
+                  disabled={!hasLM(globalLLM)}
+                  title={t('wizard.apply_global_title') || '将全局模型配置应用到所有未单独配置的层'}
+                >
+                  {t('wizard.apply_global') || '↳ 应用到所有层'}
+                </button>
               </div>
               {LAYER_KEYS.map(key => {
                 const cfg = layerModels[key] || emptyLM();

@@ -215,6 +215,8 @@ const zh: Record<string, string> = {
   'wizard.topic_empty': '尚未填写主题',
   'wizard.no_angles': '未指定方向',
   'wizard.layer_models_configured': '层模型已配置',
+  'wizard.apply_global': '↳ 应用到所有层',
+  'wizard.apply_global_title': '将全局模型配置应用到所有未单独配置的层',
 
   // Discussion mode
   'discussion.label': '讨论模式',

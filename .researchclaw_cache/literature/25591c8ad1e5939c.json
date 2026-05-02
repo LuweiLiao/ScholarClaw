@@ -2,6 +2,919 @@
   "query": "Adding robustness-aware objectives for test-driven science improves out-of-domain performance without major in-domain regression.",
   "source": "openalex",
   "limit": 15,
-  "timestamp": 1777565226.3996968,
-  "papers": []
+  "timestamp": 1777668140.3617885,
+  "papers": [
+    {
+      "paper_id": "oalex-W2295598076",
+      "title": "XGBoost",
+      "authors": [
+        {
+          "name": "Tianqi Chen",
+          "affiliation": "University of Washington"
+        },
+        {
+          "name": "Carlos Guestrin",
+          "affiliation": "University of Washington"
+        }
+      ],
+      "year": 2016,
+      "abstract": "Tree boosting is a highly effective and widely used machine learning method. In this paper, we describe a scalable end-to-end tree boosting system called XGBoost, which is used widely by data scientists to achieve state-of-the-art results on many machine learning challenges. We propose a novel sparsity-aware algorithm for sparse data and weighted quantile sketch for approximate tree learning. More importantly, we provide insights on cache access patterns, data compression and sharding to build a scalable tree boosting system. By combining these insights, XGBoost scales beyond billions of examples using far fewer resources than existing systems.",
+      "venue": "",
+      "citation_count": 46455,
+      "doi": "10.1145/2939672.2939785",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1145/2939672.2939785",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2981731882",
+      "title": "Explainable Artificial Intelligence (XAI): Concepts, taxonomies, opportunities and challenges toward responsible AI",
+      "authors": [
+        {
+          "name": "Alejandro Barredo Arrieta",
+          "affiliation": "Tecnalia"
+        },
+        {
+          "name": "Natalia D\u00edaz-Rodr\u00edguez",
+          "affiliation": "\u00c9cole Nationale Sup\u00e9rieure de Techniques Avanc\u00e9es"
+        },
+        {
+          "name": "Javier Del Ser",
+          "affiliation": "Tecnalia"
+        },
+        {
+          "name": "Adrien Bennetot",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Siham Tabik",
+          "affiliation": ""
+        },
+        {
+          "name": "Alberto Barbado",
+          "affiliation": "Telefonica Research and Development"
+        },
+        {
+          "name": "Salvador Garc\u00eda",
+          "affiliation": ""
+        },
+        {
+          "name": "Sergio Gil-L\u00f3pez",
+          "affiliation": "Tecnalia"
+        },
+        {
+          "name": "Daniel Molina",
+          "affiliation": ""
+        },
+        {
+          "name": "Richard Benjamins",
+          "affiliation": "Telefonica Research and Development"
+        },
+        {
+          "name": "Raja Chatila",
+          "affiliation": "Sorbonne Universit\u00e9"
+        },
+        {
+          "name": "Francisco Herrera",
+          "affiliation": ""
+        }
+      ],
+      "year": 2019,
+      "abstract": "",
+      "venue": "Information Fusion",
+      "citation_count": 8553,
+      "doi": "10.1016/j.inffus.2019.12.012",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/j.inffus.2019.12.012",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W1641498739",
+      "title": "The Multimodal Brain Tumor Image Segmentation Benchmark (BRATS)",
+      "authors": [
+        {
+          "name": "Bjoern Menze",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Andr\u00e1s Jakab",
+          "affiliation": "University of Debrecen"
+        },
+        {
+          "name": "Stefan Bauer",
+          "affiliation": "University of Bern"
+        },
+        {
+          "name": "Jayashree Kalpathy\u2013Cramer",
+          "affiliation": "Harvard University"
+        },
+        {
+          "name": "Keyvan Farahani",
+          "affiliation": "National Institutes of Health"
+        },
+        {
+          "name": "Justin Kirby",
+          "affiliation": "National Institutes of Health"
+        },
+        {
+          "name": "Yuliya Burren",
+          "affiliation": "University Hospital of Bern"
+        },
+        {
+          "name": "Nicole Porz",
+          "affiliation": "University Hospital of Bern"
+        },
+        {
+          "name": "Johannes Slotboom",
+          "affiliation": "University Hospital of Bern"
+        },
+        {
+          "name": "Roland Wiest",
+          "affiliation": "University Hospital of Bern"
+        },
+        {
+          "name": "Levente L\u00e1nczi",
+          "affiliation": "University of Debrecen"
+        },
+        {
+          "name": "Elizabeth R. Gerstner",
+          "affiliation": "Harvard University"
+        },
+        {
+          "name": "Marc\u2010An\ufeffdr\u00e9 Weber",
+          "affiliation": "Heidelberg University"
+        },
+        {
+          "name": "Tal Arbel",
+          "affiliation": "McGill University"
+        },
+        {
+          "name": "Brian Avants",
+          "affiliation": "University of Pennsylvania"
+        },
+        {
+          "name": "Nicholas Ayache",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Patricia Buendia",
+          "affiliation": ""
+        },
+        {
+          "name": "D. Louis Collins",
+          "affiliation": "McGill Genome Centre"
+        },
+        {
+          "name": "Nicolas Cordier",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Jason J. Corso",
+          "affiliation": "Buffalo State University"
+        },
+        {
+          "name": "Antonio Criminisi",
+          "affiliation": "Microsoft Research (United Kingdom)"
+        },
+        {
+          "name": "Tilak Das",
+          "affiliation": "Cambridge University Hospitals NHS Foundation Trust"
+        },
+        {
+          "name": "Herv\u00e9 Delingette",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "\u00c7a\u011fatay Demiralp",
+          "affiliation": "Stanford University"
+        },
+        {
+          "name": "Christopher R. Durst",
+          "affiliation": "University of Virginia"
+        },
+        {
+          "name": "Michel Dojat",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Senan Doyle",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Joana Festa",
+          "affiliation": "University of Minho"
+        },
+        {
+          "name": "Florence Forbes",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Ezequiel Geremia",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Ben Glocker",
+          "affiliation": "Imperial College London"
+        },
+        {
+          "name": "Polina Golland",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Xiaotao Guo",
+          "affiliation": "Columbia University"
+        },
+        {
+          "name": "Anda\u00e7 Hamamc\u0131",
+          "affiliation": "Sabanc\u0131 \u00dcniversitesi"
+        },
+        {
+          "name": "Khan M. Iftekharuddin",
+          "affiliation": "Old Dominion University"
+        },
+        {
+          "name": "Raj Jena",
+          "affiliation": "Cambridge University Hospitals NHS Foundation Trust"
+        },
+        {
+          "name": "Nigel John",
+          "affiliation": "University of Miami"
+        },
+        {
+          "name": "Ender Konuko\u011flu",
+          "affiliation": "Harvard University"
+        },
+        {
+          "name": "Danial Lashkari",
+          "affiliation": "Massachusetts Institute of Technology"
+        },
+        {
+          "name": "Jos\u00e9 Mariz",
+          "affiliation": "University of Minho"
+        },
+        {
+          "name": "Raphael Meier",
+          "affiliation": "University of Bern"
+        },
+        {
+          "name": "S\u00e9rgio Pereira",
+          "affiliation": "University of Minho"
+        },
+        {
+          "name": "Doina Precup",
+          "affiliation": "McGill University"
+        },
+        {
+          "name": "Stephen J. Price",
+          "affiliation": "Cambridge University Hospitals NHS Foundation Trust"
+        },
+        {
+          "name": "Tammy Riklin Raviv",
+          "affiliation": "Ben-Gurion University of the Negev"
+        },
+        {
+          "name": "Syed M. S. Reza",
+          "affiliation": "Old Dominion University"
+        },
+        {
+          "name": "Michael J. Ryan",
+          "affiliation": ""
+        },
+        {
+          "name": "Duygu Sar\u0131kaya",
+          "affiliation": "Buffalo State University"
+        },
+        {
+          "name": "Lawrence H. Schwartz",
+          "affiliation": "Columbia University"
+        },
+        {
+          "name": "Hoo-Chang Shin",
+          "affiliation": "Ben-Gurion University of the Negev"
+        },
+        {
+          "name": "Jamie Shotton",
+          "affiliation": "Microsoft Research (United Kingdom)"
+        },
+        {
+          "name": "Carlos A. Silva",
+          "affiliation": "University of Minho"
+        },
+        {
+          "name": "Nuno Sousa",
+          "affiliation": "University of Minho"
+        },
+        {
+          "name": "Nagesh K. Subbanna",
+          "affiliation": "Heidelberg University"
+        },
+        {
+          "name": "G\u00e1bor Sz\u00e9kely",
+          "affiliation": "ETH Zurich"
+        },
+        {
+          "name": "Thomas J. Taylor",
+          "affiliation": ""
+        },
+        {
+          "name": "Owen Thomas",
+          "affiliation": "Cambridge University Hospitals NHS Foundation Trust"
+        },
+        {
+          "name": "Nicholas J. Tustison",
+          "affiliation": "University of Virginia"
+        },
+        {
+          "name": "G\u00f6zde \u00dcnal",
+          "affiliation": "Sabanc\u0131 \u00dcniversitesi"
+        },
+        {
+          "name": "Flor Vasseur",
+          "affiliation": "Institut national de recherche en sciences et technologies du num\u00e9rique"
+        },
+        {
+          "name": "Max Wintermark",
+          "affiliation": "University of Virginia"
+        },
+        {
+          "name": "Dong Hye Ye",
+          "affiliation": "Purdue University West Lafayette"
+        },
+        {
+          "name": "Liang Zhao",
+          "affiliation": "Buffalo State University"
+        },
+        {
+          "name": "Binsheng Zhao",
+          "affiliation": "Columbia University"
+        },
+        {
+          "name": "Darko Zikic",
+          "affiliation": "Microsoft Research (United Kingdom)"
+        },
+        {
+          "name": "Marcel Prastawa",
+          "affiliation": "GE Global Research (United States)"
+        },
+        {
+          "name": "Mauricio Reyes",
+          "affiliation": "University of Bern"
+        },
+        {
+          "name": "Koen Van Leemput",
+          "affiliation": "Harvard University"
+        }
+      ],
+      "year": 2014,
+      "abstract": "In this paper we report the set-up and results of the Multimodal Brain Tumor Image Segmentation Benchmark (BRATS) organized in conjunction with the MICCAI 2012 and 2013 conferences. Twenty state-of-the-art tumor segmentation algorithms were applied to a set of 65 multi-contrast MR scans of low- and high-grade glioma patients-manually annotated by up to four raters-and to 65 comparable scans generated using tumor image simulation software. Quantitative evaluations revealed considerable disagreement between the human raters in segmenting various tumor sub-regions (Dice scores in the range 74%-85%), illustrating the difficulty of this task. We found that different algorithms worked best for different sub-regions (reaching performance comparable to human inter-rater variability), but that no single algorithm ranked in the top for all sub-regions simultaneously. Fusing several good algorithms using a hierarchical majority vote yielded segmentations that consistently ranked above all individual algorithms, indicating remaining opportunities for further methodological improvements. The BRATS image data and manual annotations continue to be publicly available through an online evaluation system as an ongoing benchmarking resource.",
+      "venue": "IEEE Transactions on Medical Imaging",
+      "citation_count": 6372,
+      "doi": "10.1109/tmi.2014.2377694",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1109/tmi.2014.2377694",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2096016260",
+      "title": "Heuristic Decision Making",
+      "authors": [
+        {
+          "name": "Gerd Gigerenzer",
+          "affiliation": "Max Planck Institute for Human Development"
+        },
+        {
+          "name": "Wolfgang Gaissmaier",
+          "affiliation": "Max Planck Institute for Human Development"
+        }
+      ],
+      "year": 2010,
+      "abstract": "As reflected in the amount of controversy, few areas in psychology have undergone such dramatic conceptual changes in the past decade as the emerging science of heuristics. Heuristics are efficient cognitive processes, conscious or unconscious, that ignore part of the information. Because using heuristics saves effort, the classical view has been that heuristic decisions imply greater errors than do \"rational\" decisions as defined by logic or statistical models. However, for many decisions, the assumptions of rational models are not met, and it is an empirical rather than an a priori issue how well cognitive heuristics function in an uncertain world. To answer both the descriptive question (\"Which heuristics do people use in which situations?\") and the prescriptive question (\"When should people rely on a given heuristic rather than a complex strategy to make better judgments?\"), formal models are indispensable. We review research that tests formal models of heuristic inference, including in business organizations, health care, and legal institutions. This research indicates that (a) individuals and organizations often rely on simple heuristics in an adaptive way, and (b) ignoring part of the information can lead to more accurate judgments than weighting and adding all information, for instance for low predictability and small samples. The big future challenge is to develop a systematic theory of the building blocks of heuristics as well as the core capacities and environmental structures these exploit.",
+      "venue": "Annual Review of Psychology",
+      "citation_count": 3808,
+      "doi": "10.1146/annurev-psych-120709-145346",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1146/annurev-psych-120709-145346",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2973119841",
+      "title": "Machine Learning for Fluid Mechanics",
+      "authors": [
+        {
+          "name": "Steven L. Brunton",
+          "affiliation": "University of Washington"
+        },
+        {
+          "name": "Bernd R. Noack",
+          "affiliation": "Laboratoire d'Informatique pour la M\u00e9canique et les Sciences de l'Ing\u00e9nieur"
+        },
+        {
+          "name": "Petros Koumoutsakos",
+          "affiliation": "ETH Zurich"
+        }
+      ],
+      "year": 2019,
+      "abstract": "The field of fluid mechanics is rapidly advancing, driven by unprecedented volumes of data from experiments, field measurements, and large-scale simulations at multiple spatiotemporal scales. Machine learning (ML) offers a wealth of techniques to extract information from data that can be translated into knowledge about the underlying fluid mechanics. Moreover, ML algorithms can augment domain knowledge and automate tasks related to flow control and optimization. This article presents an overview of past history, current developments, and emerging opportunities of ML for fluid mechanics. We outline fundamental ML methodologies and discuss their uses for understanding, modeling, optimizing, and controlling fluid flows. The strengths and limitations of these methods are addressed from the perspective of scientific inquiry that considers data as an inherent part of modeling, experiments, and simulations. ML provides a powerful information-processing framework that can augment, and possibly even transform, current lines of fluid mechanics research and industrial applications.",
+      "venue": "Annual Review of Fluid Mechanics",
+      "citation_count": 2503,
+      "doi": "10.1146/annurev-fluid-010719-060214",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1146/annurev-fluid-010719-060214",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3185341429",
+      "title": "Pre-train, Prompt, and Predict: A Systematic Survey of Prompting Methods in Natural Language Processing",
+      "authors": [
+        {
+          "name": "Pengfei Liu",
+          "affiliation": "Carnegie Mellon University"
+        },
+        {
+          "name": "Weizhe Yuan",
+          "affiliation": "Carnegie Mellon University"
+        },
+        {
+          "name": "Jinlan Fu",
+          "affiliation": "National University of Singapore"
+        },
+        {
+          "name": "Zhengbao Jiang",
+          "affiliation": "Carnegie Mellon University"
+        },
+        {
+          "name": "Hiroaki Hayashi",
+          "affiliation": "Carnegie Mellon University"
+        },
+        {
+          "name": "Graham Neubig",
+          "affiliation": "Carnegie Mellon University"
+        }
+      ],
+      "year": 2022,
+      "abstract": "This article surveys and organizes research works in a new paradigm in natural language processing, which we dub \u201cprompt-based learning.\u201d Unlike traditional supervised learning, which trains a model to take in an input x and predict an output y as P ( y|x ), prompt-based learning is based on language models that model the probability of text directly. To use these models to perform prediction tasks, the original input x is modified using a template into a textual string prompt x\u2032 that has some unfilled slots, and then the language model is used to probabilistically fill the unfilled information to obtain a final string x\u0302 , from which the final output y can be derived. This framework is powerful and attractive for a number of reasons: It allows the language model to be pre-trained on massive amounts of raw text, and by defining a new prompting function the model is able to perform few-shot or even zero-shot learning, adapting to new scenarios with few or no labeled data. In this article, we introduce the basics of this promising paradigm, describe a unified set of mathematical notations that can cover a wide variety of existing work, and organize existing work along several dimensions, e.g., the choice of pre-trained language models, prompts, and tuning strategies. To make the field more accessible to interested beginners, we not only make a systematic review of existing works and a highly structured typology of prompt-based concepts but also release other resources, e.g., a website NLPedia\u2013Pretrain including constantly updated survey and paperlist.",
+      "venue": "ACM Computing Surveys",
+      "citation_count": 3494,
+      "doi": "10.1145/3560815",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1145/3560815",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W4386142022",
+      "title": "Interpreting Black-Box Models: A Review on Explainable Artificial Intelligence",
+      "authors": [
+        {
+          "name": "Vikas Hassija",
+          "affiliation": "KIIT University"
+        },
+        {
+          "name": "Vinay Chamola",
+          "affiliation": "Birla Institute of Technology and Science, Pilani"
+        },
+        {
+          "name": "Atmesh Mahapatra",
+          "affiliation": "Birla Institute of Technology and Science, Pilani"
+        },
+        {
+          "name": "Abhinandan Singal",
+          "affiliation": "Jaypee Institute of Information Technology"
+        },
+        {
+          "name": "Divyansh Goel",
+          "affiliation": "Jaypee Institute of Information Technology"
+        },
+        {
+          "name": "Kaizhu Huang",
+          "affiliation": "Duke Kunshan University"
+        },
+        {
+          "name": "Simone Scardapane",
+          "affiliation": "Sapienza University of Rome"
+        },
+        {
+          "name": "Indro Spinelli",
+          "affiliation": "Istituto Nazionale di Fisica Nucleare, Sezione di Roma I"
+        },
+        {
+          "name": "Mufti Mahmud",
+          "affiliation": "Nottingham Trent University"
+        },
+        {
+          "name": "Amir Hussain",
+          "affiliation": "Edinburgh Napier University"
+        }
+      ],
+      "year": 2023,
+      "abstract": "Abstract Recent years have seen a tremendous growth in Artificial Intelligence (AI)-based methodological development in a broad range of domains. In this rapidly evolving field, large number of methods are being reported using machine learning (ML) and Deep Learning (DL) models. Majority of these models are inherently complex and lacks explanations of the decision making process causing these models to be termed as 'Black-Box'. One of the major bottlenecks to adopt such models in mission-critical application domains, such as banking, e-commerce, healthcare, and public services and safety, is the difficulty in interpreting them. Due to the rapid proleferation of these AI models, explaining their learning and decision making process are getting harder which require transparency and easy predictability. Aiming to collate the current state-of-the-art in interpreting the black-box models, this study provides a comprehensive analysis of the explainable AI (XAI) models. To reduce false negative and false positive outcomes of these back-box models, finding flaws in them is still difficult and inefficient. In this paper, the development of XAI is reviewed meticulously through careful selection and analysis of the current state-of-the-art of XAI research. It also provides a comprehensive and in-depth evaluation of the XAI frameworks and their efficacy to serve as a starting point of XAI for applied and theoretical researchers. Towards the end, it highlights emerging and critical issues pertaining to XAI research to showcase major, model-specific trends for better explanation, enhanced transparency, and improved prediction accuracy.",
+      "venue": "Cognitive Computation",
+      "citation_count": 1565,
+      "doi": "10.1007/s12559-023-10179-8",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1007/s12559-023-10179-8",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3111162498",
+      "title": "Variational quantum algorithms",
+      "authors": [
+        {
+          "name": "M. Cerezo",
+          "affiliation": "Los Alamos National Laboratory"
+        },
+        {
+          "name": "Andrew Arrasmith",
+          "affiliation": "Los Alamos National Laboratory"
+        },
+        {
+          "name": "Ryan Babbush",
+          "affiliation": "Google (United States)"
+        },
+        {
+          "name": "Simon C. Benjamin",
+          "affiliation": "University of Oxford"
+        },
+        {
+          "name": "Suguru Endo",
+          "affiliation": "NTT (Japan)"
+        },
+        {
+          "name": "Keisuke Fujii",
+          "affiliation": "RIKEN Center for Emergent Matter Science"
+        },
+        {
+          "name": "Jarrod R. McClean",
+          "affiliation": "Google (United States)"
+        },
+        {
+          "name": "Kosuke Mitarai",
+          "affiliation": "Japan Science and Technology Agency"
+        },
+        {
+          "name": "Xiao Yuan",
+          "affiliation": "Peking University"
+        },
+        {
+          "name": "Lukasz Cincio",
+          "affiliation": "Los Alamos National Laboratory"
+        },
+        {
+          "name": "Patrick J. Coles",
+          "affiliation": "Los Alamos National Laboratory"
+        }
+      ],
+      "year": 2021,
+      "abstract": "",
+      "venue": "Nature Reviews Physics",
+      "citation_count": 2790,
+      "doi": "10.1038/s42254-021-00348-9",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/s42254-021-00348-9",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3003667836",
+      "title": "Digital Twin: Values, Challenges and Enablers From a Modeling Perspective",
+      "authors": [
+        {
+          "name": "Adil Rasheed",
+          "affiliation": "SINTEF"
+        },
+        {
+          "name": "Omer San",
+          "affiliation": "Oklahoma State University"
+        },
+        {
+          "name": "Trond Kvamsdal",
+          "affiliation": "SINTEF"
+        }
+      ],
+      "year": 2020,
+      "abstract": "Digital twin can be defined as a virtual representation of a physical asset enabled through data and simulators for real-time prediction, optimization, monitoring, controlling, and improved decision making. Recent advances in computational pipelines, multiphysics solvers, artificial intelligence, big data cybernetics, data processing and management tools bring the promise of digital twins and their impact on society closer to reality. Digital twinning is now an important and emerging trend in many applications. Also referred to as a computational megamodel, device shadow, mirrored system, avatar or a synchronized virtual prototype, there can be no doubt that a digital twin plays a transformative role not only in how we design and operate cyber-physical intelligent systems, but also in how we advance the modularity of multi-disciplinary systems to tackle fundamental barriers not addressed by the current, evolutionary modeling practices. In this work, we review the recent status of methodologies and techniques related to the construction of digital twins mostly from a modeling perspective. Our aim is to provide a detailed coverage of the current challenges and enabling technologies along with recommendations and reflections for various stakeholders.",
+      "venue": "IEEE Access",
+      "citation_count": 1635,
+      "doi": "10.1109/access.2020.2970143",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1109/access.2020.2970143",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3163842339",
+      "title": "",
+      "authors": [],
+      "year": 0,
+      "abstract": "The field of meta-learning, or learning-to-learn, has seen a dramatic rise in interest in recent years. Contrary to conventional approaches to AI where a given task is solved from scratch using a fixed learning algorithm, meta-learning aims to improve the learning algorithm itself, given the experience of multiple learning episodes. This paradigm provides an opportunity to tackle many of the conventional challenges of deep learning, including data and computation bottlenecks, as well as the fundamental issue of generalization. In this survey we describe the contemporary meta-learning landscape. We first discuss definitions of meta-learning and position it with respect to related fields, such as transfer learning, multi-task learning, and hyperparameter optimization. We then propose a new taxonomy that provides a more comprehensive breakdown of the space of meta-learning methods today. We survey promising applications and successes of meta-learning including few-shot learning, reinforcement learning and architecture search. Finally, we discuss outstanding challenges and promising areas for future research.",
+      "venue": "Edinburgh Research Explorer (University of Edinburgh)",
+      "citation_count": 1768,
+      "doi": "",
+      "arxiv_id": "",
+      "url": "https://openalex.org/W3163842339",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2982580298",
+      "title": "Key challenges for delivering clinical impact with artificial intelligence",
+      "authors": [
+        {
+          "name": "Christopher Kelly",
+          "affiliation": "Google (United Kingdom)"
+        },
+        {
+          "name": "Alan Karthikesalingam",
+          "affiliation": "Google (United Kingdom)"
+        },
+        {
+          "name": "Mustafa Suleyman",
+          "affiliation": "Google DeepMind (United Kingdom)"
+        },
+        {
+          "name": "Greg S. Corrado",
+          "affiliation": "Google (United States)"
+        },
+        {
+          "name": "Dominic King",
+          "affiliation": "Google (United Kingdom)"
+        }
+      ],
+      "year": 2019,
+      "abstract": "BACKGROUND: Artificial intelligence (AI) research in healthcare is accelerating rapidly, with potential applications being demonstrated across various domains of medicine. However, there are currently limited examples of such techniques being successfully deployed into clinical practice. This article explores the main challenges and limitations of AI in healthcare, and considers the steps required to translate these potentially transformative technologies from research to clinical practice. MAIN BODY: Key challenges for the translation of AI systems in healthcare include those intrinsic to the science of machine learning, logistical difficulties in implementation, and consideration of the barriers to adoption as well as of the necessary sociocultural or pathway changes. Robust peer-reviewed clinical evaluation as part of randomised controlled trials should be viewed as the gold standard for evidence generation, but conducting these in practice may not always be appropriate or feasible. Performance metrics should aim to capture real clinical applicability and be understandable to intended users. Regulation that balances the pace of innovation with the potential for harm, alongside thoughtful post-market surveillance, is required to ensure that patients are not exposed to dangerous interventions nor deprived of access to beneficial innovations. Mechanisms to enable direct comparisons of AI systems must be developed, including the use of independent, local and representative test sets. Developers of AI algorithms must be vigilant to potential dangers, including dataset shift, accidental fitting of confounders, unintended discriminatory bias, the challenges of generalisation to new populations, and the unintended negative consequences of new algorithms on health outcomes. CONCLUSION: The safe and timely translation of AI research into clinically validated and appropriately regulated systems that can benefit everyone is challenging. Robust clinical evaluation, using metrics that are intuitive to clinicians and ideally go beyond measures of technical accuracy to include quality of care and patient outcomes, is essential. Further work is required (1) to identify themes of algorithmic bias and unfairness while developing mitigations to address these, (2) to reduce brittleness and improve generalisability, and (3) to develop methods for improved interpretability of machine learning predictions. If these goals can be achieved, the benefits for patients are likely to be transformational.",
+      "venue": "BMC Medicine",
+      "citation_count": 2331,
+      "doi": "10.1186/s12916-019-1426-2",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1186/s12916-019-1426-2",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W3043135743",
+      "title": "Reporting animal research: Explanation and elaboration for the ARRIVE guidelines 2.0",
+      "authors": [
+        {
+          "name": "Nathalie Percie du Sert",
+          "affiliation": "National Centre for the Replacement Refinement and Reduction of Animals in Research"
+        },
+        {
+          "name": "Amrita Ahluwalia",
+          "affiliation": "Queen Mary University of London"
+        },
+        {
+          "name": "Sabina Alam",
+          "affiliation": "Taylor and Francis (United Kingdom)"
+        },
+        {
+          "name": "Marc T. Avey",
+          "affiliation": "ICF International (United States)"
+        },
+        {
+          "name": "Monya Baker",
+          "affiliation": "The Nature Conservancy"
+        },
+        {
+          "name": "William J. Browne",
+          "affiliation": "University of Bristol"
+        },
+        {
+          "name": "Alejandra Clark",
+          "affiliation": "Public Library of Science"
+        },
+        {
+          "name": "Innes C. Cuthill",
+          "affiliation": "University of Bristol"
+        },
+        {
+          "name": "Ulrich Dirnagl",
+          "affiliation": "Berlin Institute of Health at Charit\u00e9 - Universit\u00e4tsmedizin Berlin"
+        },
+        {
+          "name": "Michael Emerson",
+          "affiliation": "Imperial College London"
+        },
+        {
+          "name": "Paul Garner",
+          "affiliation": "Liverpool School of Tropical Medicine"
+        },
+        {
+          "name": "Stephen T. Holgate",
+          "affiliation": "University of Southampton"
+        },
+        {
+          "name": "David W. Howells",
+          "affiliation": "University of Tasmania"
+        },
+        {
+          "name": "Viki Hurst",
+          "affiliation": "National Centre for the Replacement Refinement and Reduction of Animals in Research"
+        },
+        {
+          "name": "Natasha A. Karp",
+          "affiliation": "AstraZeneca (United Kingdom)"
+        },
+        {
+          "name": "Stanley E. Lazic",
+          "affiliation": "Prioris.ai (Canada)"
+        },
+        {
+          "name": "Katie Lidster",
+          "affiliation": "National Centre for the Replacement Refinement and Reduction of Animals in Research"
+        },
+        {
+          "name": "Catriona MacCallum",
+          "affiliation": "Hindawi (United Kingdom)"
+        },
+        {
+          "name": "Malcolm Macleod",
+          "affiliation": "University of Edinburgh"
+        },
+        {
+          "name": "Esther J. Pearl",
+          "affiliation": "National Centre for the Replacement Refinement and Reduction of Animals in Research"
+        },
+        {
+          "name": "Ole H. Petersen",
+          "affiliation": "Cardiff University"
+        },
+        {
+          "name": "Frances Rawle",
+          "affiliation": "Medical Research Council"
+        },
+        {
+          "name": "Penny S. Reynolds",
+          "affiliation": "University of Florida"
+        },
+        {
+          "name": "Kieron Rooney",
+          "affiliation": "The University of Sydney"
+        },
+        {
+          "name": "Emily S. Sena",
+          "affiliation": "University of Edinburgh"
+        },
+        {
+          "name": "Shai D. Silberberg",
+          "affiliation": "National Institute of Neurological Disorders and Stroke"
+        },
+        {
+          "name": "Thomas Steckler",
+          "affiliation": "Janssen (Belgium)"
+        },
+        {
+          "name": "Hanno W\u00fcrbel",
+          "affiliation": "University of Bern"
+        }
+      ],
+      "year": 2020,
+      "abstract": "Improving the reproducibility of biomedical research is a major challenge. Transparent and accurate reporting is vital to this process; it allows readers to assess the reliability of the findings and repeat or build upon the work of other researchers. The ARRIVE guidelines (Animal Research: Reporting In Vivo Experiments) were developed in 2010 to help authors and journals identify the minimum information necessary to report in publications describing in vivo experiments. Despite widespread endorsement by the scientific community, the impact of ARRIVE on the transparency of reporting in animal research publications has been limited. We have revised the ARRIVE guidelines to update them and facilitate their use in practice. The revised guidelines are published alongside this paper. This explanation and elaboration document was developed as part of the revision. It provides further information about each of the 21 items in ARRIVE 2.0, including the rationale and supporting evidence for their inclusion in the guidelines, elaboration of details to report, and examples of good reporting from the published literature. This document also covers advice and best practice in the design and conduct of animal studies to support researchers in improving standards from the start of the experimental design process through to publication.",
+      "venue": "PLoS Biology",
+      "citation_count": 2736,
+      "doi": "10.1371/journal.pbio.3000411",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1371/journal.pbio.3000411",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W4366262984",
+      "title": "Explainable Artificial Intelligence (XAI): What we know and what is left to attain Trustworthy Artificial Intelligence",
+      "authors": [
+        {
+          "name": "Sajid Ali",
+          "affiliation": "Sungkyunkwan University"
+        },
+        {
+          "name": "Tamer Abuhmed",
+          "affiliation": "Sungkyunkwan University"
+        },
+        {
+          "name": "Shaker El\u2013Sappagh",
+          "affiliation": "Suez University"
+        },
+        {
+          "name": "Khan Muhammad",
+          "affiliation": "Sungkyunkwan University"
+        },
+        {
+          "name": "Jos\u00e9 M. Alonso",
+          "affiliation": "Universidade de Santiago de Compostela"
+        },
+        {
+          "name": "Roberto Confalonieri",
+          "affiliation": "University of Padua"
+        },
+        {
+          "name": "Riccardo Guidotti",
+          "affiliation": "University of Pisa"
+        },
+        {
+          "name": "Javier Del Ser",
+          "affiliation": "University of the Basque Country"
+        },
+        {
+          "name": "Natalia D\u00edaz-Rodr\u00edguez",
+          "affiliation": "Universidad de Granada"
+        },
+        {
+          "name": "Francisco Herrera",
+          "affiliation": "Universidad de Granada"
+        }
+      ],
+      "year": 2023,
+      "abstract": "Artificial intelligence (AI) is currently being utilized in a wide range of sophisticated applications, but the outcomes of many AI models are challenging to comprehend and trust due to their black-box nature. Usually, it is essential to understand the reasoning behind an AI model\u2019s decision-making. Thus, the need for eXplainable AI (XAI) methods for improving trust in AI models has arisen. XAI has become a popular research subject within the AI field in recent years. Existing survey papers have tackled the concepts of XAI, its general terms, and post-hoc explainability methods but there have not been any reviews that have looked at the assessment methods, available tools, XAI datasets, and other related aspects. Therefore, in this comprehensive study, we provide readers with an overview of the current research and trends in this rapidly emerging area with a case study example. The study starts by explaining the background of XAI, common definitions, and summarizing recently proposed techniques in XAI for supervised machine learning. The review divides XAI techniques into four axes using a hierarchical categorization system: (i) data explainability, (ii) model explainability, (iii) post-hoc explainability, and (iv) assessment of explanations. We also introduce available evaluation metrics as well as open-source packages and datasets with future research directions. Then, the significance of explainability in terms of legal demands, user viewpoints, and application orientation is outlined, termed as XAI concerns. This paper advocates for tailoring explanation content to specific user types. An examination of XAI techniques and evaluation was conducted by looking at 410 critical articles, published between January 2016 and October 2022, in reputed journals and using a wide range of research databases as a source of information. The article is aimed at XAI researchers who are interested in making their AI models more trustworthy, as well as towards researchers from other disciplines who are looking for effective XAI methods to complete tasks with confidence while communicating meaning from data.",
+      "venue": "Information Fusion",
+      "citation_count": 1389,
+      "doi": "10.1016/j.inffus.2023.101805",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1016/j.inffus.2023.101805",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2120409145",
+      "title": "FREQUENCY EFFECTS IN LANGUAGE PROCESSING",
+      "authors": [
+        {
+          "name": "Nick C. Ellis",
+          "affiliation": "University College of the North"
+        }
+      ],
+      "year": 2002,
+      "abstract": "This article shows how language processing is intimately tuned to input frequency. Examples are given of frequency effects in the processing of phonology, phonotactics, reading, spelling, lexis, morphosyntax, formulaic language, language comprehension, grammaticality, sentence production, and syntax. The implications of these effects for the representations and developmental sequence of SLA are discussed. Usage-based theories hold that the acquisition of language is exemplar based. It is the piecemeal learning of many thousands of constructions and the frequency-biased abstraction of regularities within them. Determinants of pattern productivity include the power law of practice, cue competition and constraint satisfaction, connectionist learning, and effects of type and token frequency. The regularities of language emerge from experience as categories and prototypical patterns. The typical route of emergence of constructions is from formula, through low-scope pattern, to construction. Frequency plays a large part in explaining sociolinguistic variation and language change. Learners' sensitivity to frequency in all these domains has implications for theories of implicit and explicit learning and their interactions. The review concludes by considering the history of frequency as an explanatory concept in theoretical and applied linguistics, its 40 years of exile, and its necessary reinstatement as a bridging variable that binds the different schools of language acquisition research.",
+      "venue": "Studies in Second Language Acquisition",
+      "citation_count": 2165,
+      "doi": "10.1017/s0272263102002024",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1017/s0272263102002024",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W2239141610",
+      "title": "The Geneva Minimalistic Acoustic Parameter Set (GeMAPS) for Voice Research and Affective Computing",
+      "authors": [
+        {
+          "name": "Florian Eyben",
+          "affiliation": "FORS \u2013 Swiss Centre of Expertise in the Social Sciences"
+        },
+        {
+          "name": "Klaus R. Scherer",
+          "affiliation": "University of Geneva"
+        },
+        {
+          "name": "Bj\u00f6rn W. Schuller",
+          "affiliation": "FORS \u2013 Swiss Centre of Expertise in the Social Sciences"
+        },
+        {
+          "name": "Johan Sundberg",
+          "affiliation": "KTH Royal Institute of Technology"
+        },
+        {
+          "name": "Elisabeth Andr\u00e9",
+          "affiliation": "University of Augsburg"
+        },
+        {
+          "name": "Carlos Busso",
+          "affiliation": ""
+        },
+        {
+          "name": "Laurence Devillers",
+          "affiliation": "Universit\u00e9 Paris Cit\u00e9"
+        },
+        {
+          "name": "Julien Epps",
+          "affiliation": "Data61"
+        },
+        {
+          "name": "Petri Laukka",
+          "affiliation": "Stockholm University"
+        },
+        {
+          "name": "Shrikanth Narayanan",
+          "affiliation": "University of Southern California"
+        },
+        {
+          "name": "Khiet P. Truong",
+          "affiliation": "University of Twente"
+        }
+      ],
+      "year": 2015,
+      "abstract": "Work on voice sciences over recent decades has led to a proliferation of acoustic parameters that are used quite selectively and are not always extracted in a similar fashion. With many independent teams working in different research areas, shared standards become an essential safeguard to ensure compliance with state-of-the-art methods allowing appropriate comparison of results across studies and potential integration and combination of extraction and recognition systems. In this paper we propose a basic standard acoustic parameter set for various areas of automatic voice analysis, such as paralinguistic or clinical speech analysis. In contrast to a large brute-force parameter set, we present a minimalistic set of voice parameters here. These were selected based on a) their potential to index affective physiological changes in voice production, b) their proven value in former studies as well as their automatic extractability, and c) their theoretical significance. The set is intended to provide a common baseline for evaluation of future research and eliminate differences caused by varying parameter sets or even different implementations of the same parameters. Our implementation is publicly available with the openSMILE toolkit. Comparative evaluations of the proposed feature set and large baseline feature sets of INTERSPEECH challenges show a high performance of the proposed set in relation to its size.",
+      "venue": "IEEE Transactions on Affective Computing",
+      "citation_count": 1682,
+      "doi": "10.1109/taffc.2015.2457417",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1109/taffc.2015.2457417",
+      "source": "openalex",
+      "_bibtex_override": ""
+    }
+  ]
 }

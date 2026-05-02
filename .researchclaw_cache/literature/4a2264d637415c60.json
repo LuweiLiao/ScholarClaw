@@ -2,7 +2,7 @@
   "query": "hypotheses increasing protocol control test-driven",
   "source": "openalex",
   "limit": 15,
-  "timestamp": 1777564922.5774138,
+  "timestamp": 1777668157.846987,
   "papers": [
     {
       "paper_id": "oalex-W2128114769",
@@ -263,7 +263,7 @@
       "year": 2012,
       "abstract": "Data visualization is an essential component of genomic data analysis. However, the size and diversity of the data sets produced by today's sequencing and array-based profiling methods present major challenges to visualization tools. The Integrative Genomics Viewer (IGV) is a high-performance viewer that efficiently handles large heterogeneous data sets, while providing a smooth and intuitive user experience at all levels of genome resolution. A key characteristic of IGV is its focus on the integrative nature of genomic studies, with support for both array-based and next-generation sequencing data, and the integration of clinical and phenotypic data. Although IGV is often used to view genomic data from public sources, its primary emphasis is to support researchers who wish to visualize and explore their own data sets or those from colleagues. To that end, IGV supports flexible loading of local and remote data sets, and is optimized to provide high-performance data visualization and exploration on standard desktop systems. IGV is freely available for download from http://www.broadinstitute.org/igv, under a GNU LGPL open-source license.",
       "venue": "Briefings in Bioinformatics",
-      "citation_count": 9689,
+      "citation_count": 9690,
       "doi": "10.1093/bib/bbs017",
       "arxiv_id": "",
       "url": "https://doi.org/10.1093/bib/bbs017",
@@ -420,69 +420,6 @@
       "doi": "10.1056/nejmoa1607141",
       "arxiv_id": "",
       "url": "https://doi.org/10.1056/nejmoa1607141",
-      "source": "openalex",
-      "_bibtex_override": ""
-    },
-    {
-      "paper_id": "oalex-W2110300022",
-      "title": "Predictive functional profiling of microbial communities using 16S rRNA marker gene sequences",
-      "authors": [
-        {
-          "name": "Morgan G. I. Langille",
-          "affiliation": "Dalhousie University"
-        },
-        {
-          "name": "Jesse Zaneveld",
-          "affiliation": "Oregon State University"
-        },
-        {
-          "name": "J. Gregory Caporaso",
-          "affiliation": "Argonne National Laboratory"
-        },
-        {
-          "name": "Daniel McDonald",
-          "affiliation": "University of Colorado Boulder"
-        },
-        {
-          "name": "Dan Knights",
-          "affiliation": "Biotechnology Institute"
-        },
-        {
-          "name": "Joshua A Reyes",
-          "affiliation": "Harvard University"
-        },
-        {
-          "name": "Jos\u00e9 C. Clemente",
-          "affiliation": "University of Colorado Boulder"
-        },
-        {
-          "name": "Deron E. Burkepile",
-          "affiliation": "Florida International University"
-        },
-        {
-          "name": "Rebecca L. Vega Thurber",
-          "affiliation": "Oregon State University"
-        },
-        {
-          "name": "Rob Knight",
-          "affiliation": "University of Colorado Boulder"
-        },
-        {
-          "name": "Robert G. Beiko",
-          "affiliation": "Dalhousie University"
-        },
-        {
-          "name": "Curtis Huttenhower",
-          "affiliation": "Harvard University"
-        }
-      ],
-      "year": 2013,
-      "abstract": "",
-      "venue": "Nature Biotechnology",
-      "citation_count": 9259,
-      "doi": "10.1038/nbt.2676",
-      "arxiv_id": "",
-      "url": "https://doi.org/10.1038/nbt.2676",
       "source": "openalex",
       "_bibtex_override": ""
     },
@@ -902,6 +839,69 @@
       "_bibtex_override": ""
     },
     {
+      "paper_id": "oalex-W2110300022",
+      "title": "Predictive functional profiling of microbial communities using 16S rRNA marker gene sequences",
+      "authors": [
+        {
+          "name": "Morgan G. I. Langille",
+          "affiliation": "Dalhousie University"
+        },
+        {
+          "name": "Jesse Zaneveld",
+          "affiliation": "Oregon State University"
+        },
+        {
+          "name": "J. Gregory Caporaso",
+          "affiliation": "Argonne National Laboratory"
+        },
+        {
+          "name": "Daniel McDonald",
+          "affiliation": "University of Colorado Boulder"
+        },
+        {
+          "name": "Dan Knights",
+          "affiliation": "Biotechnology Institute"
+        },
+        {
+          "name": "Joshua A Reyes",
+          "affiliation": "Harvard University"
+        },
+        {
+          "name": "Jos\u00e9 C. Clemente",
+          "affiliation": "University of Colorado Boulder"
+        },
+        {
+          "name": "Deron E. Burkepile",
+          "affiliation": "Florida International University"
+        },
+        {
+          "name": "Rebecca L. Vega Thurber",
+          "affiliation": "Oregon State University"
+        },
+        {
+          "name": "Rob Knight",
+          "affiliation": "University of Colorado Boulder"
+        },
+        {
+          "name": "Robert G. Beiko",
+          "affiliation": "Dalhousie University"
+        },
+        {
+          "name": "Curtis Huttenhower",
+          "affiliation": "Harvard University"
+        }
+      ],
+      "year": 2013,
+      "abstract": "",
+      "venue": "Nature Biotechnology",
+      "citation_count": 9259,
+      "doi": "10.1038/nbt.2676",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.1038/nbt.2676",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
       "paper_id": "oalex-W2103317434",
       "title": "EFFECTS OF BIODIVERSITY ON ECOSYSTEM FUNCTIONING: A CONSENSUS OF CURRENT KNOWLEDGE",
       "authors": [
@@ -992,7 +992,7 @@
       "year": 2008,
       "abstract": "Case study is a suitable research methodology for software engineering research since it studies contemporary phenomena in its natural context. However, the understanding of what constitutes a case study varies, and hence the quality of the resulting studies. This paper aims at providing an introduction to case study methodology and guidelines for researchers conducting case studies and readers studying reports of such studies. The content is based on the authors\u2019 own experience from conducting and reading case studies. The terminology and guidelines are compiled from different methodology handbooks in other research domains, in particular social science and information systems, and adapted to the needs in software engineering. We present recommended practices for software engineering case studies as well as empirically derived and evaluated checklists for researchers and readers of case study research.",
       "venue": "Empirical Software Engineering",
-      "citation_count": 3758,
+      "citation_count": 3759,
       "doi": "10.1007/s10664-008-9102-8",
       "arxiv_id": "",
       "url": "https://doi.org/10.1007/s10664-008-9102-8",
@@ -1063,7 +1063,7 @@
       "year": 2021,
       "abstract": "The UK Medical Research Council\u2019s widely used guidance for developing and evaluating complex interventions has been replaced by a new framework, commissioned jointly by the Medical Research Council and the National Institute for Health Research, which takes account of recent developments in theory and methods and the need to maximise the efficiency, use, and impact of research.",
       "venue": "BMJ",
-      "citation_count": 5652,
+      "citation_count": 5653,
       "doi": "10.1136/bmj.n2061",
       "arxiv_id": "",
       "url": "https://doi.org/10.1136/bmj.n2061",
@@ -1533,7 +1533,7 @@
       "year": 2017,
       "abstract": "Improving the reliability and efficiency of scientific research will increase the credibility of the published scientific literature and accelerate discovery. Here we argue for the adoption of measures to optimize key elements of the scientific process: methods, reporting and dissemination, reproducibility, evaluation and incentives. There is some evidence from both simulations and empirical studies supporting the likely effectiveness of these measures, but their broad adoption by researchers, institutions, funders and journals will require iterative evaluation and improvement. We discuss the goals of these measures, and how they can be implemented, in the hope that this will facilitate action toward improving the transparency, reproducibility and efficiency of scientific research.",
       "venue": "Nature Human Behaviour",
-      "citation_count": 3452,
+      "citation_count": 3453,
       "doi": "10.1038/s41562-016-0021",
       "arxiv_id": "",
       "url": "https://doi.org/10.1038/s41562-016-0021",
@@ -1803,7 +1803,7 @@
       "year": 2009,
       "abstract": "",
       "venue": "Nature",
-      "citation_count": 4145,
+      "citation_count": 4146,
       "doi": "10.1038/nature08460",
       "arxiv_id": "",
       "url": "https://doi.org/10.1038/nature08460",

@@ -72,7 +72,7 @@ class TestReport:
                 }
             )
         )
-        verify_dir = tmp_path / "stage-23"
+        verify_dir = tmp_path / "stage-26"
         verify_dir.mkdir()
         (verify_dir / "verification_report.json").write_text(
             json.dumps(

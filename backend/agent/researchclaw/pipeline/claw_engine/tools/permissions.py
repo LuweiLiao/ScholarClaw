@@ -40,7 +40,12 @@ def resolve_workspace_write_path(raw: str, workspace: Path) -> Path:
     if p.is_absolute():
         resolved = p.resolve()
     else:
-        resolved = (ws / text).resolve()
+        # Try cwd-relative first, then workspace-relative
+        cwd_resolved = (Path.cwd() / text).resolve()
+        if _is_under_or_equal(cwd_resolved, ws):
+            resolved = cwd_resolved
+        else:
+            resolved = (ws / text).resolve()
     if not _is_under_or_equal(resolved, ws):
         raise PermissionError(f"Write outside workspace denied: {raw}")
     return resolved
@@ -60,7 +65,13 @@ def resolve_allowed_read_path(
     if p.is_absolute():
         resolved = p.resolve()
     else:
-        resolved = (ws / text).resolve()
+        # Try cwd-relative first (LLM may return paths relative to cwd),
+        # then fall back to workspace-relative.
+        cwd_resolved = (Path.cwd() / text).resolve()
+        if _is_under_or_equal(cwd_resolved, ws):
+            resolved = cwd_resolved
+        else:
+            resolved = (ws / text).resolve()
     if _is_under_or_equal(resolved, ws):
         if not resolved.exists():
             raise FileNotFoundError(f"{raw} not found")

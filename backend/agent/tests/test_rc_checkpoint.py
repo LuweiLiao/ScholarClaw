@@ -100,7 +100,7 @@ class TestContentMetrics:
         assert cast(float, metrics["template_ratio"]) < 0.5
 
     def test_metrics_with_verification(self, tmp_path: Path):
-        verify_dir = tmp_path / "stage-23"
+        verify_dir = tmp_path / "stage-26"
         verify_dir.mkdir()
         (verify_dir / "verification_report.json").write_text(
             json.dumps(
@@ -129,7 +129,7 @@ class TestContentMetrics:
 
     def test_metrics_with_non_dict_summary(self, tmp_path: Path):
         """Must not raise NameError when 'summary' is not a dict."""
-        verify_dir = tmp_path / "stage-23"
+        verify_dir = tmp_path / "stage-26"
         verify_dir.mkdir()
         (verify_dir / "verification_report.json").write_text(
             json.dumps({"summary": "unexpected string"}),
@@ -142,7 +142,7 @@ class TestContentMetrics:
 
     def test_metrics_with_summary_missing_fields(self, tmp_path: Path):
         """summary dict without total/verified should not crash."""
-        verify_dir = tmp_path / "stage-23"
+        verify_dir = tmp_path / "stage-26"
         verify_dir.mkdir()
         (verify_dir / "verification_report.json").write_text(
             json.dumps({"summary": {"notes": "incomplete"}}),

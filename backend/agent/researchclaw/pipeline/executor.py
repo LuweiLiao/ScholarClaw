@@ -6532,7 +6532,10 @@ def _execute_paper_draft(
         )
         _short_sys = (
             "You are an academic writer producing a concise short/workshop paper. "
-            "Use formal academic tone. Report only real experimental numbers."
+            "Use formal academic tone. Report only real experimental numbers. "
+            "CRITICAL: You MUST meet the minimum word count for EVERY section specified. "
+            "If a section is too short, expand it with more detail, examples, or analysis. "
+            "Under no circumstances should any section be empty or near-empty."
         )
         resp = _chat_with_prompt(llm, _short_sys, _short_user, max_tokens=4000)
         draft = resp.content
@@ -7816,7 +7819,7 @@ def _generate_latex_package(
     bib_text = ""
     for _bib_candidate in [
         run_dir / "stage-04" / "references.bib",
-        run_dir / "stage-22" / "references.bib",
+        run_dir / "stage-25" / "references.bib",
     ]:
         if _bib_candidate.exists():
             bib_text = _bib_candidate.read_text(encoding="utf-8")
@@ -9291,7 +9294,7 @@ def _execute_export_publish(
         stage=Stage.EXPORT_PUBLISH,
         status=StageStatus.DONE,
         artifacts=tuple(artifacts),
-        evidence_refs=tuple(f"stage-22/{a}" for a in artifacts),
+        evidence_refs=tuple(f"stage-25/{a}" for a in artifacts),
     )
 
 
@@ -9434,8 +9437,8 @@ def _execute_citation_verify(
             status=StageStatus.DONE,
             artifacts=("verification_report.json", "references_verified.bib"),
             evidence_refs=(
-                "stage-23/verification_report.json",
-                "stage-23/references_verified.bib",
+                "stage-26/verification_report.json",
+                "stage-26/references_verified.bib",
             ),
         )
 
@@ -9585,7 +9588,7 @@ def _execute_citation_verify(
         stage=Stage.CITATION_VERIFY,
         status=StageStatus.DONE,
         artifacts=tuple(artifacts),
-        evidence_refs=tuple(f"stage-23/{a}" for a in artifacts),
+        evidence_refs=tuple(f"stage-26/{a}" for a in artifacts),
     )
 
 

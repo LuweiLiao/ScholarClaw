@@ -1,11 +1,14 @@
 """LaTeX compilation and error repair utilities (IMP-18).
 
-Provides ``compile_latex()`` which attempts ``pdflatex`` compilation,
+Provides ``compile_latex()`` which attempts ``xelatex`` compilation,
 parses the log for common errors, applies automated fixes, and retries
 up to 3 times.  Designed to run inside ``_package_deliverables()`` so
 that the final paper.tex in ``deliverables/`` is compile-tested.
 
-If pdflatex is not installed the module gracefully returns a failure
+Uses xelatex (not pdflatex) for native Unicode support, eliminating
+manual Unicode escape workarounds.
+
+If xelatex is not installed the module gracefully returns a failure
 report without raising.
 """
 
@@ -57,11 +60,11 @@ def compile_latex(
     CompileResult
         Contains success flag, log excerpt, errors found, and fixes applied.
     """
-    if not shutil.which("pdflatex"):
+    if not shutil.which("xelatex"):
         return CompileResult(
             success=False,
-            log_excerpt="pdflatex not found on PATH",
-            errors=["pdflatex not installed"],
+            log_excerpt="xelatex not found on PATH",
+            errors=["xelatex not installed"],
         )
 
     result = CompileResult(success=False)
@@ -73,7 +76,7 @@ def compile_latex(
         try:
             _raw = subprocess.run(
                 [
-                    "pdflatex",
+                    "xelatex",
                     "-interaction=nonstopmode",
                     "-halt-on-error",
                     tex_name,
@@ -88,10 +91,10 @@ def compile_latex(
                 stderr=_raw.stderr.decode("utf-8", errors="replace") if _raw.stderr else "",
             )
         except subprocess.TimeoutExpired:
-            result.errors.append(f"pdflatex timed out after {timeout}s")
+            result.errors.append(f"xelatex timed out after {timeout}s")
             break
         except FileNotFoundError:
-            result.errors.append("pdflatex not found")
+            result.errors.append("xelatex not found")
             break
 
         log_text = proc.stdout + "\n" + proc.stderr
@@ -102,12 +105,12 @@ def compile_latex(
 
         if proc.returncode == 0:
             result.success = True
-            # Run bibtex + two more pdflatex passes for bibliography & cross-refs
+            # Run bibtex + two more xelatex passes for bibliography & cross-refs
             bib_stem = tex_name.rsplit(".", 1)[0]
             _run_bibtex(work_dir, bib_stem, timeout=60)
             for _pass in range(2):
                 subprocess.run(
-                    ["pdflatex", "-interaction=nonstopmode", tex_name],
+                    ["xelatex", "-interaction=nonstopmode", tex_name],
                     cwd=work_dir,
                     capture_output=True,
                     timeout=timeout,
@@ -139,6 +142,112 @@ def compile_latex(
     return result
 
 
+def _escape_unicode_for_latex(text: str) -> tuple[str, list[str]]:
+    """Replace Unicode characters that pdflatex cannot handle with LaTeX equivalents.
+
+    Returns ``(escaped_text, list_of_fix_descriptions)``.
+    """
+    fixes: list[str] = []
+    # Unicode subscripts (U+2080–U+2089 + Latin subscripts U+1D62–U+1D6A)
+    sub_map = {
+        "\u2080": "\\textsubscript{0}", "\u2081": "\\textsubscript{1}",
+        "\u2082": "\\textsubscript{2}", "\u2083": "\\textsubscript{3}",
+        "\u2084": "\\textsubscript{4}", "\u2085": "\\textsubscript{5}",
+        "\u2086": "\\textsubscript{6}", "\u2087": "\\textsubscript{7}",
+        "\u2088": "\\textsubscript{8}", "\u2089": "\\textsubscript{9}",
+        "\u1D62": "\\textsubscript{i}", "\u1D63": "\\textsubscript{r}",
+        "\u1D64": "\\textsubscript{u}", "\u1D65": "\\textsubscript{v}",
+    }
+    # Unicode superscripts (U+2070–U+2079, U+00B2, U+00B3, U+00B9)
+    sup_map = {
+        "\u2070": "\\textsuperscript{0}", "\u00B9": "\\textsuperscript{1}",
+        "\u00B2": "\\textsuperscript{2}", "\u00B3": "\\textsuperscript{3}",
+        "\u2074": "\\textsuperscript{4}", "\u2075": "\\textsuperscript{5}",
+        "\u2076": "\\textsuperscript{6}", "\u2077": "\\textsuperscript{7}",
+        "\u2078": "\\textsuperscript{8}", "\u2079": "\\textsuperscript{9}",
+    }
+    for ch, repl in {**sub_map, **sup_map}.items():
+        if ch in text:
+            text = text.replace(ch, repl)
+            fixes.append(f"Escaped Unicode {repr(ch)} -> {repl}")
+    # Greek letters commonly used in math
+    greek_map = {
+        "\u03A9": "\\Omega", "\u03C9": "\\omega",
+        "\u03B1": "\\alpha", "\u03B2": "\\beta", "\u03B3": "\\gamma",
+        "\u03B4": "\\delta", "\u03B5": "\\epsilon", "\u03B8": "\\theta",
+        "\u03BB": "\\lambda", "\u03BC": "\\mu", "\u03C0": "\\pi",
+        "\u03C3": "\\sigma", "\u03C4": "\\tau", "\u03C6": "\\phi",
+        "\u0393": "\\Gamma", "\u0394": "\\Delta", "\u0398": "\\Theta",
+        "\u039B": "\\Lambda", "\u03A0": "\\Pi", "\u03A3": "\\Sigma",
+        "\u03A6": "\\Phi", "\u03A8": "\\Psi",
+    }
+    for ch, repl in greek_map.items():
+        if ch in text:
+            text = text.replace(ch, f"${repl}$")
+            fixes.append(f"Escaped Unicode {repr(ch)} -> ${repl}$")
+
+    # En-dash / Em-dash
+    if "\u2013" in text:
+        text = text.replace("\u2013", "--")
+        fixes.append("Escaped Unicode en-dash -> --")
+    if "\u2014" in text:
+        text = text.replace("\u2014", "---")
+        fixes.append("Escaped Unicode em-dash -> ---")
+    # Unicode minus sign (U+2212) — different from ASCII hyphen
+    if "\u2212" in text:
+        text = text.replace("\u2212", "-")
+        fixes.append("Escaped Unicode minus sign -> -")
+    # Unicode multiplication sign (U+00D7)
+    if "\u00D7" in text:
+        text = text.replace("\u00D7", "\\times")
+        fixes.append("Escaped Unicode times -> \\times")
+    # Unicode division sign (U+00F7)
+    if "\u00F7" in text:
+        text = text.replace("\u00F7", "\\div")
+        fixes.append("Escaped Unicode division -> \\div")
+    # Common math symbols
+    math_map = {
+        "\u2200": "\\forall",   # ∀
+        "\u2203": "\\exists",   # ∃
+        "\u2208": "\\in",       # ∈
+        "\u2209": "\\notin",    # ∉
+        "\u220B": "\\ni",       # ∋
+        "\u2227": "\\wedge",    # ∧
+        "\u2228": "\\vee",      # ∨
+        "\u2229": "\\cap",      # ∩
+        "\u222A": "\\cup",      # ∪
+        "\u2282": "\\subset",   # ⊂
+        "\u2286": "\\subseteq", # ⊆
+        "\u2283": "\\supset",   # ⊃
+        "\u2287": "\\supseteq", # ⊇
+        "\u2260": "\\neq",      # ≠
+        "\u2264": "\\leq",      # ≤
+        "\u2265": "\\geq",      # ≥
+        "\u221A": "\\sqrt{}",   # √ (special — needs arg)
+        "\u221E": "\\infty",    # ∞
+        "\u2192": "\\rightarrow", # →
+        "\u2190": "\\leftarrow",  # ←
+        "\u2194": "\\leftrightarrow", # ↔
+        "\u21D2": "\\Rightarrow",   # ⇒
+        "\u2026": "\\ldots",    # …
+        "\u00B1": "\\pm",       # ±
+        "\u00B0": "^{\\circ}",  # °
+        "\u2211": "\\sum",      # ∑
+        "\u222B": "\\int",      # ∫
+        "\u2202": "\\partial",  # ∂
+        "\u2206": "\\Delta",    # ∆ (increment, use math Delta)
+        "\u2207": "\\nabla",    # ∇
+    }
+    for ch, repl in math_map.items():
+        if ch in text:
+            if ch == "\u221A":  # √ needs special handling
+                text = text.replace(ch, repl)
+            else:
+                text = text.replace(ch, f"${repl}$")
+            fixes.append(f"Escaped Unicode {repr(ch)} -> {repl}")
+    return text, fixes
+
+
 def fix_common_latex_errors(
     tex_text: str, errors: list[str]
 ) -> tuple[str, list[str]]:
@@ -148,6 +257,10 @@ def fix_common_latex_errors(
     """
     fixes: list[str] = []
     fixed = tex_text
+
+    # Pre-process: escape Unicode characters before any error-specific fixes
+    fixed, unicode_fixes = _escape_unicode_for_latex(fixed)
+    fixes.extend(unicode_fixes)
 
     for err in errors:
         err_lower = err.lower()

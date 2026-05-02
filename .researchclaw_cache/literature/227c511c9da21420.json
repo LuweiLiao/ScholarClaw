@@ -2,7 +2,7 @@
   "query": "The combined approach outperforms either component under fixed compute budget.",
   "source": "openalex",
   "limit": 15,
-  "timestamp": 1777564915.3867989,
+  "timestamp": 1777668148.411676,
   "papers": [
     {
       "paper_id": "oalex-W4385245566",
@@ -48,7 +48,7 @@
       "year": 2023,
       "abstract": "As a present to Mizar on its 50th anniversary, we develop an AI/TP system that automatically proves about 60% of the Mizar theorems in the hammer setting. We also automatically prove 75% of the Mizar theorems when the automated provers are helped by using only the premises used in the human-written Mizar proofs. We describe the methods and large-scale experiments leading to these results. This includes in particular the E and Vampire provers, their ENIGMA and Deepire learning modifications, a number of learning-based premise selection methods, and the incremental loop that interleaves growing a corpus of millions of ATP proofs with training increasingly strong AI/TP systems on them. We also present a selection of Mizar problems that were proved automatically.",
       "venue": "DROPS (Schloss Dagstuhl \u2013 Leibniz Center for Informatics)",
-      "citation_count": 75217,
+      "citation_count": 75218,
       "doi": "10.4230/lipics.itp.2023.19",
       "arxiv_id": "",
       "url": "https://doi.org/10.4230/lipics.itp.2023.19",
@@ -154,7 +154,7 @@
       "year": 2021,
       "abstract": "Abstract. Framed within the Copernicus Climate Change Service (C3S) of the European Commission, the European Centre for Medium-Range Weather Forecasts (ECMWF) is producing an enhanced global dataset for the land component of the fifth generation of European ReAnalysis (ERA5), hereafter referred to as ERA5-Land. Once completed, the period covered will span from 1950 to the present, with continuous updates to support land monitoring applications. ERA5-Land describes the evolution of the water and energy cycles over land in a consistent manner over the production period, which, among others, could be used to analyse trends and anomalies. This is achieved through global high-resolution numerical integrations of the ECMWF land surface model driven by the downscaled meteorological forcing from the ERA5 climate reanalysis, including an elevation correction for the thermodynamic near-surface state. ERA5-Land shares with ERA5 most of the parameterizations that guarantees the use of the state-of-the-art land surface modelling applied to numerical weather prediction (NWP) models. A main advantage of ERA5-Land compared to ERA5 and the older ERA-Interim is the horizontal resolution, which is enhanced globally to 9 km compared to 31 km (ERA5) or 80 km (ERA-Interim), whereas the temporal resolution is hourly as in ERA5. Evaluation against independent in situ observations and global model or satellite-based reference datasets shows the added value of ERA5-Land in the description of the hydrological cycle, in particular with enhanced soil moisture and lake description, and an overall better agreement of river discharge estimations with available observations. However, ERA5-Land snow depth fields present a mixed performance when compared to those of ERA5, depending on geographical location and altitude. The description of the energy cycle shows comparable results with ERA5. Nevertheless, ERA5-Land reduces the global averaged root mean square error of the skin temperature, taking as reference MODIS data, mainly due to the contribution of coastal points where spatial resolution is important. Since January 2020, the ERA5-Land period available has extended from January 1981 to the near present, with a 2- to 3-month delay with respect to real time. The segment prior to 1981 is in production, aiming for a release of the whole dataset in summer/autumn 2021. The high spatial and temporal resolution of ERA5-Land, its extended period, and the consistency of the fields produced makes it a valuable dataset to support hydrological studies, to initialize NWP and climate models, and to support diverse applications dealing with water resource, land, and environmental management. The full ERA5-Land hourly (Mu\u00f1oz-Sabater, 2019a) and monthly (Mu\u00f1oz-Sabater, 2019b) averaged datasets presented in this paper are available through the C3S Climate Data Store at https://doi.org/10.24381/cds.e2161bac and https://doi.org/10.24381/cds.68d2bb30, respectively.",
       "venue": "Earth system science data",
-      "citation_count": 4348,
+      "citation_count": 4350,
       "doi": "10.5194/essd-13-4349-2021",
       "arxiv_id": "",
       "url": "https://doi.org/10.5194/essd-13-4349-2021",
@@ -236,7 +236,7 @@
       "year": 2021,
       "abstract": "",
       "venue": "Nature Reviews Physics",
-      "citation_count": 2788,
+      "citation_count": 2790,
       "doi": "10.1038/s42254-021-00348-9",
       "arxiv_id": "",
       "url": "https://doi.org/10.1038/s42254-021-00348-9",
@@ -454,7 +454,7 @@
       "year": 2014,
       "abstract": "Optical wireless communication (OWC) refers to transmission in unguided propagation media through the use of optical carriers, i.e., visible, infrared (IR), and ultraviolet (UV) bands. In this survey, we focus on outdoor terrestrial OWC links which operate in near IR band. These are widely referred to as free space optical (FSO) communication in the literature. FSO systems are used for high rate communication between two fixed points over distances up to several kilometers. In comparison to radio-frequency (RF) counterparts, FSO links have a very high optical bandwidth available, allowing much higher data rates. They are appealing for a wide range of applications such as metropolitan area network (MAN) extension, local area network (LAN)-to-LAN connectivity, fiber back-up, backhaul for wireless cellular networks, disaster recovery, high definition TV and medical image/video transmission, wireless video surveillance/monitoring, and quantum key distribution among others. Despite the major advantages of FSO technology and variety of its application areas, its widespread use has been hampered by its rather disappointing link reliability particularly in long ranges due to atmospheric turbulence-induced fading and sensitivity to weather conditions. In the last five years or so, there has been a surge of interest in FSO research to address these major technical challenges. Several innovative physical layer concepts, originally introduced in the context of RF systems, such as multiple-input multiple-output communication, cooperative diversity, and adaptive transmission have been recently explored for the design of next generation FSO systems. In this paper, we present an up-to-date survey on FSO communication systems. The first part describes FSO channel models and transmitter/receiver structures. In the second part, we provide details on information theoretical limits of FSO channels and algorithmic-level system design research activities to approach these limits. Specific topics include advances in modulation, channel coding, spatial/cooperative diversity techniques, adaptive transmission, and hybrid RF/FSO systems.",
       "venue": "IEEE Communications Surveys & Tutorials",
-      "citation_count": 2361,
+      "citation_count": 2363,
       "doi": "10.1109/comst.2014.2329501",
       "arxiv_id": "",
       "url": "https://doi.org/10.1109/comst.2014.2329501",
@@ -532,37 +532,10 @@
       "year": 2019,
       "abstract": "The use of unmanned aerial vehicles (UAVs) is growing rapidly across many civil application domains, including real-time monitoring, providing wireless coverage, remote sensing, search and rescue, delivery of goods, security and surveillance, precision agriculture, and civil infrastructure inspection. Smart UAVs are the next big revolution in the UAV technology promising to provide new opportunities in different applications, especially in civil infrastructure in terms of reduced risks and lower cost. Civil infrastructure is expected to dominate more than $45 Billion market value of UAV usage. In this paper, we present UAV civil applications and their challenges. We also discuss the current research trends and provide future insights for potential UAV uses. Furthermore, we present the key challenges for UAV civil applications, including charging challenges, collision avoidance and swarming challenges, and networking and security-related challenges. Based on our review of the recent literature, we discuss open research challenges and draw high-level insights on how these challenges might be approached.",
       "venue": "IEEE Access",
-      "citation_count": 2179,
+      "citation_count": 2180,
       "doi": "10.1109/access.2019.2909530",
       "arxiv_id": "",
       "url": "https://doi.org/10.1109/access.2019.2909530",
-      "source": "openalex",
-      "_bibtex_override": ""
-    },
-    {
-      "paper_id": "oalex-W4327810158",
-      "title": "GPT-4 Technical Report",
-      "authors": [
-        {
-          "name": "Wijegunarathna, Kalana",
-          "affiliation": "Massey University"
-        },
-        {
-          "name": "Stock, Kristin",
-          "affiliation": "Massey University"
-        },
-        {
-          "name": "Jones, Christopher B.",
-          "affiliation": "Cardiff University"
-        }
-      ],
-      "year": 2023,
-      "abstract": "Abstract\u2014Large Language Models (LLMs) suffer from inherent stochasticity, limiting their utility in high-stakes enterprise environments where determinism and auditability are required. This paper introduces the MFOUR Vibe Framework (MVF), a platform-agnostic architectural standard that transforms probabilistic natural language intent into deterministic software artifacts. We define a five-layer topology, comprising the Kernel Identity, Synaptic Routing, Interface Contracts, Context Anchoring, and the Mirror Test. Furthermore, we introduce The Vibe Integrity Score (VIS), a quantitative metric for evaluating the structural adherence of generative outputs. This specification provides the foundational schema and logic protocols for building \"Glass Box\" AI systems that are observable, secure, and commercially viable.",
-      "venue": "arXiv (Cornell University)",
-      "citation_count": 2296,
-      "doi": "10.4230/lipics.cosit.2024.11",
-      "arxiv_id": "",
-      "url": "https://doi.org/10.4230/lipics.cosit.2024.11",
       "source": "openalex",
       "_bibtex_override": ""
     },
@@ -594,6 +567,109 @@
       "doi": "10.1007/s11263-013-0636-x",
       "arxiv_id": "",
       "url": "https://doi.org/10.1007/s11263-013-0636-x",
+      "source": "openalex",
+      "_bibtex_override": ""
+    },
+    {
+      "paper_id": "oalex-W4362515116",
+      "title": "A Survey of Large Language Models",
+      "authors": [
+        {
+          "name": "Wayne Xin Zhao",
+          "affiliation": ""
+        },
+        {
+          "name": "Kun Zhou",
+          "affiliation": ""
+        },
+        {
+          "name": "Junyi Li",
+          "affiliation": ""
+        },
+        {
+          "name": "Tianyi Tang",
+          "affiliation": ""
+        },
+        {
+          "name": "Xiaolei Wang",
+          "affiliation": ""
+        },
+        {
+          "name": "Yupeng Hou",
+          "affiliation": ""
+        },
+        {
+          "name": "Yingqian Min",
+          "affiliation": ""
+        },
+        {
+          "name": "Beichen Zhang",
+          "affiliation": ""
+        },
+        {
+          "name": "Junjie Zhang",
+          "affiliation": ""
+        },
+        {
+          "name": "Zican Dong",
+          "affiliation": ""
+        },
+        {
+          "name": "Yifan Du",
+          "affiliation": ""
+        },
+        {
+          "name": "Yang Chen",
+          "affiliation": ""
+        },
+        {
+          "name": "Yushuo Chen",
+          "affiliation": ""
+        },
+        {
+          "name": "Zhipeng Chen",
+          "affiliation": ""
+        },
+        {
+          "name": "Jinhao Jiang",
+          "affiliation": ""
+        },
+        {
+          "name": "Ruiyang Ren",
+          "affiliation": ""
+        },
+        {
+          "name": "Yifan Li",
+          "affiliation": ""
+        },
+        {
+          "name": "Xinyu Tang",
+          "affiliation": ""
+        },
+        {
+          "name": "Zikang Liu",
+          "affiliation": ""
+        },
+        {
+          "name": "Peiyu Liu",
+          "affiliation": ""
+        },
+        {
+          "name": "Jian\u2010Yun Nie",
+          "affiliation": ""
+        },
+        {
+          "name": "Ji-Rong Wen",
+          "affiliation": ""
+        }
+      ],
+      "year": 2023,
+      "abstract": "Language is essentially a complex, intricate system of human expressions governed by grammatical rules. It poses a significant challenge to develop capable AI algorithms for comprehending and grasping a language. As a major approach, language modeling has been widely studied for language understanding and generation in the past two decades, evolving from statistical language models to neural language models. Recently, pre-trained language models (PLMs) have been proposed by pre-training Transformer models over large-scale corpora, showing strong capabilities in solving various NLP tasks. Since researchers have found that model scaling can lead to performance improvement, they further study the scaling effect by increasing the model size to an even larger size. Interestingly, when the parameter scale exceeds a certain level, these enlarged language models not only achieve a significant performance improvement but also show some special abilities that are not present in small-scale language models. To discriminate the difference in parameter scale, the research community has coined the term large language models (LLM) for the PLMs of significant size. Recently, the research on LLMs has been largely advanced by both academia and industry, and a remarkable progress is the launch of ChatGPT, which has attracted widespread attention from society. The technical evolution of LLMs has been making an important impact on the entire AI community, which would revolutionize the way how we develop and use AI algorithms. In this survey, we review the recent advances of LLMs by introducing the background, key findings, and mainstream techniques. In particular, we focus on four major aspects of LLMs, namely pre-training, adaptation tuning, utilization, and capacity evaluation. Besides, we also summarize the available resources for developing LLMs and discuss the remaining issues for future directions.",
+      "venue": "ArXiv.org",
+      "citation_count": 1384,
+      "doi": "10.48550/arxiv.2303.18223",
+      "arxiv_id": "",
+      "url": "https://doi.org/10.48550/arxiv.2303.18223",
       "source": "openalex",
       "_bibtex_override": ""
     }

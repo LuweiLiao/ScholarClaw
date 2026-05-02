@@ -359,6 +359,38 @@ export default function App() {
                   },
                 };
               });
+            } else if (msg.type === 'run_status_update' && msg.payload) {
+              const p = msg.payload;
+              const level = p.status === 'done' ? 'success' : p.status === 'failed' ? 'error' : 'warning';
+              dispatch({
+                type: 'log',
+                payload: {
+                  id: `cli-run-${p.run_id}-${p.stage}-${Date.now()}`,
+                  agentId: p.run_id,
+                  agentName: `CLI [${p.run_id}]`,
+                  layer: 'idea',
+                  stage: p.stage,
+                  message: `Stage ${p.stage} ${p.stage_name} — ${p.status} (${(p.duration_sec || 0).toFixed(1)}s)`,
+                  level,
+                  timestamp: Date.now() / 1000,
+                },
+              });
+            } else if (msg.type === 'run_activity' && msg.payload) {
+              const p = msg.payload;
+              dispatch({
+                type: 'agent_activity',
+                payload: {
+                  id: `cli-act-${p.run_id}-${p.timestamp || Date.now()}`,
+                  agentId: p.run_id,
+                  agentName: 'CLI',
+                  projectId: '',
+                  layer: p.layer || 'idea',
+                  activityType: p.type || 'thinking',
+                  summary: p.summary || '',
+                  detail: p.detail || '',
+                  timestamp: p.timestamp || Date.now() / 1000,
+                },
+              });
             } else {
               dispatchMsg(msg);
             }

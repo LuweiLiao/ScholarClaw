@@ -421,7 +421,9 @@ class CodegenRuntime:
         exp_dir = stage_dir / "experiment"
         exp_dir.mkdir(parents=True, exist_ok=True)
         for fname, code in files.items():
-            (exp_dir / fname).write_text(code, encoding="utf-8")
+            fpath = exp_dir / fname
+            fpath.parent.mkdir(parents=True, exist_ok=True)
+            fpath.write_text(code, encoding="utf-8")
         session.log(CodegenPhase.GENERATE, f"Wrote {len(files)} files to {exp_dir}")
 
         # ── Phase 6: FINALIZE ────────────────────────────────────────────

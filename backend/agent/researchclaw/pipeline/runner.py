@@ -10,6 +10,7 @@ import time as _time
 from pathlib import Path
 
 from researchclaw.adapters import AdapterBundle
+from researchclaw.agent_bridge_client import AgentBridgeClient
 from researchclaw.config import RCConfig
 from researchclaw.evolution import EvolutionStore, extract_lessons
 from researchclaw.knowledge.base import write_stage_to_kb
@@ -169,7 +170,7 @@ def _collect_content_metrics(run_dir: Path | None) -> dict[str, object]:
         ):
             pass
 
-    verify_path = run_dir / "stage-23" / "verification_report.json"
+    verify_path = run_dir / "stage-26" / "verification_report.json"
     if verify_path.exists():
         try:
             vdata = json.loads(verify_path.read_text(encoding="utf-8"))
@@ -211,6 +212,13 @@ def execute_pipeline(
     started = False
     total_stages = len(STAGE_SEQUENCE)
     _activity = ActivityLogger(run_dir)
+
+    # --- Bridge client for frontend live updates ---
+    bridge = AgentBridgeClient(
+        run_id=run_id,
+        topic=config.research.topic,
+    )
+    bridge.connect()
 
     for stage in STAGE_SEQUENCE:
         if to_stage is not None and int(stage) > int(to_stage):
@@ -254,12 +262,15 @@ def execute_pipeline(
                 )
             else:
                 print(f"{prefix} {stage.name} — done ({elapsed:.1f}s) → {arts}")
+            bridge.push_stage(stage_num, stage.name, "done", elapsed)
         elif result.status == StageStatus.FAILED:
             err = result.error or "unknown error"
             _activity.stage_failed(stage_num, stage.name, err)
             print(f"{prefix} {stage.name} — FAILED ({elapsed:.1f}s) — {err}")
+            bridge.push_stage(stage_num, stage.name, "failed", elapsed)
         elif result.status == StageStatus.BLOCKED_APPROVAL:
             print(f"{prefix} {stage.name} — blocked (awaiting approval)")
+            bridge.push_stage(stage_num, stage.name, "blocked", elapsed)
         results.append(result)
 
         if kb_root is not None and result.status == StageStatus.DONE:
@@ -408,6 +419,7 @@ def execute_pipeline(
     except Exception:  # noqa: BLE001
         logger.warning("Deliverables packaging failed (non-blocking)")
 
+    bridge.close()
     return results
 
 
@@ -436,8 +448,8 @@ def _package_deliverables(
     # Prefer verified version (stage 23) over base version (stage 22)
     paper_md = None
     for candidate in [
-        run_dir / "stage-23" / "paper_final_verified.md",
-        run_dir / "stage-22" / "paper_final.md",
+        run_dir / "stage-26" / "paper_final_verified.md",
+        run_dir / "stage-25" / "paper_final.md",
     ]:
         if candidate.exists() and candidate.stat().st_size > 0:
             paper_md = candidate
@@ -451,7 +463,7 @@ def _package_deliverables(
     # from it so that hallucinated citations removed in Stage 23 are also
     # absent from the LaTeX.  Fall back to the Stage 22 .tex otherwise.
     tex_regenerated = False
-    verified_md = run_dir / "stage-23" / "paper_final_verified.md"
+    verified_md = run_dir / "stage-26" / "paper_final_verified.md"
     if (
         paper_md is not None
         and paper_md == verified_md
@@ -498,7 +510,7 @@ def _package_deliverables(
             logger.debug("paper.tex regeneration from verified md failed")
 
     if not tex_regenerated:
-        tex_src = run_dir / "stage-22" / "paper.tex"
+        tex_src = run_dir / "stage-25" / "paper.tex"
         if tex_src.exists() and tex_src.stat().st_size > 0:
             shutil.copy2(tex_src, dest / "paper.tex")
             packaged.append("paper.tex")
@@ -507,8 +519,8 @@ def _package_deliverables(
     # Prefer verified bib (stage 23) over base bib (stage 22)
     bib_src = None
     for candidate in [
-        run_dir / "stage-23" / "references_verified.bib",
-        run_dir / "stage-22" / "references.bib",
+        run_dir / "stage-26" / "references_verified.bib",
+        run_dir / "stage-25" / "references.bib",
     ]:
         if candidate.exists() and candidate.stat().st_size > 0:
             bib_src = candidate
@@ -518,7 +530,7 @@ def _package_deliverables(
         packaged.append("references.bib")
 
     # --- 4. Experiment code package ---
-    code_src = run_dir / "stage-22" / "code"
+    code_src = run_dir / "stage-25" / "code"
     if code_src.is_dir():
         code_dest = dest / "code"
         if code_dest.exists():
@@ -527,7 +539,7 @@ def _package_deliverables(
         packaged.append("code/")
 
     # --- 5. Verification report (optional) ---
-    verify_src = run_dir / "stage-23" / "verification_report.json"
+    verify_src = run_dir / "stage-26" / "verification_report.json"
     if verify_src.exists() and verify_src.stat().st_size > 0:
         shutil.copy2(verify_src, dest / "verification_report.json")
         packaged.append("verification_report.json")
@@ -539,7 +551,7 @@ def _package_deliverables(
         packaged.append("sanitization_report.json")
 
     # --- 6. Charts (optional) ---
-    charts_src = run_dir / "stage-22" / "charts"
+    charts_src = run_dir / "stage-25" / "charts"
     if charts_src.is_dir() and any(charts_src.iterdir()):
         charts_dest = dest / "charts"
         if charts_dest.exists():

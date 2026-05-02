@@ -78,11 +78,11 @@ def _paper_section(run_dir: Path) -> str:
     else:
         lines.append("- Draft: not generated")
 
-    final_path = run_dir / "stage-22" / "paper_final.md"
+    final_path = run_dir / "stage-25" / "paper_final.md"
     if final_path.exists():
         lines.append(f"- Final: `{final_path.relative_to(run_dir)}`")
 
-    tex_path = run_dir / "stage-22" / "paper.tex"
+    tex_path = run_dir / "stage-25" / "paper.tex"
     if tex_path.exists():
         lines.append(f"- LaTeX: `{tex_path.relative_to(run_dir)}`")
 
@@ -128,7 +128,7 @@ def _experiment_section(run_dir: Path) -> str:
 def _citation_section(run_dir: Path) -> str:
     lines = ["## Citations"]
 
-    bib_path = run_dir / "stage-22" / "references.bib"
+    bib_path = run_dir / "stage-25" / "references.bib"
     if not bib_path.exists():
         bib_path = run_dir / "stage-04" / "references.bib"
 
@@ -139,7 +139,7 @@ def _citation_section(run_dir: Path) -> str:
     else:
         lines.append("- References: not available")
 
-    verify_path = run_dir / "stage-23" / "verification_report.json"
+    verify_path = run_dir / "stage-26" / "verification_report.json"
     if verify_path.exists():
         try:
             loaded = json.loads(verify_path.read_text(encoding="utf-8"))

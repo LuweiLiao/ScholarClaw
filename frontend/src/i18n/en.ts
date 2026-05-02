@@ -215,6 +215,8 @@ const en: Record<string, string> = {
   'wizard.topic_empty': 'No topic yet',
   'wizard.no_angles': 'No angles specified',
   'wizard.layer_models_configured': 'layer models configured',
+  'wizard.apply_global': '↳ Apply to All Layers',
+  'wizard.apply_global_title': 'Apply global model config to all unconfigured layers',
 
   // Discussion mode
   'discussion.label': 'Discussion Mode',

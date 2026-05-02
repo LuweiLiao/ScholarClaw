@@ -530,13 +530,17 @@ class AgentTurnLoop:
                 tool_t0 = time.monotonic()
 
                 # Use new ToolRegistry if tool is registered, else legacy executor
-                reg_tool = self._registry.find(tool_name)
-                if reg_tool:
-                    _result = reg_tool.call(tool_input, self._tool_context)
-                    tool_result = _result.data
-                    is_error = _result.is_error
-                else:
-                    tool_result, is_error = self._executor.execute(tool_name, tool_input)
+                try:
+                    reg_tool = self._registry.find(tool_name)
+                    if reg_tool:
+                        _result = reg_tool.call(tool_input, self._tool_context)
+                        tool_result = _result.data
+                        is_error = _result.is_error
+                    else:
+                        tool_result, is_error = self._executor.execute(tool_name, tool_input)
+                except Exception as exc:
+                    tool_result = f"ERROR: {type(exc).__name__}: {exc}"
+                    is_error = True
 
                 tool_elapsed_ms = int((time.monotonic() - tool_t0) * 1000)
 

@@ -142,9 +142,11 @@ def _resolve_config_or_exit(args: argparse.Namespace) -> Path | None:
 
 
 def _generate_run_id(topic: str) -> str:
+    import secrets
     ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     topic_hash = hashlib.sha256(topic.encode()).hexdigest()[:6]
-    return f"rc-{ts}-{topic_hash}"
+    rand = secrets.token_hex(3)
+    return f"rc-{ts}-{topic_hash}-{rand}"
 
 
 def cmd_run(args: argparse.Namespace) -> int:

@@ -1077,6 +1077,8 @@ class BridgeState:
     control_token: str = ""
     # P0: Activity file read offsets per agent (agentId → byte offset)
     _activity_offsets: dict[str, int] = field(default_factory=dict)
+    # CLI pipeline runs registered for live frontend sync (run_id → {topic, stages, status})
+    cli_runs: dict[str, dict] = field(default_factory=dict)
 
     def projects_dir(self) -> Path:
         return Path(self.runs_base_dir) / "projects"
@@ -4849,6 +4851,13 @@ def _browse_allowed_roots(state: BridgeState) -> list[Path]:
         roots.append(state.projects_dir().resolve())
     except (OSError, ValueError):
         pass
+    # Also allow browsing the artifacts directory where completed runs live
+    try:
+        artifacts_dir = Path(state.runs_base_dir).parent / "artifacts"
+        if artifacts_dir.is_dir():
+            roots.append(artifacts_dir.resolve())
+    except (OSError, ValueError):
+        pass
     extra = (os.environ.get("AGENT_BRIDGE_BROWSE_ROOTS") or "").replace(";", ",")
     for part in extra.split(","):
         part = part.strip()
@@ -6573,6 +6582,67 @@ async def handle_command(state: BridgeState, data: dict) -> list[dict]:
             messages.append({
                 "type": "set_global_llm_result",
                 "payload": {"ok": True},
+            })
+
+    elif cmd == "register_run":
+        run_id = data.get("run_id", "")
+        topic = data.get("topic", "")
+        if run_id:
+            state.cli_runs[run_id] = {
+                "topic": topic,
+                "stages": [],
+                "status": "running",
+                "started_at": time.time(),
+            }
+            messages.append({
+                "type": "run_registered",
+                "payload": {"run_id": run_id, "topic": topic},
+            })
+
+    elif cmd == "run_status":
+        run_id = data.get("run_id", "")
+        stage = data.get("stage", 0)
+        stage_name = data.get("stage_name", "")
+        status = data.get("status", "")
+        duration_sec = data.get("duration_sec", 0.0)
+        if run_id and run_id in state.cli_runs:
+            state.cli_runs[run_id]["stages"].append({
+                "stage": stage,
+                "stage_name": stage_name,
+                "status": status,
+                "duration_sec": duration_sec,
+                "timestamp": time.time(),
+            })
+            if status == "failed":
+                state.cli_runs[run_id]["status"] = "failed"
+            messages.append({
+                "type": "run_status_update",
+                "payload": {
+                    "run_id": run_id,
+                    "stage": stage,
+                    "stage_name": stage_name,
+                    "status": status,
+                    "duration_sec": duration_sec,
+                },
+            })
+
+    elif cmd == "run_activity":
+        run_id = data.get("run_id", "")
+        activity_type = data.get("type", "")
+        summary = data.get("summary", "")
+        detail = data.get("detail", "")
+        layer = data.get("layer", "")
+        if run_id:
+            messages.append({
+                "type": "run_activity",
+                "payload": {
+                    "run_id": run_id,
+                    "type": activity_type,
+                    "summary": summary,
+                    "detail": detail,
+                    "layer": layer,
+                    "timestamp": data.get("timestamp", time.time()),
+                },
             })
 
     return messages
