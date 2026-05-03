@@ -423,7 +423,7 @@ export default function CreateTaskWizard({
                 <strong>{topic || t('wizard.topic_empty')}</strong>
                 <span>{mode === 'lab' ? (discussionMode ? t('project.mode.lab_discuss') : t('project.mode.lab_independent')) : t('project.mode.reproduce')}</span>
                 <span>{researchAngles.length > 0 ? researchAngles.join(', ') : t('wizard.no_angles')}</span>
-                <span>{Object.values(layerModels).filter(hasLM).length} {t('wizard.layer_models_configured')}</span>
+                <span>{(Object.values(layerModels).some(hasLM) ? Object.values(layerModels).filter(hasLM).length : (hasLM(globalLLM) ? LAYER_KEYS.length : 0))} {t('wizard.layer_models_configured')}</span>
               </div>
             </div>
           )}
@@ -438,7 +438,7 @@ export default function CreateTaskWizard({
               type="button"
               className="wizard-submit"
               onClick={submit}
-              disabled={!connected || !topic.trim() || !Object.values(layerModels).some(hasLM)}
+              disabled={!connected || !topic.trim() || (!Object.values(layerModels).some(hasLM) && !hasLM(globalLLM))}
             >
               {t('wizard.submit')}
             </button>
