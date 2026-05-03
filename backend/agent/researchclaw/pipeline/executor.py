@@ -7974,6 +7974,37 @@ def _generate_latex_package(
             "\\end{{document}}\n"
         )
 
+    # Validate and sanitize figure references before writing
+    _fig_dir = pkg_dir / "figures"
+    _available_figs = {f.name for f in _fig_dir.iterdir()} if _fig_dir.is_dir() else set()
+    _missing_figs: list[str] = []
+    _tex_lines = tex_content.splitlines()
+    _sanitized_lines: list[str] = []
+    _skip_until_endfigure = False
+    for _line in _tex_lines:
+        if _skip_until_endfigure:
+            if r"\end{figure}" in _line:
+                _skip_until_endfigure = False
+            continue
+        _inc_match = re.search(r"\\includegraphics\[[^\]]*\]\{([^}]+)\}", _line)
+        if _inc_match:
+            _fig_path = _inc_match.group(1)
+            _fig_name = Path(_fig_path).name
+            if _fig_name not in _available_figs:
+                _missing_figs.append(_fig_path)
+                _skip_until_endfigure = r"\begin{figure}" in _line or _line.strip().startswith(r"\begin{figure}")
+                if not _skip_until_endfigure:
+                    # Standalone includegraphics line — comment it out
+                    _sanitized_lines.append(f"% FIGURE MISSING: {_line.strip()}")
+                continue
+        _sanitized_lines.append(_line)
+    if _missing_figs:
+        logger.warning(
+            "LaTeX package: Removed %d figure references with missing files: %s",
+            len(_missing_figs), _missing_figs,
+        )
+        tex_content = "\n".join(_sanitized_lines)
+
     (pkg_dir / "main.tex").write_text(tex_content, encoding="utf-8")
     (pkg_dir / "references.bib").write_text(bib_text, encoding="utf-8")
 
