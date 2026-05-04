@@ -4843,19 +4843,20 @@ def _ab_path_under_root(path: Path, root: Path) -> bool:
 
 def _browse_allowed_roots(state: BridgeState) -> list[Path]:
     roots: list[Path] = []
+    # Put projects_dir first so users see it immediately when opening the picker
     try:
-        roots.append(Path(state.runs_base_dir).resolve())
+        roots.append(state.projects_dir().resolve())
     except (OSError, ValueError):
         pass
     try:
-        roots.append(state.projects_dir().resolve())
+        roots.append(Path(state.runs_base_dir).resolve())
     except (OSError, ValueError):
         pass
     # Also allow browsing the artifacts directory where completed runs live
     try:
         artifacts_dir = Path(state.runs_base_dir).parent / "artifacts"
-        if artifacts_dir.is_dir():
-            roots.append(artifacts_dir.resolve())
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+        roots.append(artifacts_dir.resolve())
     except (OSError, ValueError):
         pass
     extra = (os.environ.get("AGENT_BRIDGE_BROWSE_ROOTS") or "").replace(";", ",")
@@ -6746,7 +6747,23 @@ async def _test_model_config(base_url: str, api_key: str, model: str) -> dict:
             body_text = e.read().decode("utf-8", errors="replace")[:200]
         except Exception:
             pass
-        return {"ok": False, "error": f"HTTP {e.code}: {body_text or e.reason}"}
+        # User-friendly messages for common HTTP errors
+        if e.code == 429:
+            friendly = "API 请求过于频繁（429），请稍后再试。若使用智谱 API，建议切换至 coding endpoint：/api/coding/paas/v4"
+        elif e.code in (401, 403):
+            friendly = f"API Key 无效或已过期（{e.code}），请检查密钥是否正确"
+        elif e.code == 404:
+            friendly = f"API 地址不存在（{e.code}），请检查 base_url 是否正确，或确认是否需要追加 /v1"
+        elif e.code >= 500:
+            friendly = f"API 服务端错误（{e.code}），请稍后重试"
+        else:
+            friendly = f"HTTP {e.code}: {body_text or e.reason}"
+        return {"ok": False, "error": friendly}
+    except urllib.error.URLError as e:
+        reason = str(e.reason) if hasattr(e, "reason") else str(e)
+        if " Name or service not known" in reason or "getaddrinfo" in reason:
+            return {"ok": False, "error": f"网络错误：无法解析域名，请检查 base_url 是否正确 ({reason[:100]})"}
+        return {"ok": False, "error": f"网络错误：{reason[:200]}"}
     except Exception as e:
         return {"ok": False, "error": str(e)[:200]}
 

@@ -123,6 +123,16 @@ export default function CreateTaskWizard({
     setGlobalLLMTest({ status: 'idle' });
   };
 
+  const MODEL_PRESETS: { label: string; cfg: LayerModelCfg }[] = [
+    { label: '智谱 GLM-5-Turbo', cfg: { base_url: 'https://open.bigmodel.cn/api/coding/paas/v4', api_key: '', model: 'glm-5-turbo' } },
+    { label: 'OpenAI GPT-4o', cfg: { base_url: 'https://api.openai.com/v1', api_key: '', model: 'gpt-4o' } },
+    { label: 'Anthropic Claude 3.5', cfg: { base_url: 'https://api.anthropic.com/v1', api_key: '', model: 'claude-3-5-sonnet-20241022' } },
+  ];
+  const applyPreset = (cfg: LayerModelCfg) => {
+    setGlobalLLM({ ...cfg });
+    setGlobalLLMTest({ status: 'idle' });
+  };
+
   const applyGlobalToLayers = () => {
     if (!hasLM(globalLLM)) return;
     setLayerModels(prev => {
@@ -366,6 +376,13 @@ export default function CreateTaskWizard({
             <div className="wizard-section">
               <div className="wizard-model-card">
                 <h3>{t('global_llm.title')}</h3>
+                <div className="model-presets">
+                  {MODEL_PRESETS.map(p => (
+                    <button key={p.label} type="button" className="model-preset-btn" onClick={() => applyPreset(p.cfg)} title={p.cfg.base_url}>
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
                 <div className="layer-model-fields">
                   <input className="layer-model-input lm-url" value={globalLLM.base_url} onChange={e => updateGlobalLLM({ base_url: e.target.value })} placeholder={t('layer_models.base_url_placeholder')} />
                   <input className="layer-model-input lm-key" type="password" value={globalLLM.api_key} onChange={e => updateGlobalLLM({ api_key: e.target.value })} placeholder={t('layer_models.api_key_placeholder')} />

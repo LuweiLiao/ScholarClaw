@@ -1587,6 +1587,26 @@
   margin: 0 0 8px;
   font-size: 0.78rem;
 }
+.model-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.model-preset-btn {
+  padding: 3px 10px;
+  font-size: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.model-preset-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
 .wizard-summary {
   display: flex;
   flex-direction: column;
